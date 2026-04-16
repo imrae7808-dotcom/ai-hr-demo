@@ -120,19 +120,21 @@ nav .cta-nav:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(79,140,
 .bar-anim{height:4px;background:var(--card2);border-radius:3px;margin-top:4px;overflow:hidden}
 .bar-anim .bar-fill{height:100%;border-radius:3px;width:0;animation:barGrow 1s ease forwards}
 @keyframes barGrow{to{width:var(--w)}}
-/* Capability + Demo Row */
-.cap-demo-row{display:grid;grid-template-columns:1fr 1fr;gap:32px;padding:32px 0;border-bottom:1px solid var(--border)}
-.cap-demo-row:last-child{border-bottom:none}
-.cap-demo-left{display:flex;flex-direction:column;padding:20px 0}
-.cap-demo-left .cap-icon{width:48px;height:48px;border-radius:12px;font-size:13px}
-.cap-demo-left h4{font-size:17px;font-weight:700;margin-bottom:8px}
-.cap-demo-left p{font-size:13px;color:var(--text2);line-height:1.7}
-.cap-demo-left .cap-stat{display:inline-block;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;margin-top:12px;align-self:flex-start}
-.cap-demo-left .cap-stat.blue{background:rgba(79,140,255,.1);color:var(--blue)}
-.cap-demo-left .cap-stat.green{background:rgba(52,211,153,.1);color:var(--green)}
-.cap-demo-left .cap-stat.purple{background:rgba(167,139,250,.1);color:var(--purple)}
-.cap-demo-right{padding:20px 0;min-height:160px;position:relative;overflow:hidden}
-.cap-demo-right::before{display:none}
+/* Capability Cards Grid */
+.cap-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:40px}
+.cap-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:var(--transition);position:relative;overflow:hidden}
+.cap-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.cap-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.cap-card.blue::before{background:linear-gradient(90deg,var(--blue),transparent)}
+.cap-card.green::before{background:linear-gradient(90deg,var(--green),transparent)}
+.cap-card.purple::before{background:linear-gradient(90deg,var(--purple),transparent)}
+.cap-card h4{font-size:16px;font-weight:700;margin-bottom:8px}
+.cap-card .cap-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px}
+.cap-card .cap-stat{display:inline-block;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;margin-bottom:16px}
+.cap-card .cap-stat.blue{background:rgba(79,140,255,.1);color:var(--blue)}
+.cap-card .cap-stat.green{background:rgba(52,211,153,.1);color:var(--green)}
+.cap-card .cap-stat.purple{background:rgba(167,139,250,.1);color:var(--purple)}
+.cap-card .cap-demo{border-top:1px solid var(--border);padding-top:14px;margin-top:2px}
 .mini-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px;opacity:0;animation:slideIn .4s ease forwards}
 .mini-chip{display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600}
 .mini-chip.blue{background:rgba(96,165,250,.1);color:var(--blue)}
@@ -344,9 +346,7 @@ footer p{color:var(--text3);font-size:10px}
   .hero-metrics{grid-template-columns:repeat(2,1fr)}
   .metrics-grid{grid-template-columns:repeat(2,1fr)}
   .cap-grid{grid-template-columns:1fr}
-  .cap-demo-row{grid-template-columns:1fr;gap:16px}
-  .cap-demo-left{align-items:center;text-align:center}
-  .cap-demo-right{margin:0}
+  .cap-grid{grid-template-columns:1fr}
   nav .nav-links{display:none}
   .step-progress{gap:0}.step-line{width:16px}
   .step-circle{width:28px;height:28px;font-size:10px}
@@ -752,202 +752,164 @@ footer p{color:var(--text3);font-size:10px}
 <div class="container">
   <div class="section-label centered" style="justify-content:center">CORE CAPABILITIES</div>
   <div class="section-title" style="text-align:center">AI 能做哪些 <span class="grad">人做不了的事</span></div>
-  <div class="section-sub" style="text-align:center;margin:0 auto 12px">左侧定义能力，右侧展示真实运行效果</div>
+  <div class="section-sub" style="text-align:center;margin:0 auto 40px">每项能力附带真实运行效果，点击体验完整流程</div>
 
-  <!-- 1. NL + JD -->
-  <div class="cap-demo-row">
-    <div class="cap-demo-left">
-      <h4 style="font-size:16px;font-weight:700;margin-bottom:8px">非结构化输入解析</h4>
-      <p style="font-size:13px;color:var(--text2);line-height:1.7">将语音、聊天记录、会议纪要等非结构化文本自动拆解为结构化岗位需求，支持多岗位混合输入、冲突检测与优先级标注。</p>
-      <div class="cap-stat blue">NLP + 结构化抽取</div>
-    </div>
-    <div class="cap-demo-right blue">
-      <div class="demo-label" style="padding:0 0 10px;border:none"><div class="pulse-dot"></div> 实际效果</div>
-      <div class="chat-bubble user" style="animation-delay:0.5s">帮我生成一个 P7 算法工程师的 JD，方向是推荐系统，北京</div>
-      <div class="chat-bubble ai" style="animation-delay:2s">
-        <b>岗位职责：</b><br>
-        1. 负责推荐系统核心算法研发与优化<br>
-        2. 主导召回/排序/重排全链路策略迭代<br>
-        3. 建立AB实验体系，驱动推荐效果持续提升<br><br>
-        <b>任职要求：</b><br>
-        • 5年+推荐/搜索算法经验<br>
-        • 精通深度学习框架（PyTorch/TensorFlow）<br>
-        • 有大规模分布式系统经验
-      </div>
-      <div style="text-align:right;margin-top:6px;opacity:0;animation:bubbleIn .3s ease forwards;animation-delay:3.5s">
-        <span class="status-tag green">30s 生成完成</span>
-      </div>
-    </div>
-  </div>
+  <div class="cap-grid">
 
-  <!-- 2. CT + Inference -->
-  <div class="cap-demo-row">
-    <div class="cap-demo-left">
-      <h4 style="font-size:16px;font-weight:700;margin-bottom:8px">隐含需求推理</h4>
-      <p style="font-size:13px;color:var(--text2);line-height:1.7">基于历史对话和岗位上下文，推断未明说的隐性要求。将模糊表述转化为可执行的筛选条件，降低需求遗漏风险。</p>
-      <div class="cap-stat green">Contextual Inference</div>
-    </div>
-    <div class="cap-demo-right green">
-      <div class="demo-label" style="padding:0 0 10px;border:none"><div class="pulse-dot" style="background:var(--green)"></div> 实际效果</div>
-      <div class="mini-row" style="animation-delay:.3s">
-        <span style="color:var(--text2);font-size:10px;min-width:50px">输入</span>
-        <span>&#8220;之前那个候选人不太行&#8221;</span>
-      </div>
-      <div class="mini-row" style="animation-delay:.8s">
-        <span style="color:var(--green);font-size:16px">↓</span>
-        <span style="color:var(--text2);font-size:10px">AI 推断历史记录</span>
-      </div>
-      <div class="mini-row" style="animation-delay:1.3s">
-        <span style="color:var(--text2);font-size:10px;min-width:50px">推理</span>
-        <span class="mini-chip green">必须有团队管理经验</span>
-      </div>
-      <div class="mini-row" style="animation-delay:1.6s">
-        <span></span>
-        <span class="mini-chip green">技术深度 ≥ P7</span>
-      </div>
-      <div class="mini-row" style="animation-delay:1.9s">
-        <span></span>
-        <span class="mini-chip green">有大厂推荐系统背景</span>
-      </div>
-      <div class="mini-row" style="animation-delay:2.3s">
-        <span style="color:var(--text2);font-size:10px;min-width:50px">输出</span>
-        <span style="font-size:11px">3条隐含条件已写入筛选规则</span>
-        <span class="status-tag green" style="margin-left:auto">已生效</span>
+    <!-- 1. 非结构化输入解析 -->
+    <div class="cap-card blue">
+      <h4>非结构化输入解析</h4>
+      <p class="cap-desc">将语音、聊天记录、会议纪要等非结构化文本自动拆解为结构化岗位需求，支持多岗位混合输入与冲突检测。</p>
+      <span class="cap-stat blue">NLP + 结构化抽取</span>
+      <div class="cap-demo">
+        <div class="chat-bubble user" style="animation-delay:0.3s">帮我生成一个 P7 算法工程师的 JD，方向是推荐系统，北京</div>
+        <div class="chat-bubble ai" style="animation-delay:1.5s">
+          <b>岗位职责：</b>1. 负责推荐系统核心算法研发与优化 2. 主导召回/排序/重排全链路策略迭代<br><b>任职要求：</b>5年+推荐/搜索算法经验，精通 PyTorch/TensorFlow
+        </div>
+        <div style="text-align:right;margin-top:6px;opacity:0;animation:bubbleIn .3s ease forwards;animation-delay:2.5s">
+          <span class="status-tag green">30s 生成完成</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- 3. RS + Matching -->
-  <div class="cap-demo-row">
-    <div class="cap-demo-left">
-      <h4 style="font-size:16px;font-weight:700;margin-bottom:8px">简历深度理解</h4>
-      <p style="font-size:13px;color:var(--text2);line-height:1.7">超越关键词匹配，从技能深度、项目含金量、团队规模、竞业风险等维度构建候选人画像，输出结构化评估报告。</p>
-      <div class="cap-stat blue">5维度评估模型</div>
+    <!-- 2. 隐含需求推理 -->
+    <div class="cap-card green">
+      <h4>隐含需求推理</h4>
+      <p class="cap-desc">基于历史对话和岗位上下文，推断未明说的隐性要求，将模糊表述转化为可执行的筛选条件。</p>
+      <span class="cap-stat green">Contextual Inference</span>
+      <div class="cap-demo">
+        <div class="mini-row" style="animation-delay:.2s">
+          <span style="color:var(--text2);font-size:10px;min-width:36px">输入</span>
+          <span style="font-size:12px">&#8220;之前那个候选人不太行&#8221;</span>
+        </div>
+        <div class="mini-row" style="animation-delay:.6s">
+          <span style="color:var(--green)">↓</span>
+          <span style="color:var(--text2);font-size:10px">AI 推断</span>
+        </div>
+        <div class="mini-row" style="animation-delay:1s">
+          <span></span>
+          <span class="mini-chip green">必须有团队管理经验</span>
+        </div>
+        <div class="mini-row" style="animation-delay:1.2s">
+          <span></span>
+          <span class="mini-chip green">技术深度 ≥ P7</span>
+        </div>
+        <div class="mini-row" style="animation-delay:1.4s">
+          <span></span>
+          <span class="mini-chip green">有大厂推荐系统背景</span>
+        </div>
+        <div class="mini-row" style="animation-delay:1.7s">
+          <span></span>
+          <span style="font-size:11px">3条隐含条件已写入筛选规则</span>
+          <span class="status-tag green" style="margin-left:auto">已生效</span>
+        </div>
+      </div>
     </div>
-    <div class="cap-demo-right blue">
-      <div class="demo-label" style="padding:0 0 10px;border:none"><div class="pulse-dot" style="background:var(--blue)"></div> 实际效果</div>
-      <div class="mini-row" style="animation-delay:.4s">
-        <div class="avatar" style="background:var(--blue);width:24px;height:24px;font-size:9px">张</div>
-        <span style="flex:1;font-size:11px">张明 · 5年推荐 · 字节</span>
-        <span style="color:var(--green);font-weight:700;font-size:13px">94%</span>
-      </div>
-      <div class="mini-bar" style="animation-delay:.5s"><div class="mini-bar-fill" style="--w:94%;background:var(--green);animation-delay:.7s"></div></div>
-      <div class="mini-row" style="animation-delay:.9s">
-        <div class="avatar" style="background:var(--purple);width:24px;height:24px;font-size:9px">李</div>
-        <span style="flex:1;font-size:11px">李薇 · 4年搜索 · 阿里</span>
-        <span style="color:var(--blue);font-weight:700;font-size:13px">87%</span>
-      </div>
-      <div class="mini-bar" style="animation-delay:1s"><div class="mini-bar-fill" style="--w:87%;background:var(--blue);animation-delay:1.2s"></div></div>
-      <div class="mini-row" style="animation-delay:1.4s">
-        <div class="avatar" style="background:var(--cyan);width:24px;height:24px;font-size:9px">王</div>
-        <span style="flex:1;font-size:11px">王磊 · 3年NLP · 美团</span>
-        <span style="color:var(--orange);font-weight:700;font-size:13px">72%</span>
-      </div>
-      <div class="mini-bar" style="animation-delay:1.5s"><div class="mini-bar-fill" style="--w:72%;background:var(--orange);animation-delay:1.7s"></div></div>
-      <div style="margin-top:8px;opacity:0;animation:bubbleIn .3s ease forwards;animation-delay:2.2s;font-size:10px;color:var(--text2)">评估维度：技能深度 · 项目含金量 · 团队规模 · 竞业风险 · 稳定性</div>
-    </div>
-  </div>
 
-  <!-- 4. IC + Calibration -->
-  <div class="cap-demo-row">
-    <div class="cap-demo-left">
-      <h4 style="font-size:16px;font-weight:700;margin-bottom:8px">面试校准引擎</h4>
-      <p style="font-size:13px;color:var(--text2);line-height:1.7">自动检测多面试官评分分歧，定位分歧维度与成因（评估粒度差异、标准偏移），输出校准建议与加权得分。</p>
-      <div class="cap-stat green">Interview Calibration</div>
+    <!-- 3. 简历深度理解 -->
+    <div class="cap-card blue">
+      <h4>简历深度理解</h4>
+      <p class="cap-desc">超越关键词匹配，从技能深度、项目含金量、团队规模、竞业风险等维度构建候选人画像。</p>
+      <span class="cap-stat blue">5维度评估模型</span>
+      <div class="cap-demo">
+        <div class="mini-row" style="animation-delay:.3s">
+          <div class="avatar" style="background:var(--blue);width:22px;height:22px;font-size:8px">张</div>
+          <span style="flex:1;font-size:11px">张明 · 5年推荐 · 字节</span>
+          <span style="color:var(--green);font-weight:700;font-size:13px">94%</span>
+        </div>
+        <div class="mini-bar" style="animation-delay:.4s"><div class="mini-bar-fill" style="--w:94%;background:var(--green);animation-delay:.6s"></div></div>
+        <div class="mini-row" style="animation-delay:.7s">
+          <div class="avatar" style="background:var(--purple);width:22px;height:22px;font-size:8px">李</div>
+          <span style="flex:1;font-size:11px">李薇 · 4年搜索 · 阿里</span>
+          <span style="color:var(--blue);font-weight:700;font-size:13px">87%</span>
+        </div>
+        <div class="mini-bar" style="animation-delay:.8s"><div class="mini-bar-fill" style="--w:87%;background:var(--blue);animation-delay:1s"></div></div>
+        <div class="mini-row" style="animation-delay:1.1s">
+          <div class="avatar" style="background:var(--cyan);width:22px;height:22px;font-size:8px">王</div>
+          <span style="flex:1;font-size:11px">王磊 · 3年NLP · 美团</span>
+          <span style="color:var(--orange);font-weight:700;font-size:13px">72%</span>
+        </div>
+        <div class="mini-bar" style="animation-delay:1.2s"><div class="mini-bar-fill" style="--w:72%;background:var(--orange);animation-delay:1.4s"></div></div>
+      </div>
     </div>
-    <div class="cap-demo-right green">
-      <div class="demo-label" style="padding:0 0 10px;border:none"><div class="pulse-dot" style="background:var(--green)"></div> 实际效果</div>
-      <div style="overflow-x:auto">
+
+    <!-- 4. 面试校准引擎 -->
+    <div class="cap-card green">
+      <h4>面试校准引擎</h4>
+      <p class="cap-desc">自动检测多面试官评分分歧，定位分歧维度与成因，输出校准建议与加权得分。</p>
+      <span class="cap-stat green">Interview Calibration</span>
+      <div class="cap-demo">
         <table style="width:100%;font-size:10px;border-collapse:collapse;text-align:center">
-          <tr style="color:var(--text2)"><th style="padding:4px;text-align:left">维度</th><th style="padding:4px">面试官A</th><th style="padding:4px">面试官B</th><th style="padding:4px">面试官C</th><th style="padding:4px">校准</th></tr>
-          <tr class="mini-row" style="animation-delay:.4s"><td style="padding:4px;text-align:left">算法能力</td><td style="padding:4px">8.5</td><td style="padding:4px">8.0</td><td style="padding:4px">8.5</td><td style="color:var(--green);font-weight:700">8.3</td></tr>
-          <tr class="mini-row" style="animation-delay:.8s"><td style="padding:4px;text-align:left">系统设计</td><td style="padding:4px">7.0</td><td style="padding:4px">9.0</td><td style="padding:4px">7.5</td><td style="color:var(--orange);font-weight:700">7.8 <span class="warn" style="font-size:9px">分歧</span></td></tr>
-          <tr class="mini-row" style="animation-delay:1.2s"><td style="padding:4px;text-align:left">沟通协作</td><td style="padding:4px">8.0</td><td style="padding:4px">8.5</td><td style="padding:4px">8.0</td><td style="color:var(--green);font-weight:700">8.2</td></tr>
-          <tr class="mini-row" style="animation-delay:1.6s"><td style="padding:4px;text-align:left">文化匹配</td><td style="padding:4px">9.0</td><td style="padding:4px">8.5</td><td style="padding:4px">9.0</td><td style="color:var(--green);font-weight:700">8.8</td></tr>
+          <tr style="color:var(--text2)"><th style="padding:3px;text-align:left">维度</th><th style="padding:3px">A</th><th style="padding:3px">B</th><th style="padding:3px">C</th><th style="padding:3px">校准</th></tr>
+          <tr class="mini-row" style="animation-delay:.3s"><td style="padding:3px;text-align:left">算法能力</td><td>8.5</td><td>8.0</td><td>8.5</td><td style="color:var(--green);font-weight:700">8.3</td></tr>
+          <tr class="mini-row" style="animation-delay:.6s"><td style="padding:3px;text-align:left">系统设计</td><td>7.0</td><td>9.0</td><td>7.5</td><td style="color:var(--orange);font-weight:700">7.8 <span class="warn" style="font-size:9px">分歧</span></td></tr>
+          <tr class="mini-row" style="animation-delay:.9s"><td style="padding:3px;text-align:left">沟通协作</td><td>8.0</td><td>8.5</td><td>8.0</td><td style="color:var(--green);font-weight:700">8.2</td></tr>
         </table>
-      </div>
-      <div class="mini-row" style="animation-delay:2s;margin-top:6px">
-        <div class="card" style="padding:6px 10px;width:100%"><h4 class="warn" style="font-size:10px">⚠ 系统设计维度 σ=0.87，面试官B评分偏高，建议校准讨论</h4></div>
+        <div style="margin-top:8px;opacity:0;animation:bubbleIn .3s ease forwards;animation-delay:1.2s">
+          <span class="warn" style="font-size:10px">⚠ 系统设计维度 σ=0.87，面试官B评分偏高，建议校准讨论</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- 5. MC + Compensation -->
-  <div class="cap-demo-row">
-    <div class="cap-demo-left">
-      <h4 style="font-size:16px;font-weight:700;margin-bottom:8px">薪酬市场对标</h4>
-      <p style="font-size:13px;color:var(--text2);line-height:1.7">实时聚合市场薪酬数据，按岗位×级别×城市多维对标，自动预警预算偏离，提供调整区间建议。</p>
-      <div class="cap-stat purple">Market Compensation</div>
-    </div>
-    <div class="cap-demo-right purple">
-      <div class="demo-label" style="padding:0 0 10px;border:none"><div class="pulse-dot" style="background:var(--purple)"></div> 实际效果</div>
-      <div class="mini-row" style="animation-delay:.3s">
-        <span style="flex:1;font-size:11px">算法工程师 P6 北京</span>
-        <span class="mini-chip blue">55-75万</span>
-      </div>
-      <div class="mini-row" style="animation-delay:.6s">
-        <span style="flex:1;font-size:11px">算法工程师 P6 上海</span>
-        <span class="mini-chip blue">50-70万</span>
-      </div>
-      <div class="mini-row" style="animation-delay:.9s">
-        <span style="flex:1;font-size:11px">产品经理 P7 北京</span>
-        <span class="mini-chip purple">65-90万</span>
-      </div>
-      <div class="mini-row" style="animation-delay:1.2s">
-        <span style="flex:1;font-size:11px">前端工程师 P5 深圳</span>
-        <span class="mini-chip orange">35-50万</span>
-      </div>
-      <div class="mini-row" style="animation-delay:1.6s">
-        <div class="card" style="padding:6px 10px;width:100%;border-color:rgba(239,68,68,.3)"><h4 class="bad" style="font-size:10px">🚨 当前团队算法岗 P6 实际 48万，低于市场 P25（50万），建议优先调薪</h4></div>
+    <!-- 5. 薪酬市场对标 -->
+    <div class="cap-card purple">
+      <h4>薪酬市场对标</h4>
+      <p class="cap-desc">实时聚合市场薪酬数据，按岗位×级别×城市多维对标，自动预警预算偏离。</p>
+      <span class="cap-stat purple">Market Compensation</span>
+      <div class="cap-demo">
+        <div class="mini-row" style="animation-delay:.2s">
+          <span style="flex:1;font-size:11px">算法工程师 P6 北京</span>
+          <span class="mini-chip blue">55-75万</span>
+        </div>
+        <div class="mini-row" style="animation-delay:.4s">
+          <span style="flex:1;font-size:11px">算法工程师 P6 上海</span>
+          <span class="mini-chip blue">50-70万</span>
+        </div>
+        <div class="mini-row" style="animation-delay:.6s">
+          <span style="flex:1;font-size:11px">产品经理 P7 北京</span>
+          <span class="mini-chip purple">65-90万</span>
+        </div>
+        <div class="mini-row" style="animation-delay:.8s">
+          <span style="flex:1;font-size:11px">前端工程师 P5 深圳</span>
+          <span class="mini-chip orange">35-50万</span>
+        </div>
+        <div style="margin-top:8px;opacity:0;animation:bubbleIn .3s ease forwards;animation-delay:1.1s">
+          <span class="bad" style="font-size:10px">🚨 算法岗 P6 实际 48万，低于市场 P25（50万），建议优先调薪</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- 6. MI + Pipeline -->
-  <div class="cap-demo-row" style="border-bottom:none">
-    <div class="cap-demo-left">
-      <h4 style="font-size:16px;font-weight:700;margin-bottom:8px">竞品人才洞察</h4>
-      <p style="font-size:13px;color:var(--text2);line-height:1.7">聚合竞品招聘动态、薪酬区间、人才分布数据，输出岗位竞争力分析和人才策略建议。</p>
-      <div class="cap-stat purple">Market Intelligence</div>
-    </div>
-    <div class="cap-demo-right purple">
-      <div class="demo-label" style="padding:0 0 10px;border:none"><div class="pulse-dot" style="background:var(--purple)"></div> 全链路运行</div>
-      <div class="mini-row" style="animation-delay:.3s;gap:8px">
-        <span style="font-size:12px">📌</span>
-        <span style="flex:1;font-size:11px">需求拆解</span>
-        <span class="status-tag green">完成</span>
-      </div>
-      <div class="mini-row" style="animation-delay:.6s;gap:8px">
-        <span style="font-size:12px">📄</span>
-        <span style="flex:1;font-size:11px">简历解析</span>
-        <span class="status-tag green">完成</span>
-      </div>
-      <div class="mini-row" style="animation-delay:.9s;gap:8px">
-        <span style="font-size:12px">✏️</span>
-        <span style="flex:1;font-size:11px">JD 生成</span>
-        <span class="status-tag green">完成</span>
-      </div>
-      <div class="mini-row" style="animation-delay:1.2s;gap:8px">
-        <span style="font-size:12px">🔍</span>
-        <span style="flex:1;font-size:11px">候选人评估</span>
-        <span class="status-tag green">完成</span>
-      </div>
-      <div class="mini-row" style="animation-delay:1.5s;gap:8px">
-        <span style="font-size:12px">⚖️</span>
-        <span style="flex:1;font-size:11px">面试校准</span>
-        <span class="status-tag green">完成</span>
-      </div>
-      <div class="mini-row" style="animation-delay:1.8s;gap:8px">
-        <span style="font-size:12px">📊</span>
-        <span style="flex:1;font-size:11px">市场洞察</span>
-        <span class="status-tag green">完成</span>
-      </div>
-      <div style="text-align:center;margin-top:8px;opacity:0;animation:bubbleIn .3s ease forwards;animation-delay:2.5s">
-        <span style="font-size:11px;color:var(--text2)">全程 <b style="color:var(--green)">4分38秒</b> · 零人工介入</span>
+    <!-- 6. 竞品人才洞察 -->
+    <div class="cap-card purple">
+      <h4>竞品人才洞察</h4>
+      <p class="cap-desc">聚合竞品招聘动态、薪酬区间、人才分布数据，输出岗位竞争力分析和人才策略建议。</p>
+      <span class="cap-stat purple">Market Intelligence</span>
+      <div class="cap-demo">
+        <div class="mini-row" style="animation-delay:.2s;gap:6px">
+          <span>📌</span><span style="flex:1;font-size:11px">需求拆解</span><span class="status-tag green">完成</span>
+        </div>
+        <div class="mini-row" style="animation-delay:.4s;gap:6px">
+          <span>📄</span><span style="flex:1;font-size:11px">简历解析</span><span class="status-tag green">完成</span>
+        </div>
+        <div class="mini-row" style="animation-delay:.6s;gap:6px">
+          <span>✏️</span><span style="flex:1;font-size:11px">JD 生成</span><span class="status-tag green">完成</span>
+        </div>
+        <div class="mini-row" style="animation-delay:.8s;gap:6px">
+          <span>🔍</span><span style="flex:1;font-size:11px">候选人评估</span><span class="status-tag green">完成</span>
+        </div>
+        <div class="mini-row" style="animation-delay:1s;gap:6px">
+          <span>⚖️</span><span style="flex:1;font-size:11px">面试校准</span><span class="status-tag green">完成</span>
+        </div>
+        <div class="mini-row" style="animation-delay:1.2s;gap:6px">
+          <span>📊</span><span style="flex:1;font-size:11px">市场洞察</span><span class="status-tag green">完成</span>
+        </div>
+        <div style="text-align:center;margin-top:8px;opacity:0;animation:bubbleIn .3s ease forwards;animation-delay:1.5s">
+          <span style="font-size:11px;color:var(--text2)">全程 <b style="color:var(--green)">4分38秒</b> · 零人工介入</span>
+        </div>
       </div>
     </div>
-  </div>
 
+  </div>
 </div></section>
 
 <footer>
