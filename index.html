@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Recruiter — 智能招聘全流程Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06080f;--card:#0f1424;--card2:#141a30;
+  --blue:#4f8cff;--blue2:#3b6fdb;--green:#34d399;--orange:#f59e0b;--red:#ef4444;--purple:#a78bfa;--cyan:#22d3ee;
+  --text:#e8ecf4;--text2:#8892a8;--text3:#5a6478;
+  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.1);
+  --radius:16px;--radius-sm:10px;--shadow:0 4px 24px rgba(0,0,0,.3);
+  --transition:all .3s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="light"]{
+  --bg:#f5f7fa;--card:#ffffff;--card2:#f0f2f5;
+  --blue:#2563eb;--blue2:#1d4ed8;--green:#059669;--orange:#d97706;--red:#dc2626;--purple:#7c3aed;--cyan:#0891b2;
+  --text:#1a1a2e;--text2:#64748b;--text3:#94a3b8;
+  --border:rgba(0,0,0,.08);--border2:rgba(0,0,0,.12);
+  --shadow:0 4px 24px rgba(0,0,0,.08);
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Poppins','Inter','Microsoft YaHei',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
+.container{max-width:1200px;margin:0 auto;padding:0 32px}
+
+.gradient-bg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1;overflow:hidden}
+.gradient-bg .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.15;animation:float 20s ease-in-out infinite}
+.gradient-bg .orb:nth-child(1){width:600px;height:600px;background:var(--blue);top:-200px;left:-100px}
+.gradient-bg .orb:nth-child(2){width:500px;height:500px;background:var(--purple);top:30%;right:-150px;animation-delay:-5s}
+.gradient-bg .orb:nth-child(3){width:400px;height:400px;background:var(--cyan);bottom:-100px;left:30%;animation-delay:-10s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(50px,-30px) scale(1.1)}50%{transform:translate(-20px,40px) scale(.95)}75%{transform:translate(30px,20px) scale(1.05)}}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(6,8,15,.7);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:var(--transition)}
+nav.scrolled{background:rgba(6,8,15,.92)}
+nav .inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;height:60px;padding:0 32px;gap:24px}
+nav .logo{font-weight:800;font-size:17px;color:#fff;display:flex;align-items:center;gap:8px}
+nav .logo .ai{background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+nav .nav-links{display:flex;gap:4px;flex:1;justify-content:center}
+nav .nav-links a{color:var(--text2);font-size:12px;padding:7px 14px;border-radius:8px;transition:var(--transition);font-weight:500;cursor:pointer}
+nav .nav-links a:hover{color:var(--text);background:rgba(255,255,255,.05)}
+nav .cta-nav{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;padding:7px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:var(--transition);font-family:inherit}
+nav .cta-nav:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(79,140,255,.3)}
+
+/* Theme & Lang toggles */
+.nav-toggles{display:flex;gap:6px;align-items:center}
+.toggle-btn{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:var(--transition);font-family:inherit}
+.toggle-btn:hover{border-color:var(--border2);color:var(--text)}
+.toggle-btn.active{background:rgba(79,140,255,.1);border-color:var(--blue);color:var(--blue)}
+[data-theme="light"] .toggle-btn{background:rgba(0,0,0,.04)}
+[data-theme="light"] .toggle-btn:hover{background:rgba(0,0,0,.08)}
+
+/* Role Tabs */
+.role-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:28px}
+.role-tab{padding:8px 20px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text2);transition:var(--transition);font-family:inherit}
+.role-tab:hover{border-color:var(--border2);color:var(--text)}
+.role-tab.active{border-color:var(--blue);color:var(--blue);background:rgba(79,140,255,.08)}
+
+/* Chat Input */
+.chat-input-wrap{max-width:640px;margin:0 auto 32px;position:relative}
+.chat-input-wrap input{width:100%;padding:14px 52px 14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:var(--transition)}
+.chat-input-wrap input::placeholder{color:var(--text3)}
+.chat-input-wrap input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(79,140,255,.15)}
+.chat-send{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--blue2));border:none;color:#fff;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.chat-send:hover{transform:translateY(-50%) scale(1.05)}
+.ai-typing{max-width:640px;margin:0 auto 20px;padding:12px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;font-size:12px;color:var(--text2);display:none}
+.ai-typing .cursor{animation:blink 1s infinite}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+
+/* Logo Wall */
+.logo-wall{display:flex;flex-wrap:wrap;gap:16px 32px;justify-content:center;align-items:center;margin-top:36px;opacity:.6}
+.logo-wall .logo-item{font-size:14px;font-weight:600;color:var(--text2);letter-spacing:1px;padding:8px 16px;border:1px solid var(--border);border-radius:8px;transition:var(--transition)}
+.logo-wall .logo-item:hover{border-color:var(--border2);opacity:1}
+.logo-wall-title{text-align:center;font-size:12px;color:var(--text3);margin-top:16px}
+
+/* Scenario Cards */
+.scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px}
+.scenario-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:var(--transition)}
+.scenario-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:var(--shadow)}
+.scenario-header{padding:20px;display:flex;align-items:center;gap:14px}
+.scenario-header .icon{font-size:28px}
+.scenario-header h4{font-size:14px;font-weight:700;margin-bottom:3px}
+.scenario-header p{font-size:11px;color:var(--text2)}
+.scenario-body{display:none;padding:16px;border-top:1px solid var(--border)}
+.scenario-card.open .scenario-body{display:block}
+.scenario-metric{display:flex;justify-content:space-between;padding:6px 0;font-size:11px;border-bottom:1px solid rgba(255,255,255,.03)}
+.scenario-metric:last-child{border-bottom:none}
+.scenario-bar{height:6px;background:var(--card2);border-radius:4px;margin-top:4px;overflow:hidden}
+.scenario-bar .fill{height:100%;border-radius:4px}
+
+/* Animated Demo Cards */
+.demo-showcase{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px}
+.demo-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.demo-card .demo-label{padding:14px 16px;font-size:13px;font-weight:600;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.demo-card .demo-body{padding:16px;min-height:180px;position:relative}
+/* Chat bubbles */
+.chat-bubble{padding:8px 12px;border-radius:10px;font-size:11px;line-height:1.6;max-width:85%;margin-bottom:8px;opacity:0;animation:bubbleIn .4s ease forwards}
+.chat-bubble.user{background:var(--blue);color:#fff;margin-left:auto;border-bottom-right-radius:3px}
+.chat-bubble.ai{background:var(--card2);border-bottom-left-radius:3px}
+.chat-bubble b{color:var(--green)}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* Typing indicator */
+.typing-dots{display:flex;gap:4px;padding:8px 12px}
+.typing-dots span{width:6px;height:6px;background:var(--text2);border-radius:50%;animation:dotPulse 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dotPulse{0%,80%,100%{opacity:.3}40%{opacity:1}}
+/* Match cards */
+.match-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);opacity:0;animation:slideIn .5s ease forwards}
+.match-row .avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.match-row .info{flex:1;font-size:11px}
+.match-row .info .name{font-weight:600}
+.match-row .info .role{color:var(--text2);font-size:10px}
+.match-row .score{font-size:13px;font-weight:700;min-width:40px;text-align:right}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+/* Progress bar animation */
+.bar-anim{height:4px;background:var(--card2);border-radius:3px;margin-top:4px;overflow:hidden}
+.bar-anim .bar-fill{height:100%;border-radius:3px;width:0;animation:barGrow 1s ease forwards}
+@keyframes barGrow{to{width:var(--w)}}
+/* Capability + Demo Row */
+.cap-demo-row{display:grid;grid-template-columns:1fr 1fr;gap:32px;padding:32px 0;border-bottom:1px solid var(--border)}
+.cap-demo-row:last-child{border-bottom:none}
+.cap-demo-left{display:flex;flex-direction:column;padding:20px 0}
+.cap-demo-left .cap-icon{width:48px;height:48px;border-radius:12px;font-size:13px}
+.cap-demo-left h4{font-size:17px;font-weight:700;margin-bottom:8px}
+.cap-demo-left p{font-size:13px;color:var(--text2);line-height:1.7}
+.cap-demo-left .cap-stat{display:inline-block;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;margin-top:12px;align-self:flex-start}
+.cap-demo-left .cap-stat.blue{background:rgba(79,140,255,.1);color:var(--blue)}
+.cap-demo-left .cap-stat.green{background:rgba(52,211,153,.1);color:var(--green)}
+.cap-demo-left .cap-stat.purple{background:rgba(167,139,250,.1);color:var(--purple)}
+.cap-demo-right{padding:20px 0;min-height:160px;position:relative;overflow:hidden}
+.cap-demo-right::before{display:none}
+.mini-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px;opacity:0;animation:slideIn .4s ease forwards}
+.mini-chip{display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600}
+.mini-chip.blue{background:rgba(96,165,250,.1);color:var(--blue)}
+.mini-chip.green{background:rgba(52,211,153,.1);color:var(--green)}
+.mini-chip.purple{background:rgba(167,139,250,.1);color:var(--purple)}
+.mini-chip.orange{background:rgba(245,158,11,.1);color:var(--orange)}
+.mini-bar{height:4px;border-radius:3px;background:var(--card2);flex:1;overflow:hidden}
+.mini-bar-fill{height:100%;border-radius:3px;width:0;animation:barGrow 1s ease forwards}
+.pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.4)}50%{box-shadow:0 0 0 6px rgba(52,211,153,0)}}
+/* Status tag */
+.status-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:600}
+.status-tag.green{background:rgba(52,211,153,.1);color:var(--green)}
+.status-tag.orange{background:rgba(245,158,11,.1);color:var(--orange)}
+.status-tag.red{background:rgba(239,68,68,.1);color:var(--red)}
+
+/* VS Industry badge */
+.vs-badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600;margin-left:4px;vertical-align:middle}
+.vs-badge.up{background:rgba(52,211,153,.1);color:var(--green)}
+.vs-badge.down{background:rgba(239,68,68,.1);color:var(--red)}
+
+/* CEO Dashboard */
+.ceo-dashboard{display:none}
+.ceo-dashboard.active{display:block}
+.ceo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.ceo-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:var(--transition)}
+.ceo-card:hover{border-color:var(--border2)}
+.ceo-card .label{font-size:10px;color:var(--text3);font-weight:500;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ceo-card .value{font-size:28px;font-weight:800;margin-bottom:4px}
+.ceo-card .sub{font-size:11px;color:var(--text2)}
+
+/* Manager View */
+.manager-view{display:none}
+.manager-view.active{display:block}
+
+section{position:relative;padding:90px 0}
+.section-label{font-size:11px;color:var(--blue);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-label::before{content:'';width:18px;height:1px;background:var(--blue)}
+.section-label.centered::before{display:none}
+.section-title{font-size:clamp(28px,4.5vw,42px);font-weight:800;letter-spacing:-1px;line-height:1.15;margin-bottom:14px}
+.section-title .grad{background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.section-sub{color:var(--text2);font-size:15px;max-width:560px;line-height:1.7}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;text-align:center;position:relative;padding-top:60px}
+.hero .container{position:relative;z-index:1}
+.hero .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(79,140,255,.08);border:1px solid rgba(79,140,255,.2);padding:7px 18px;border-radius:20px;font-size:12px;color:var(--blue);margin-bottom:28px;font-weight:500}
+.hero .badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hero h1{font-size:clamp(38px,7vw,68px);font-weight:900;letter-spacing:-2px;line-height:1.1;margin-bottom:18px}
+.hero h1 .grad{background:linear-gradient(135deg,#fff 30%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .tagline{font-size:clamp(15px,2vw,18px);color:var(--text2);max-width:600px;margin:0 auto 40px;font-weight:300;line-height:1.7}
+.hero-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:680px;margin:0 auto 40px}
+.hero-metric{text-align:center;padding:18px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--radius-sm);transition:var(--transition)}
+.hero-metric:hover{border-color:var(--border2);transform:translateY(-2px)}
+.hero-metric .num{font-size:30px;font-weight:800;margin-bottom:3px}
+.hero-metric .num.c1{color:var(--blue)}.hero-metric .num.c2{color:var(--green)}.hero-metric .num.c3{color:var(--purple)}.hero-metric .num.c4{color:var(--cyan)}
+.hero-metric .label{font-size:10px;color:var(--text2);font-weight:500}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;border:none;padding:13px 32px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:var(--transition);font-family:inherit;position:relative;overflow:hidden}
+.btn-primary::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);transition:.5s}
+.btn-primary:hover::after{left:100%}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(79,140,255,.3)}
+.btn-ghost{background:rgba(255,255,255,.04);border:1px solid var(--border2);color:var(--text);padding:13px 26px;border-radius:10px;font-size:14px;cursor:pointer;transition:var(--transition);font-family:inherit;font-weight:500}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+
+/* CAPABILITY CARDS (replaces pain section) */
+.cap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px}
+.cap-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:var(--transition);position:relative;overflow:hidden}
+.cap-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:var(--transition)}
+.cap-card:nth-child(1)::before{background:var(--blue)}.cap-card:nth-child(2)::before{background:var(--green)}.cap-card:nth-child(3)::before{background:var(--purple)}.cap-card:nth-child(4)::before{background:var(--orange)}.cap-card:nth-child(5)::before{background:var(--cyan)}.cap-card:nth-child(6)::before{background:var(--red)}
+.cap-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:var(--shadow)}
+.cap-card:hover::before{opacity:1}
+.cap-card .icon{font-size:28px;margin-bottom:12px}
+.cap-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;letter-spacing:1px;margin-bottom:12px;color:#fff}
+.cap-icon.blue{background:linear-gradient(135deg,rgba(96,165,250,.2),rgba(96,165,250,.05));border:1px solid rgba(96,165,250,.2);color:var(--blue)}
+.cap-icon.green{background:linear-gradient(135deg,rgba(52,211,153,.2),rgba(52,211,153,.05));border:1px solid rgba(52,211,153,.2);color:var(--green)}
+.cap-icon.purple{background:linear-gradient(135deg,rgba(167,139,250,.2),rgba(167,139,250,.05));border:1px solid rgba(167,139,250,.2);color:var(--purple)}
+.cap-card h4{font-size:14px;font-weight:700;margin-bottom:6px}
+.cap-card p{font-size:12px;color:var(--text2);line-height:1.7}
+.cap-card .stat{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;margin-top:10px}
+.cap-card .stat.blue{background:rgba(79,140,255,.1);color:var(--blue)}
+.cap-card .stat.green{background:rgba(52,211,153,.1);color:var(--green)}
+.cap-card .stat.purple{background:rgba(167,139,250,.1);color:var(--purple)}
+
+/* STEP PROGRESS */
+.step-progress{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:36px;flex-wrap:wrap}
+.step-item{display:flex;align-items:center;gap:0;position:relative}
+.step-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid var(--border);color:var(--text3);transition:var(--transition);cursor:pointer;flex-shrink:0}
+.step-circle:hover{border-color:var(--border2)}
+.step-item.active .step-circle{border-color:var(--blue);color:var(--blue);background:rgba(79,140,255,.1)}
+.step-item.done .step-circle{border-color:var(--green);color:#fff;background:var(--green)}
+.step-label{font-size:10px;color:var(--text3);margin-top:4px;text-align:center;width:66px;position:absolute;top:40px}
+.step-item.active .step-label{color:var(--blue)}
+.step-item.done .step-label{color:var(--green)}
+.step-line{width:36px;height:2px;background:var(--border);transition:var(--transition)}
+.step-line.done{background:var(--green)}
+
+/* DEMO */
+.demo-panel{display:none;animation:fadeUp .4s ease}
+.demo-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:var(--transition)}
+.panel:hover{border-color:var(--border2)}
+.panel-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600}
+.panel-head .dot{width:7px;height:7px;border-radius:50%}
+.panel-body{padding:18px}
+.card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:8px;transition:var(--transition)}
+.card:hover{border-color:var(--border2)}
+.card h4{font-size:12px;margin-bottom:6px;display:flex;align-items:center;gap:6px;font-weight:600}
+.card p,.card li{font-size:11px;color:var(--text2);line-height:1.8}
+.card ul{padding-left:14px}
+.hl{color:var(--blue);font-weight:600}.good{color:var(--green);font-weight:600}.warn{color:var(--orange);font-weight:600}.bad{color:var(--red);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.chip{padding:2px 8px;border-radius:14px;font-size:9px;font-weight:500;border:1px solid var(--border);color:var(--text2)}
+.chip.b{border-color:rgba(79,140,255,.3);color:var(--blue);background:rgba(79,140,255,.06)}
+.chip.g{border-color:rgba(52,211,153,.3);color:var(--green);background:rgba(52,211,153,.06)}
+.chip.o{border-color:rgba(245,158,11,.3);color:var(--orange);background:rgba(245,158,11,.06)}
+
+/* Input */
+.input-area{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:3px;margin-bottom:10px}
+.input-area textarea{width:100%;min-height:110px;background:transparent;border:none;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;line-height:1.8;padding:12px;resize:vertical;outline:none}
+.input-area textarea::placeholder{color:var(--text3)}
+
+/* Upload */
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--radius);padding:44px 20px;text-align:center;cursor:pointer;transition:var(--transition);background:rgba(255,255,255,.01)}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--blue);background:rgba(79,140,255,.03)}
+.upload-zone .icon{font-size:36px;margin-bottom:10px;opacity:.8}
+.upload-zone h3{font-size:14px;margin-bottom:6px;font-weight:600}
+.upload-zone p{color:var(--text2);font-size:11px}
+.upload-zone .fmts{margin-top:10px;display:flex;gap:6px;justify-content:center}
+.upload-zone .fmt{padding:2px 8px;border-radius:8px;font-size:9px;background:var(--card2);color:var(--text2);border:1px solid var(--border)}
+.upload-zone input[type=file]{display:none}
+
+/* Processing */
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.parse-steps{text-align:left;max-width:320px;margin:14px auto}
+.parse-step{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:11px;color:var(--text3);opacity:0;transform:translateX(-10px);transition:.4s}
+.parse-step.done{opacity:1;transform:translateX(0);color:var(--green)}
+.parse-step.active{opacity:1;transform:translateX(0);color:var(--blue)}
+.parse-step .check{width:16px;text-align:center;font-size:11px}
+.parse-step.active .check{animation:spin .6s linear infinite}
+
+/* Scores */
+.score-bar{height:4px;background:var(--card);border-radius:3px;margin:4px 0;overflow:hidden}
+.score-bar .fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.score-label{display:flex;justify-content:space-between;font-size:10px;margin-bottom:1px}
+.score-label span:first-child{color:var(--text2)}
+.score-label .val{font-weight:700}
+
+/* Table */
+.data-table{width:100%;border-collapse:collapse;font-size:11px}
+.data-table th{text-align:left;padding:9px 10px;color:var(--text3);font-weight:500;border-bottom:1px solid var(--border);font-size:9px;text-transform:uppercase;letter-spacing:.5px}
+.data-table td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.03)}
+.data-table tr:hover td{background:rgba(79,140,255,.02)}
+.data-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.data-table .hot{color:var(--red);font-weight:600}
+.data-table .cold{color:var(--blue)}
+.score-input{width:44px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;font-weight:600;text-align:center;padding:4px 2px;font-family:inherit;outline:none;transition:var(--transition)}
+.score-input:focus{border-color:var(--blue);background:rgba(79,140,255,.06)}
+.score-input.empty{color:var(--text3);font-weight:400}
+
+/* Job Type Selector */
+.job-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.job-btn{padding:6px 14px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card2);color:var(--text2);transition:var(--transition);font-family:inherit}
+.job-btn:hover{border-color:var(--border2);color:var(--text)}
+.job-btn.active{border-color:var(--blue);color:var(--blue);background:rgba(79,140,255,.08)}
+
+/* Resume */
+.resume-header{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+.resume-avatar{width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700;flex-shrink:0}
+.resume-info h3{font-size:15px;margin-bottom:3px;font-weight:700}
+.resume-info .meta{font-size:11px;color:var(--text2);line-height:1.8}
+.resume-info .meta b{color:var(--text)}
+.match-badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:9px;font-weight:700;margin-left:6px;background:rgba(52,211,153,.12);color:var(--green)}
+.hire-meter{text-align:center;padding:16px 0}
+.hire-score{font-size:44px;font-weight:900;margin:4px 0;letter-spacing:-2px}
+.hire-score.strong{color:var(--green)}.hire-score.medium{color:var(--orange)}.hire-score.weak{color:var(--red)}
+
+.btn-row{text-align:center;margin:20px 0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;border:none;padding:10px 22px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:var(--transition);font-family:inherit}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(79,140,255,.25)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:8px 16px;border-radius:8px;font-size:11px;cursor:pointer;transition:var(--transition);font-family:inherit;font-weight:500}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-outline.active{border-color:var(--blue);color:var(--blue);background:rgba(79,140,255,.06)}
+.btn-nav{display:flex;gap:10px;justify-content:center;margin-top:24px}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:36px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 14px;text-align:center;transition:var(--transition);position:relative;overflow:hidden}
+.metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:var(--transition)}
+.metric-card:nth-child(1)::before{background:var(--blue)}.metric-card:nth-child(2)::before{background:var(--green)}.metric-card:nth-child(3)::before{background:var(--purple)}.metric-card:nth-child(4)::before{background:var(--cyan)}
+.metric-card:hover{border-color:var(--border2);transform:translateY(-4px);box-shadow:var(--shadow)}
+.metric-card:hover::before{opacity:1}
+.metric-card .value{font-size:36px;font-weight:900;margin-bottom:4px;letter-spacing:-1px}
+.metric-card .value.c1{color:var(--blue)}.metric-card .value.c2{color:var(--green)}.metric-card .value.c3{color:var(--purple)}.metric-card .value.c4{color:var(--cyan)}
+.metric-card .desc{font-size:12px;color:var(--text);font-weight:500;margin-bottom:3px}
+.metric-card .detail{font-size:10px;color:var(--text3)}
+
+footer{text-align:center;padding:44px 32px 28px;border-top:1px solid var(--border)}
+footer .brand{font-size:14px;font-weight:700;margin-bottom:6px}
+footer .brand .ai{background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+footer p{color:var(--text3);font-size:10px}
+
+@media(max-width:900px){
+  .two-col{grid-template-columns:1fr}
+  .hero-metrics{grid-template-columns:repeat(2,1fr)}
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .cap-grid{grid-template-columns:1fr}
+  .cap-demo-row{grid-template-columns:1fr;gap:16px}
+  .cap-demo-left{align-items:center;text-align:center}
+  .cap-demo-right{margin:0}
+  nav .nav-links{display:none}
+  .step-progress{gap:0}.step-line{width:16px}
+  .step-circle{width:28px;height:28px;font-size:10px}
+  .step-label{width:46px;font-size:8px}
+  .scenario-grid{grid-template-columns:1fr}
+  .ceo-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="gradient-bg"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+
+<nav id="navbar"><div class="inner">
+  <div class="logo"><span class="ai">AI</span> Recruiter</div>
+  <div class="nav-links">
+    <a onclick="scrollToSection('#caps')" data-i18n="nav_caps">能力</a>
+    <a onclick="scrollToSection('#demo')">Demo</a>
+    <a onclick="scrollToSection('#metrics')" data-i18n="nav_metrics">效果</a>
+    <a onclick="scrollToSection('#metrics')" data-i18n="nav_scenarios">更多场景</a>
+  </div>
+  <div class="nav-toggles">
+    <button class="toggle-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle theme">☀️</button>
+    <button class="toggle-btn" onclick="toggleLang()" id="lang-btn" title="Language">EN</button>
+  </div>
+  <button class="cta-nav" onclick="scrollToSection('#demo')" data-i18n="nav_cta">体验</button>
+</div></nav>
+
+<!-- HERO -->
+<section class="hero"><div class="container">
+  <div class="badge"><span class="dot"></span> AI Agent for HR</div>
+  <h1><span class="grad">AI Recruiter</span></h1>
+  <p class="tagline">从需求到 Offer，一个 Agent 搞定招聘全链路<br>不是辅助工具，是替代3天人工的全自动引擎</p>
+  <div class="chat-input-wrap">
+    <input type="text" id="chat-input" placeholder="试试输入：帮我招一个前端工程师..." onkeydown="if(event.key==='Enter')handleChat()">
+    <button class="chat-send" onclick="handleChat()">→</button>
+  </div>
+  <div class="ai-typing" id="ai-typing"><span class="cursor">▌</span> <span id="ai-typing-text"></span></div>
+  <div class="hero-cta">
+    <button class="btn-primary" onclick="scrollToSection('#demo')">看 AI 能做什么 →</button>
+    <button class="btn-ghost" onclick="scrollToSection('#caps')">6大能力</button>
+  </div>
+</div></section>
+
+<!-- DEMO -->
+<section id="demo">
+<div class="container">
+  <div class="section-label" style="justify-content:center">INTERACTIVE DEMO</div>
+  <div class="section-title" style="text-align:center">亲身体验 <span class="grad">每一步</span></div>
+  <div class="section-sub" style="text-align:center;margin:0 auto 32px">
+    输入一段VP的真实语音，看AI如何从混乱中提取价值
+  </div>
+
+  <div class="role-tabs">
+    <button class="role-tab active" id="role-hr" onclick="switchRole('hr')" data-i18n="role_hr">HR 视角</button>
+    <button class="role-tab" id="role-manager" onclick="switchRole('manager')" data-i18n="role_mgr">用人经理</button>
+    <button class="role-tab" id="role-ceo" onclick="switchRole('ceo')" data-i18n="role_ceo">CEO 仪表盘</button>
+  </div>
+
+  <div id="hr-view">
+  <div class="step-progress">
+    <div class="step-item active" id="si-1" onclick="goStep(1)"><div class="step-circle">1</div><div class="step-label">需求拆解</div></div>
+    <div class="step-line" id="sl-1"></div>
+    <div class="step-item" id="si-2" onclick="goStep(2)"><div class="step-circle">2</div><div class="step-label">简历解析</div></div>
+    <div class="step-line" id="sl-2"></div>
+    <div class="step-item" id="si-3" onclick="goStep(3)"><div class="step-circle">3</div><div class="step-label">JD生成</div></div>
+    <div class="step-line" id="sl-3"></div>
+    <div class="step-item" id="si-4" onclick="goStep(4)"><div class="step-circle">4</div><div class="step-label">候选人评估</div></div>
+    <div class="step-line" id="sl-4"></div>
+    <div class="step-item" id="si-5" onclick="goStep(5)"><div class="step-circle">5</div><div class="step-label">面试校准</div></div>
+    <div class="step-line" id="sl-5"></div>
+    <div class="step-item" id="si-6" onclick="goStep(6)"><div class="step-circle">6</div><div class="step-label">市场洞察</div></div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="demo-panel active" id="step-1">
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head"><div class="dot" style="background:var(--orange)"></div> 输入：VP语音转文字（60秒）</div>
+        <div class="panel-body">
+          <div class="input-area">
+            <textarea id="req-input">那个…HR这边帮我看下，智驾那边要招人，算法方向的，嗯…主要就是搞无图方案的，之前高精地图的路线要换了。对，招个能带团队的，之前李总说最好是从Waymo或者Apollo出来的，C9的博士更好，不过硕士特别优秀的也不是不行。薪酬的话…嗯…150万左右吧应该够了，实在不行可以加期权。base北京亦庄。
+
+另外感知那边也缺人，之前面过一个华为ADS的，技术还行但团队管理经验不够，你帮我看看有没有更合适的。还有数据闭环那块老刘一直在催，说仿真那边跑不动，需要有大规模数据处理经验的。算了你先看吧，具体的我让老刘跟你说。</textarea>
+          </div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">
+            <span style="font-size:9px;color:var(--text3);line-height:26px">示例：</span>
+            <button class="job-btn" onclick="loadPreset('algo')">自动驾驶算法</button>
+            <button class="job-btn" onclick="loadPreset('pm')">产品经理</button>
+            <button class="job-btn" onclick="loadPreset('misc')">运营+财务</button>
+          </div>
+          <div class="btn-row"><button class="btn" onclick="parseReq()">AI 解析</button></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 输出</div>
+        <div class="panel-body" id="req-output">
+          <div style="text-align:center;padding:28px 0">
+            <p style="color:var(--text3);font-size:12px;margin-bottom:10px">← 输入VP原话，看AI能提取什么</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-nav"><button class="btn" onclick="goStep(2)">下一步 →</button></div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="demo-panel" id="step-2">
+    <div id="upload-area">
+      <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <div class="icon">📄</div>
+        <h3>拖拽简历到此处，或点击上传</h3>
+        <p>支持 PDF / Word / 图片 OCR / 纯文本</p>
+        <div class="fmts"><span class="fmt">PDF</span><span class="fmt">Word</span><span class="fmt">图片 OCR</span><span class="fmt">纯文本</span></div>
+        <input type="file" id="file-input" accept=".pdf,.doc,.docx,.txt,.png,.jpg" onchange="parseResume()">
+      </div>
+      <p style="text-align:center;color:var(--text3);font-size:11px;margin-top:10px">演示模式：点击或拖拽查看模拟解析</p>
+    </div>
+    <div id="resume-parsing" style="display:none">
+      <div class="panel" style="max-width:400px;margin:0 auto"><div class="panel-body">
+        <div style="text-align:center;padding:28px 0">
+          <div class="spinner"></div>
+          <p style="margin-bottom:14px;color:var(--text2);font-size:12px">AI 正在解析简历...</p>
+          <div class="parse-steps">
+            <div class="parse-step" id="ps1"><span class="check">⏳</span> OCR 文字识别</div>
+            <div class="parse-step" id="ps2"><span class="check">⏳</span> 提取个人信息</div>
+            <div class="parse-step" id="ps3"><span class="check">⏳</span> 解析工作经历</div>
+            <div class="parse-step" id="ps4"><span class="check">⏳</span> 识别技能标签</div>
+            <div class="parse-step" id="ps5"><span class="check">⏳</span> 生成人才画像</div>
+            <div class="parse-step" id="ps6"><span class="check">⏳</span> 匹配岗位需求</div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <div id="resume-result" style="display:none">
+      <div class="panel" style="margin-bottom:14px"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> 解析结果</div><div class="panel-body">
+        <div class="resume-header">
+          <div class="resume-avatar">张</div>
+          <div class="resume-info">
+            <h3>张明 <span class="match-badge">匹配度 92%</span></h3>
+            <div class="meta"><b>男 · 38岁</b> · 12年经验<br><b>现任：</b>百度Apollo 高级技术总监<br><b>学历：</b>清华大学 博士 · CMU 博士后</div>
+          </div>
+        </div>
+      </div></div>
+      <div class="two-col">
+        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--blue)"></div> 经历与技能</div><div class="panel-body">
+          <div class="card"><h4>💼 工作经历</h4><ul><li><b>百度Apollo</b>（7年）感知工程师→技术总监，团队5→22人</li><li><b>Waymo</b>（3年）Research Scientist</li></ul></div>
+          <div class="card"><h4>🛠️ 技能图谱</h4><div class="chips"><span class="chip b">BEV感知</span><span class="chip b">Transformer</span><span class="chip b">无图方案</span><span class="chip b">端到端</span><span class="chip g">团队管理</span><span class="chip g">架构设计</span><span class="chip o">PyTorch</span><span class="chip o">C++</span></div></div>
+          <div class="card"><h4>📚 学术</h4><p>CVPR×8 / NeurIPS×5 / TPAMI×3 · 引用4200+</p></div>
+        </div></div>
+        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 匹配分析</div><div class="panel-body">
+          <div class="hire-meter"><div style="font-size:10px;color:var(--text3)">匹配度</div><div class="hire-score strong">92</div><div style="font-size:11px;color:var(--green);font-weight:700">强烈推荐</div></div>
+          <div class="card"><h4 class="good">✅ 达标项</h4>
+            <div class="score-label"><span>无图方案经验</span><span class="val" style="color:var(--green)">有量产</span></div>
+            <div class="score-label"><span>团队管理≥10人</span><span class="val" style="color:var(--green)">22人</span></div>
+            <div class="score-label"><span>C9博士</span><span class="val" style="color:var(--green)">清北</span></div>
+          </div>
+          <div class="card"><h4 class="warn">⚠️ 风险点</h4><ul><li>百度7年，竞业协议风险高</li><li>薪酬预期可能超VP给的150万上限</li></ul></div>
+          <div class="card"><h4 class="hl">💡 AI 补充追问</h4><ul><li>竞业协议是否涉及感知算法方向？</li><li>团队管理从5人带到22人的具体方法论？</li></ul></div>
+        </div></div>
+      </div>
+      <div class="btn-row" style="margin-top:16px"><button class="btn-outline" onclick="resetResume()">重新上传</button></div>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-outline" onclick="goStep(1)">← 上一步</button>
+      <button class="btn" onclick="goStep(3)">下一步 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="demo-panel" id="step-3">
+    <div class="btn-row" style="margin-bottom:16px">
+      <button class="btn-outline active" id="t-jd" onclick="showTab('jd')">生成JD</button>
+      <button class="btn-outline" id="t-score" onclick="showTab('score')">面试评分表</button>
+      <button class="btn-outline" id="t-ques" onclick="showTab('ques')">追问清单</button>
+    </div>
+    <div id="c-jd"><div class="panel"><div class="panel-head"><div class="dot" style="background:var(--blue)"></div> 生成的JD（基于需求卡+市场数据自动优化）</div><div class="panel-body">
+      <div class="card"><h4>🚗 自动驾驶算法负责人 — 北京亦庄</h4><p><b>岗位职责：</b></p><ul><li>主导从高精地图向无图方案的技术转型</li><li>带领10-15人算法团队，完成核心模块研发交付</li><li>建立训练pipeline、仿真验证、数据闭环体系</li></ul></div>
+      <div class="card"><h4>🎯 任职要求</h4><ul><li><span class="hl">必须</span>：5年+自动驾驶算法，有无图方案落地</li><li><span class="hl">必须</span>：2年+团队管理（10人+）</li><li><span class="good">加分</span>：Waymo/Apollo/ADS头部团队</li><li><span class="good">加分</span>：C9博士 + 顶会论文</li></ul></div>
+      <div class="card"><h4>💰 薪酬（AI建议，非VP原话）</h4><p>年薪 <b>170-220万</b> + 期权 | VP原话150万，AI对标6家竞品后建议上调13%</p></div>
+      <div class="chips"><span class="chip b">无图方案</span><span class="chip b">感知算法</span><span class="chip g">技术Leader</span><span class="chip o">AI调薪</span></div>
+    </div></div></div>
+    <div id="c-score" style="display:none"><div class="panel"><div class="panel-head"><div class="dot" style="background:var(--purple)"></div> 结构化面试评分表</div><div class="panel-body">
+      <div class="card"><h4>📐 技术深度（40%）</h4>
+        <div class="score-label"><span>感知算法深度</span><span class="val">/10</span></div><div class="score-bar"><div class="fill" style="width:0;background:var(--blue)"></div></div>
+        <div class="score-label"><span>无图方案理解</span><span class="val">/10</span></div><div class="score-bar"><div class="fill" style="width:0;background:var(--blue)"></div></div>
+        <div class="score-label"><span>端到端模型经验</span><span class="val">/10</span></div><div class="score-bar"><div class="fill" style="width:0;background:var(--blue)"></div></div>
+      </div>
+      <div class="card"><h4>🏗️ 架构能力（30%）</h4>
+        <div class="score-label"><span>系统架构设计</span><span class="val">/10</span></div><div class="score-bar"><div class="fill" style="width:0;background:var(--green)"></div></div>
+        <div class="score-label"><span>数据闭环建设</span><span class="val">/10</span></div><div class="score-bar"><div class="fill" style="width:0;background:var(--green)"></div></div>
+      </div>
+      <div class="card"><h4>👥 团队管理（30%）</h4>
+        <div class="score-label"><span>团队搭建与培养</span><span class="val">/10</span></div><div class="score-bar"><div class="fill" style="width:0;background:var(--purple)"></div></div>
+        <div class="score-label"><span>跨部门协作</span><span class="val">/10</span></div><div class="score-bar"><div class="fill" style="width:0;background:var(--purple)"></div></div>
+      </div>
+    </div></div></div>
+    <div id="c-ques" style="display:none"><div class="panel"><div class="panel-head"><div class="dot" style="background:var(--orange)"></div> AI 追问清单（针对候选人简历自动生成）</div><div class="panel-body">
+      <div class="card"><h4>🎯 技术深潜</h4><ul><li>「从高精地图迁移到无图方案，感知模块最大的架构变化是什么？」</li><li>「BEV感知中多相机时序对齐用的什么策略？」</li><li><span class="warn">防空泛：</span>「给一个具体case说明你如何解决XX技术难题」</li></ul></div>
+      <div class="card"><h4>👥 管理验证</h4><ul><li>「15人团队怎么分工？感知/规划/仿真各多少人？」</li><li>「最有潜力的人，你是怎么发现和培养TA的？」</li><li><span class="warn">识伪装：</span>只谈"我"不谈"我们"可能不是真leader</li></ul></div>
+    </div></div></div>
+    <div class="btn-nav">
+      <button class="btn-outline" onclick="goStep(2)">← 上一步</button>
+      <button class="btn" onclick="goStep(4)">下一步 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="demo-panel" id="step-4">
+    <div class="btn-row" style="margin-bottom:16px">
+      <button class="btn-outline active" id="ca" onclick="showCand('a')">候选人A · 张明</button>
+      <button class="btn-outline" id="cb" onclick="showCand('b')">候选人B · 李华</button>
+      <button class="btn-outline" id="cc" onclick="showCand('c')">候选人C · 王芳</button>
+    </div>
+    <div id="ca-c"><div class="two-col">
+      <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--orange)"></div> 简历</div><div class="panel-body"><div class="card"><h4>张明 · 38岁</h4><p><b>百度Apollo</b> 高级技术总监 · 7年<br>清华大学 博士 · CMU 博士后<br>管理22人 · CVPR×8 · 无图方案落地</p></div></div></div>
+      <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 评估</div><div class="panel-body"><div class="hire-meter"><div style="font-size:10px;color:var(--text3)">匹配度</div><div class="hire-score strong">92</div><div style="color:var(--green);font-weight:700;font-size:11px">强烈推荐</div></div>
+        <div class="card"><h4 class="good">✅ 优势</h4><ul><li>Apollo核心，无图量产经验</li><li>管理22人，超出VP要求</li><li>C9博士 + 顶会16篇</li></ul></div>
+        <div class="card"><h4 class="warn">⚠️ 风险</h4><ul><li>百度7年竞业风险</li><li>VP给150万，此人市场价190万+</li></ul></div>
+        <div class="card"><h4 class="hl">💡 AI 建议</h4><p>最优人选。建议：<br>① Offer前先确认竞业范围<br>② 薪酬上调至190万+期权<br>③ 用小米生态+L4量产前景做差异化吸引</p></div>
+      </div></div>
+    </div></div>
+    <div id="cb-c" style="display:none"><div class="two-col">
+      <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--orange)"></div> 简历</div><div class="panel-body"><div class="card"><h4>李华 · 35岁</h4><p><b>华为ADS</b> 感知专家 · 5年 + 大疆2年<br>上海交大 硕士 · 管理8人 · CVPR×3</p></div></div></div>
+      <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 评估</div><div class="panel-body"><div class="hire-meter"><div style="font-size:10px;color:var(--text3)">匹配度</div><div class="hire-score medium">71</div><div style="color:var(--orange);font-weight:700;font-size:11px">谨慎考虑</div></div>
+        <div class="card"><h4 class="good">✅ 优势</h4><ul><li>华为ADS核心团队</li><li>大疆+华为双重背景</li></ul></div>
+        <div class="card"><h4 class="warn">⚠️ 硬伤</h4><ul><li class="bad">仅管理8人，VP要求≥10人</li><li class="bad">硕士，非C9博士</li><li>华为竞业1-2年</li></ul></div>
+        <div class="card"><h4 class="hl">💡 AI 建议</h4><p>不适合算法负责人，但作为 <b>感知模块TL</b> 纳入负责人团队很有价值</p></div>
+      </div></div>
+    </div></div>
+    <div id="cc-c" style="display:none"><div class="two-col">
+      <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--orange)"></div> 简历</div><div class="panel-body"><div class="card"><h4>王芳 · 33岁</h4><p><b>Waymo</b> Senior Staff · 6年<br>浙大博士 · 斯坦福访问学者<br>零管理经验 · RSS×4 · 开源maintainer</p></div></div></div>
+      <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 评估</div><div class="panel-body"><div class="hire-meter"><div style="font-size:10px;color:var(--text3)">匹配度</div><div class="hire-score medium">68</div><div style="color:var(--orange);font-weight:700;font-size:11px">备选</div></div>
+        <div class="card"><h4 class="good">✅ 优势</h4><ul><li>Waymo核心，无图方案顶级经验</li><li>C9博士 + 顶会13篇</li></ul></div>
+        <div class="card"><h4 class="warn">⚠️ 硬伤</h4><ul><li class="bad">零管理经验，不适合负责人</li><li>在美国，回国意愿待确认</li></ul></div>
+        <div class="card"><h4 class="hl">💡 AI 建议</h4><p>不适合负责人。建议作为 <b>高级算法专家</b> 引进，技术上为负责人兜底</p></div>
+      </div></div>
+    </div></div>
+    <div class="btn-nav">
+      <button class="btn-outline" onclick="goStep(3)">← 上一步</button>
+      <button class="btn" onclick="goStep(5)">下一步 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="demo-panel" id="step-5">
+    <div class="panel" style="margin-bottom:14px"><div class="panel-head"><div class="dot" style="background:var(--purple)"></div> 面试官评分 — 选择岗位后可修改分数</div><div class="panel-body">
+      <div class="job-selector" id="job-selector"></div>
+      <div style="overflow-x:auto"><table class="data-table"><thead id="calib-thead"></thead><tbody id="calib-tbody"></tbody></table></div>
+    </div></div>
+
+    <div id="calib-before">
+      <div class="btn-row"><button class="btn" onclick="runCalib()">AI 校准计算</button></div>
+      <p style="text-align:center;color:var(--text3);font-size:11px">修改上方分数后可重新计算 · 留空输入"—"表示该面试官未评此项</p>
+    </div>
+
+    <div id="calib-result" style="display:none">
+      <div class="btn-row" style="margin-bottom:14px"><button class="btn-outline" onclick="doCalib()">重新计算</button></div>
+      <div class="two-col" style="margin-bottom:14px">
+        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--blue)"></div> 校准算法</div><div class="panel-body">
+          <div class="card"><h4>📐 计算流程</h4><p style="font-family:'Inter',monospace;font-size:10px;line-height:2;color:var(--text)">
+            <b>Step1</b> 方差检测：σ = √(Σ(xᵢ-μ)²/n)<br>
+            <b>Step2</b> 专家权重：wᵢ = expertise_match(i, dim)<br>
+            <b>Step3</b> 校准分 = Σ(wᵢ × xᵢ) / Σ(wᵢ)<br>
+            <b>Step4</b> 置信度 = 1 - (σ / 1.5)<br>
+            <b>标记</b>：σ > 1.0 → <span style="color:var(--orange)">⚠ 分歧</span>
+          </p></div>
+          <div class="card"><h4>🧑‍⚖️ 权重分配规则</h4>
+            <div class="score-label"><span>技术维度 → 技术面试官加权</span><span class="val" style="color:var(--blue)">0.6/0.4</span></div>
+            <div class="score-label"><span>管理维度 → HRBP加权</span><span class="val" style="color:var(--purple)">0.4/0.6</span></div>
+            <p style="font-size:9px;color:var(--text3);margin-top:6px">权重依据：面试官与维度的专业匹配度</p>
+          </div>
+        </div></div>
+        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--purple)"></div> 逐项推导</div><div class="panel-body" id="calib-steps"></div></div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--red)"></div> AI 分歧检测</div><div class="panel-body">
+          <div class="card"><h4 class="warn">⚠️ 关键分歧：无图方案经验（σ=1.06）</h4>
+            <ul style="margin-top:6px">
+              <li>面试官1打 <b>8.5</b>：看重整体架构贡献</li>
+              <li>面试官2打 <b>7.0</b>：关注模块hands-on经验</li>
+              <li><b>根因</b>：两人对"无图经验"的定义不同</li>
+              <li><span class="hl">AI建议</span>：补充一轮技术深潜，聚焦BEV感知的具体实现</li>
+            </ul>
+          </div>
+          <div class="card"><h4>📊 影响评估</h4><p>不校准则面试官2可能投反对票。<br>分歧维度恰好是VP最在意的无图方案，优先解决。</p></div>
+        </div></div>
+        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 录用建议</div><div class="panel-body">
+          <div class="hire-meter"><div style="font-size:10px;color:var(--text3)">推荐度</div><div class="hire-score strong">85</div><div style="color:var(--green);font-weight:700;font-size:11px">建议录用</div></div>
+          <div class="card"><ul>
+            <li><span class="good">录用</span>：校准后综合7.9</li>
+            <li><span class="warn">补充</span>：增加一轮BEV技术深潜</li>
+            <li><span class="warn">前置</span>：确认竞业协议范围</li>
+            <li><span class="bad">注意</span>：薪酬需180-200万</li>
+          </ul></div>
+        </div></div>
+      </div>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-outline" onclick="goStep(4)">← 上一步</button>
+      <button class="btn" onclick="goStep(6)">下一步 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="demo-panel" id="step-6">
+    <div class="panel" style="margin-bottom:14px"><div class="panel-head"><div class="dot" style="background:var(--blue)"></div> 竞品同岗在招情况（实时数据）</div><div class="panel-body" style="padding:0">
+      <table class="data-table">
+        <thead><tr><th>公司</th><th>岗位</th><th>薪酬</th><th class="num">在招天数</th><th class="num">投递量</th><th>热度</th></tr></thead>
+        <tbody>
+          <tr><td><b>🚗 小米汽车</b></td><td>自动驾驶算法负责人</td><td>150-200万</td><td class="num hot">45天</td><td class="num">23</td><td><span class="chip o">中</span></td></tr>
+          <tr><td><b>⚡ 字节跳动</b></td><td>自动驾驶感知负责人</td><td>180-250万</td><td class="num">30天</td><td class="num hot">67</td><td><span class="chip o">高</span></td></tr>
+          <tr><td><b>🔵 华为</b></td><td>ADS算法架构师</td><td>160-220万</td><td class="num">15天</td><td class="num">41</td><td><span class="chip o">高</span></td></tr>
+          <tr><td><b>🟠 理想</b></td><td>自动驾驶技术总监</td><td>170-230万</td><td class="num">20天</td><td class="num">38</td><td><span class="chip o">中</span></td></tr>
+        </tbody>
+      </table>
+    </div></div>
+    <div class="two-col">
+      <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--orange)"></div> 薪酬竞争力分析</div><div class="panel-body">
+        <div class="card"><h4>💰 薪酬对标</h4>
+          <div class="score-label"><span>小米 150-200万</span><span class="val" style="color:var(--red)">倒数</span></div><div class="score-bar"><div class="fill" style="width:60%;background:var(--red)"></div></div>
+          <div class="score-label"><span>字节 180-250万</span><span class="val" style="color:var(--green)">最高</span></div><div class="score-bar"><div class="fill" style="width:92%;background:var(--green)"></div></div>
+          <div class="score-label"><span>华为 160-220万</span><span class="val" style="color:var(--blue)">中上</span></div><div class="score-bar"><div class="fill" style="width:75%;background:var(--blue)"></div></div>
+          <div class="score-label"><span>理想 170-230万</span><span class="val" style="color:var(--blue)">中上</span></div><div class="score-bar"><div class="fill" style="width:78%;background:var(--blue)"></div></div>
+        </div>
+        <div class="card"><h4 class="bad">🚨 结论</h4><p>小米薪酬在4家中<b>倒数第一</b>，已招45天仅23人投递（字节30天67人）。<br><br>VP给的150万远低于竞品。如果不上调到 <b>170万+</b>，大概率招不到人。</p></div>
+      </div></div>
+      <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--purple)"></div> 人才策略建议</div><div class="panel-body">
+        <div class="card"><h4>🗺️ 人才分布</h4>
+          <p style="line-height:2;font-size:11px">
+            📍 <b>北京</b> <span style="color:var(--green)">████████████</span> 42%<br>
+            📍 <b>上海</b> <span style="color:var(--blue)">████████</span> 28%<br>
+            📍 <b>深圳</b> <span style="color:var(--orange)">████</span> 15%<br>
+            📍 <b>美国</b> <span style="color:var(--purple)">███</span> 10%
+          </p>
+        </div>
+        <div class="card"><h4>📈 AI 策略</h4><ul>
+          <li><span class="hl">薪酬</span>：上调至170-220万，候选人A给190万+</li>
+          <li><span class="hl">目标</span>：重点突破百度Apollo团队（北京42%）</li>
+          <li><span class="hl">差异化</span>：小米生态+L4量产前景+期权</li>
+          <li><span class="warn">避坑</span>：华为竞业期人才（1-2年限制）</li>
+          <li><span class="good">加速度</span>：同步启动王芳的高级专家offer</li>
+        </ul></div>
+      </div></div>
+    </div>
+    <div class="btn-nav">
+      <button class="btn-outline" onclick="goStep(5)">← 上一步</button>
+      <button class="btn" style="background:linear-gradient(135deg,var(--green),#059669)" onclick="goStep(1)">🔁 重新体验</button>
+    </div>
+  </div>
+  </div><!-- end hr-view -->
+
+  <!-- MANAGER VIEW -->
+  <div class="manager-view" id="manager-view">
+    <div class="step-progress">
+      <div class="step-item active" id="msi-1"><div class="step-circle">1</div><div class="step-label">候选人对比</div></div>
+      <div class="step-line" id="msl-1"></div>
+      <div class="step-item" id="msi-2"><div class="step-circle">2</div><div class="step-label">AI评分</div></div>
+      <div class="step-line" id="msl-2"></div>
+      <div class="step-item" id="msi-3"><div class="step-circle">3</div><div class="step-label">录用建议</div></div>
+    </div>
+    <div class="panel" style="margin-bottom:14px"><div class="panel-head"><div class="dot" style="background:var(--blue)"></div> 候选人快速对比</div><div class="panel-body" id="mgr-candidates">
+      <div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">请先在 HR 视角完成需求拆解，候选人数据将自动同步</div>
+    </div></div>
+    <div class="two-col">
+      <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 推荐排序</div><div class="panel-body" id="mgr-ranking">
+        <div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">完成需求拆解后自动生成</div>
+      </div></div>
+      <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--orange)"></div> 录用决策支持</div><div class="panel-body" id="mgr-decision">
+        <div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">选择候选人后显示决策分析</div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- CEO DASHBOARD -->
+  <div class="ceo-dashboard" id="ceo-dashboard">
+    <div class="ceo-grid">
+      <div class="ceo-card"><div class="label">招聘漏斗</div><div class="value" style="color:var(--blue)">847</div><div class="sub">本季度收到简历 · <span style="color:var(--green)">↑12%</span></div></div>
+      <div class="ceo-card"><div class="label">在招岗位</div><div class="value" style="color:var(--orange)">23</div><div class="sub">技术14 / 产品5 / 运营4</div></div>
+      <div class="ceo-card"><div class="label">平均招聘周期</div><div class="value" style="color:var(--green)">18天</div><div class="sub">vs 行业 42天 · <span style="color:var(--green)">↓57%</span></div></div>
+      <div class="ceo-card"><div class="label">Offer 接受率</div><div class="value" style="color:var(--purple)">89%</div><div class="sub">vs 行业 72% · <span style="color:var(--green)">↑17pp</span></div></div>
+      <div class="ceo-card"><div class="label">薪酬竞争力</div><div class="value" style="color:var(--cyan)">P65</div><div class="sub">65分位 · 技术岗 P58 有提升空间</div></div>
+      <div class="ceo-card"><div class="label">本月入职</div><div class="value" style="color:var(--blue)">7</div><div class="sub">算法3 / 前端2 / 后端1 / 产品1</div></div>
+    </div>
+    <div class="two-col">
+      <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--blue)"></div> 部门招聘进度</div><div class="panel-body">
+        <div class="score-label"><span>自动驾驶 · 14岗在招</span><span class="val" style="color:var(--orange)">68%</span></div><div class="score-bar"><div class="fill" style="width:68%;background:var(--orange)"></div></div>
+        <div class="score-label"><span>手机IoT · 5岗在招</span><span class="val" style="color:var(--green)">92%</span></div><div class="score-bar"><div class="fill" style="width:92%;background:var(--green)"></div></div>
+        <div class="score-label"><span>互联网业务 · 4岗在招</span><span class="val" style="color:var(--blue)">75%</span></div><div class="score-bar"><div class="fill" style="width:75%;background:var(--blue)"></div></div>
+      </div></div>
+      <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--red)"></div> AI 预警</div><div class="panel-body">
+        <div class="card"><h4 class="warn">⚠ 算法岗薪酬竞争力不足</h4><p style="font-size:11px;color:var(--text2)">自动驾驶算法负责人已招45天，投递量低于行业均值60%，建议上调薪酬区间</p></div>
+        <div class="card"><h4 class="warn">⚠ 核心人才流失风险</h4><p style="font-size:11px;color:var(--text2)">感知团队3人处于竞业观察期，需提前做好人才储备</p></div>
+      </div></div>
+    </div>
+  </div>
+
+</div></section>
+
+<!-- CAPABILITIES + DEMOS -->
+<section id="caps" style="background:rgba(255,255,255,.01)">
+<div class="container">
+  <div class="section-label centered" style="justify-content:center">CORE CAPABILITIES</div>
+  <div class="section-title" style="text-align:center">AI 能做哪些 <span class="grad">人做不了的事</span></div>
+  <div class="section-sub" style="text-align:center;margin:0 auto 12px">左侧定义能力，右侧展示真实运行效果</div>
+
+  <!-- 1. NL + JD -->
+  <div class="cap-demo-row">
+    <div class="cap-demo-left">
+      <div class="cap-icon blue" style="margin-bottom:12px">NL</div>
+      <h4 style="font-size:16px;font-weight:700;margin-bottom:8px">非结构化输入解析</h4>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">将语音、聊天记录、会议纪要等非结构化文本自动拆解为结构化岗位需求，支持多岗位混合输入、冲突检测与优先级标注。</p>
+      <div class="cap-stat blue">NLP + 结构化抽取</div>
+    </div>
+    <div class="cap-demo-right blue">
+      <div class="demo-label" style="padding:0 0 10px;border:none"><div class="pulse-dot"></div> 实际效果</div>
+      <div class="chat-bubble user" style="animation-delay:0.5s">帮我生成一个 P7 算法工程师的 JD，方向是推荐系统，北京</div>
+      <div class="chat-bubble ai" style="animation-delay:2s">
+        <b>岗位职责：</b><br>
+        1. 负责推荐系统核心算法研发与优化<br>
+        2. 主导召回/排序/重排全链路策略迭代<br>
+        3. 建立AB实验体系，驱动推荐效果持续提升<br><br>
+        <b>任职要求：</b><br>
+        • 5年+推荐/搜索算法经验<br>
+        • 精通深度学习框架（PyTorch/TensorFlow）<br>
+        • 有大规模分布式系统经验
+      </div>
+      <div style="text-align:right;margin-top:6px;opacity:0;animation:bubbleIn .3s ease forwards;animation-delay:3.5s">
+        <span class="status-tag green">30s 生成完成</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. CT + Inference -->
+  <div class="cap-demo-row">
+    <div class="cap-demo-left">
+      <div class="cap-icon green" style="margin-bottom:12px">CT</div>
+      <h4 style="font-size:16px;font-weight:700;margin-bottom:8px">隐含需求推理</h4>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">基于历史对话和岗位上下文，推断未明说的隐性要求。将模糊表述转化为可执行的筛选条件，降低需求遗漏风险。</p>
+      <div class="cap-stat green">Contextual Inference</div>
+    </div>
+    <div class="cap-demo-right green">
+      <div class="demo-label" style="padding:0 0 10px;border:none"><div class="pulse-dot" style="background:var(--green)"></div> 实际效果</div>
+      <div class="mini-row" style="animation-delay:.3s">
+        <span style="color:var(--text2);font-size:10px;min-width:50px">输入</span>
+        <span>&#8220;之前那个候选人不太行&#8221;</span>
+      </div>
+      <div class="mini-row" style="animation-delay:.8s">
+        <span style="color:var(--green);font-size:16px">↓</span>
+        <span style="color:var(--text2);font-size:10px">AI 推断历史记录</span>
+      </div>
+      <div class="mini-row" style="animation-delay:1.3s">
+        <span style="color:var(--text2);font-size:10px;min-width:50px">推理</span>
+        <span class="mini-chip green">必须有团队管理经验</span>
+      </div>
+      <div class="mini-row" style="animation-delay:1.6s">
+        <span></span>
+        <span class="mini-chip green">技术深度 ≥ P7</span>
+      </div>
+      <div class="mini-row" style="animation-delay:1.9s">
+        <span></span>
+        <span class="mini-chip green">有大厂推荐系统背景</span>
+      </div>
+      <div class="mini-row" style="animation-delay:2.3s">
+        <span style="color:var(--text2);font-size:10px;min-width:50px">输出</span>
+        <span style="font-size:11px">3条隐含条件已写入筛选规则</span>
+        <span class="status-tag green" style="margin-left:auto">已生效</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. RS + Matching -->
+  <div class="cap-demo-row">
+    <div class="cap-demo-left">
+      <div class="cap-icon blue" style="margin-bottom:12px">RS</div>
+      <h4 style="font-size:16px;font-weight:700;margin-bottom:8px">简历深度理解</h4>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">超越关键词匹配，从技能深度、项目含金量、团队规模、竞业风险等维度构建候选人画像，输出结构化评估报告。</p>
+      <div class="cap-stat blue">5维度评估模型</div>
+    </div>
+    <div class="cap-demo-right blue">
+      <div class="demo-label" style="padding:0 0 10px;border:none"><div class="pulse-dot" style="background:var(--blue)"></div> 实际效果</div>
+      <div class="mini-row" style="animation-delay:.4s">
+        <div class="avatar" style="background:var(--blue);width:24px;height:24px;font-size:9px">张</div>
+        <span style="flex:1;font-size:11px">张明 · 5年推荐 · 字节</span>
+        <span style="color:var(--green);font-weight:700;font-size:13px">94%</span>
+      </div>
+      <div class="mini-bar" style="animation-delay:.5s"><div class="mini-bar-fill" style="--w:94%;background:var(--green);animation-delay:.7s"></div></div>
+      <div class="mini-row" style="animation-delay:.9s">
+        <div class="avatar" style="background:var(--purple);width:24px;height:24px;font-size:9px">李</div>
+        <span style="flex:1;font-size:11px">李薇 · 4年搜索 · 阿里</span>
+        <span style="color:var(--blue);font-weight:700;font-size:13px">87%</span>
+      </div>
+      <div class="mini-bar" style="animation-delay:1s"><div class="mini-bar-fill" style="--w:87%;background:var(--blue);animation-delay:1.2s"></div></div>
+      <div class="mini-row" style="animation-delay:1.4s">
+        <div class="avatar" style="background:var(--cyan);width:24px;height:24px;font-size:9px">王</div>
+        <span style="flex:1;font-size:11px">王磊 · 3年NLP · 美团</span>
+        <span style="color:var(--orange);font-weight:700;font-size:13px">72%</span>
+      </div>
+      <div class="mini-bar" style="animation-delay:1.5s"><div class="mini-bar-fill" style="--w:72%;background:var(--orange);animation-delay:1.7s"></div></div>
+      <div style="margin-top:8px;opacity:0;animation:bubbleIn .3s ease forwards;animation-delay:2.2s;font-size:10px;color:var(--text2)">评估维度：技能深度 · 项目含金量 · 团队规模 · 竞业风险 · 稳定性</div>
+    </div>
+  </div>
+
+  <!-- 4. IC + Calibration -->
+  <div class="cap-demo-row">
+    <div class="cap-demo-left">
+      <div class="cap-icon green" style="margin-bottom:12px">IC</div>
+      <h4 style="font-size:16px;font-weight:700;margin-bottom:8px">面试校准引擎</h4>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">自动检测多面试官评分分歧，定位分歧维度与成因（评估粒度差异、标准偏移），输出校准建议与加权得分。</p>
+      <div class="cap-stat green">Interview Calibration</div>
+    </div>
+    <div class="cap-demo-right green">
+      <div class="demo-label" style="padding:0 0 10px;border:none"><div class="pulse-dot" style="background:var(--green)"></div> 实际效果</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;font-size:10px;border-collapse:collapse;text-align:center">
+          <tr style="color:var(--text2)"><th style="padding:4px;text-align:left">维度</th><th style="padding:4px">面试官A</th><th style="padding:4px">面试官B</th><th style="padding:4px">面试官C</th><th style="padding:4px">校准</th></tr>
+          <tr class="mini-row" style="animation-delay:.4s"><td style="padding:4px;text-align:left">算法能力</td><td style="padding:4px">8.5</td><td style="padding:4px">8.0</td><td style="padding:4px">8.5</td><td style="color:var(--green);font-weight:700">8.3</td></tr>
+          <tr class="mini-row" style="animation-delay:.8s"><td style="padding:4px;text-align:left">系统设计</td><td style="padding:4px">7.0</td><td style="padding:4px">9.0</td><td style="padding:4px">7.5</td><td style="color:var(--orange);font-weight:700">7.8 <span class="warn" style="font-size:9px">分歧</span></td></tr>
+          <tr class="mini-row" style="animation-delay:1.2s"><td style="padding:4px;text-align:left">沟通协作</td><td style="padding:4px">8.0</td><td style="padding:4px">8.5</td><td style="padding:4px">8.0</td><td style="color:var(--green);font-weight:700">8.2</td></tr>
+          <tr class="mini-row" style="animation-delay:1.6s"><td style="padding:4px;text-align:left">文化匹配</td><td style="padding:4px">9.0</td><td style="padding:4px">8.5</td><td style="padding:4px">9.0</td><td style="color:var(--green);font-weight:700">8.8</td></tr>
+        </table>
+      </div>
+      <div class="mini-row" style="animation-delay:2s;margin-top:6px">
+        <div class="card" style="padding:6px 10px;width:100%"><h4 class="warn" style="font-size:10px">⚠ 系统设计维度 σ=0.87，面试官B评分偏高，建议校准讨论</h4></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MC + Compensation -->
+  <div class="cap-demo-row">
+    <div class="cap-demo-left">
+      <div class="cap-icon purple" style="margin-bottom:12px">MC</div>
+      <h4 style="font-size:16px;font-weight:700;margin-bottom:8px">薪酬市场对标</h4>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">实时聚合市场薪酬数据，按岗位×级别×城市多维对标，自动预警预算偏离，提供调整区间建议。</p>
+      <div class="cap-stat purple">Market Compensation</div>
+    </div>
+    <div class="cap-demo-right purple">
+      <div class="demo-label" style="padding:0 0 10px;border:none"><div class="pulse-dot" style="background:var(--purple)"></div> 实际效果</div>
+      <div class="mini-row" style="animation-delay:.3s">
+        <span style="flex:1;font-size:11px">算法工程师 P6 北京</span>
+        <span class="mini-chip blue">55-75万</span>
+      </div>
+      <div class="mini-row" style="animation-delay:.6s">
+        <span style="flex:1;font-size:11px">算法工程师 P6 上海</span>
+        <span class="mini-chip blue">50-70万</span>
+      </div>
+      <div class="mini-row" style="animation-delay:.9s">
+        <span style="flex:1;font-size:11px">产品经理 P7 北京</span>
+        <span class="mini-chip purple">65-90万</span>
+      </div>
+      <div class="mini-row" style="animation-delay:1.2s">
+        <span style="flex:1;font-size:11px">前端工程师 P5 深圳</span>
+        <span class="mini-chip orange">35-50万</span>
+      </div>
+      <div class="mini-row" style="animation-delay:1.6s">
+        <div class="card" style="padding:6px 10px;width:100%;border-color:rgba(239,68,68,.3)"><h4 class="bad" style="font-size:10px">🚨 当前团队算法岗 P6 实际 48万，低于市场 P25（50万），建议优先调薪</h4></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. MI + Pipeline -->
+  <div class="cap-demo-row" style="border-bottom:none">
+    <div class="cap-demo-left">
+      <div class="cap-icon purple" style="margin-bottom:12px">MI</div>
+      <h4 style="font-size:16px;font-weight:700;margin-bottom:8px">竞品人才洞察</h4>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">聚合竞品招聘动态、薪酬区间、人才分布数据，输出岗位竞争力分析和人才策略建议。</p>
+      <div class="cap-stat purple">Market Intelligence</div>
+    </div>
+    <div class="cap-demo-right purple">
+      <div class="demo-label" style="padding:0 0 10px;border:none"><div class="pulse-dot" style="background:var(--purple)"></div> 全链路运行</div>
+      <div class="mini-row" style="animation-delay:.3s;gap:8px">
+        <span style="font-size:12px">📌</span>
+        <span style="flex:1;font-size:11px">需求拆解</span>
+        <span class="status-tag green">完成</span>
+      </div>
+      <div class="mini-row" style="animation-delay:.6s;gap:8px">
+        <span style="font-size:12px">📄</span>
+        <span style="flex:1;font-size:11px">简历解析</span>
+        <span class="status-tag green">完成</span>
+      </div>
+      <div class="mini-row" style="animation-delay:.9s;gap:8px">
+        <span style="font-size:12px">✏️</span>
+        <span style="flex:1;font-size:11px">JD 生成</span>
+        <span class="status-tag green">完成</span>
+      </div>
+      <div class="mini-row" style="animation-delay:1.2s;gap:8px">
+        <span style="font-size:12px">🔍</span>
+        <span style="flex:1;font-size:11px">候选人评估</span>
+        <span class="status-tag green">完成</span>
+      </div>
+      <div class="mini-row" style="animation-delay:1.5s;gap:8px">
+        <span style="font-size:12px">⚖️</span>
+        <span style="flex:1;font-size:11px">面试校准</span>
+        <span class="status-tag green">完成</span>
+      </div>
+      <div class="mini-row" style="animation-delay:1.8s;gap:8px">
+        <span style="font-size:12px">📊</span>
+        <span style="flex:1;font-size:11px">市场洞察</span>
+        <span class="status-tag green">完成</span>
+      </div>
+      <div style="text-align:center;margin-top:8px;opacity:0;animation:bubbleIn .3s ease forwards;animation-delay:2.5s">
+        <span style="font-size:11px;color:var(--text2)">全程 <b style="color:var(--green)">4分38秒</b> · 零人工介入</span>
+      </div>
+    </div>
+  </div>
+
+</div></section>
+
+<footer>
+  <div class="brand"><span class="ai">AI</span> Recruiter</div>
+  <p>智能招聘全流程Agent · AI HR Competition · 2026 · Generated by CC~</p>
+</footer>
+
+<script>
+function scrollToSection(sel){document.querySelector(sel)?.scrollIntoView({behavior:'smooth',block:'start'})}
+window.addEventListener('scroll',()=>{document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>50)})
+
+// Step nav
+let currentStep=1
+function goStep(n){
+  for(let i=1;i<=6;i++){
+    document.getElementById('step-'+i).classList.remove('active')
+    const si=document.getElementById('si-'+i)
+    si.classList.remove('active','done')
+    if(i<n) si.classList.add('done')
+    else if(i===n) si.classList.add('active')
+    if(i<=5) document.getElementById('sl-'+i).classList.toggle('done',i<n)
+  }
+  document.getElementById('step-'+n).classList.add('active')
+  currentStep=n
+  document.getElementById('demo').scrollIntoView({behavior:'smooth',block:'start'})
+}
+
+// Step 1: Parse — Generic (works for any job title)
+var PRESETS = {
+  algo: '那个…HR这边帮我看下，智驾那边要招人，算法方向的，嗯…主要就是搞无图方案的，之前高精地图的路线要换了。对，招个能带团队的，之前李总说最好是从Waymo或者Apollo出来的，C9的博士更好，不过硕士特别优秀的也不是不行。薪酬的话…嗯…150万左右吧应该够了，实在不行可以加期权。base北京亦庄。\n\n另外感知那边也缺人，之前面过一个华为ADS的，技术还行但团队管理经验不够，你帮我看看有没有更合适的。还有数据闭环那块老刘一直在催，说仿真那边跑不动，需要有大规模数据处理经验的。算了你先看吧，具体的我让老刘跟你说。',
+  pm: '帮我看下产品这边，我们新业务线要找个产品经理，主要是做C端的，用户增长方向。最好从大厂出来的，字节、美团那些都行。薪酬60-80万，base上海。',
+  misc: '帮我招两个岗位：一个是运营总监，要有互联网运营5年以上经验，能带20人团队；另一个是财务经理，要四大背景，懂IPO审计。运营40-60万，财务30-50万。都base深圳。'
+}
+function loadPreset(key){
+  document.getElementById('req-input').value = PRESETS[key]
+}
+
+function extractTitles(txt){
+  var titles = []
+  var found = []
+  var txtUpper = txt.toUpperCase()
+
+  // Full job title dictionary — 3+ chars, includes compound forms
+  var TITLE_DICT = [
+    '高级前端开发工程师','高级后端开发工程师','高级测试开发工程师','高级运维开发工程师',
+    '自动驾驶算法负责人','自动驾驶感知负责人','自动驾驶规划控制工程师',
+    '交互设计师','视觉设计师','UI设计师','UX设计师','数据分析师','数据产品经理',
+    '产品经理','产品总监','产品助理','产品运营',
+    '前端开发工程师','后端开发工程师','测试开发工程师','运维开发工程师',
+    '前端开发','后端开发','算法工程师','算法专家','架构师','高级架构师',
+    '安卓开发工程师','iOS开发工程师','客户端开发',
+    '机器学习工程师','深度学习工程师','NLP工程师','推荐算法工程师',
+    '数据工程师','数据科学家','大数据开发','数据分析',
+    'DevOps工程师','SRE工程师','DBA数据库管理员',
+    '销售经理','销售总监','商务经理','商务拓展','大客户经理','销售代表',
+    '运营经理','运营总监','用户运营','内容运营','活动运营','社区运营','电商运营','游戏运营','视频运营',
+    '市场经理','市场总监','品牌经理','公关经理','营销经理',
+    '项目经理','项目总监','产品运营',
+    '财务经理','财务总监','会计主管','审计经理','税务经理',
+    '法务经理','法务总监','合规经理','知识产权经理','法务专员',
+    '人力资源经理','人力资源总监','HRBP','HRD','招聘经理','培训经理','OD','人力资源',
+    '采购经理','供应链经理','物流经理','采购专员',
+    '客服经理','客服总监','质量管理经理','客服专员',
+    '行政经理','行政总监','办公室主任','行政专员',
+    '游戏策划','视频编辑','搜索工程师','推荐工程师','广告优化师',
+    '风控经理','合规经理','审计经理','投资经理','战略经理',
+    'CTO','CFO','COO','CEO','VP','总监','经理','主管','负责人','专家',
+    '实习生','校招生','应届生',
+    '安全工程师','测试工程师','运维工程师','前端工程师','后端工程师',
+  ]
+  // Category keywords — 2 chars, need context check
+  var CAT_DICT = [
+    'HR','PM','BD',
+    '前端','后端','算法','测试','运维','安全','数据',
+    '产品','设计','运营','销售','市场','商务',
+    '客服','财务','法务','人事','行政','采购',
+    '游戏','电竞','视频','搜索','推荐','广告',
+    '风控','合规','审计','投资','战略',
+    '机器人','仿真','自动驾驶','感知',
+  ]
+
+  // Detect JD-style input early (岗位描述 vs 招聘需求)
+  var jdIndicators = ['岗位职责','任职要求','任职资格','工作职责','岗位要求','职位描述','职位要求','工作内容']
+  var isJD = jdIndicators.some(function(ind){ return txt.indexOf(ind) !== -1 })
+
+  // Phase 1: match full titles (3+ chars), longest first
+  TITLE_DICT.sort(function(a,b){ return b.length - a.length })
+  for(var i = 0; i < TITLE_DICT.length; i++){
+    var kw = TITLE_DICT[i]
+    var searchIn = /^[A-Za-z]+$/.test(kw) ? txtUpper : txt
+    if(searchIn.indexOf(kw.toUpperCase()) !== -1){
+      // Skip if already covered by a longer match
+      var dominated = found.some(function(f){ return f.indexOf(kw) !== -1 })
+      if(!dominated) found.push(kw)
+    }
+    // If JD-style text, cap at 1 title — a JD describes one position
+    if(isJD && found.length >= 1) break
+  }
+
+  // Phase 2: only run when text contains job-title indicators (hiring request, not a JD)
+  var jobIndicators = ['岗位','招','聘','找','职位','需要招聘','招聘中','急招','社招','校招']
+  var hasJobInd = jobIndicators.some(function(ind){ return txt.indexOf(ind) !== -1 })
+  // But NOT if it's a JD description (already detected above)
+
+  var CAT_TO_TITLE = {
+    'HR':'HR','HRBP':'HRBP','PM':'PM','BD':'BD',
+    '前端':'前端工程师','后端':'后端工程师','算法':'算法工程师',
+    '测试':'测试工程师','运维':'运维工程师','安全':'安全工程师',
+    '数据':'数据分析师','产品':'产品经理','设计':'设计师',
+    '运营':'运营经理','销售':'销售经理','市场':'市场经理',
+    '商务':'商务经理','客服':'客服专员','财务':'财务经理',
+    '法务':'法务专员','人事':'人事专员','行政':'行政专员',
+    '采购':'采购经理','游戏':'游戏策划','视频':'视频运营',
+    '搜索':'搜索工程师','推荐':'推荐算法工程师','广告':'广告运营',
+    '风控':'风控经理','合规':'合规专员','审计':'审计经理',
+    '投资':'投资经理','战略':'战略经理','机器人':'机器人工程师',
+    '仿真':'仿真工程师','自动驾驶':'自动驾驶工程师','感知':'感知算法工程师',
+  }
+
+  if(hasJobInd && !isJD){
+    for(var j = 0; j < CAT_DICT.length; j++){
+      var kw2 = CAT_DICT[j]
+      var si = /^[A-Za-z]+$/.test(kw2) ? txtUpper : txt
+      if(si.indexOf(kw2.toUpperCase()) === -1) continue
+      // Skip if already covered by a longer match in found[]
+      if(found.some(function(f){ return f.indexOf(kw2) !== -1 || kw2.indexOf(f) !== -1 })) continue
+
+      var isCJK = /^[\u4e00-\u9fa5]+$/.test(kw2)
+      var isAlpha = /^[A-Za-z]+$/.test(kw2)
+
+      if(isCJK){
+        // Check: any TITLE_DICT entry containing this keyword present in text?
+        // If yes, keyword is part of a compound title → skip (handled by Phase 1)
+        var inCompound = TITLE_DICT.some(function(t){
+          return t.length > kw2.length && t.indexOf(kw2) !== -1 && txt.toUpperCase().indexOf(t.toUpperCase()) !== -1
+        })
+        if(inCompound) continue
+
+        // Blacklist: known non-job compounds where keyword appears but isn't a job title
+        var NON_JOB_COMPOUNDS = [
+          '招聘数据','统计数据','数据驱动','数据统计','数据支撑','数据基础',
+          '数据分析是','数据支持','技术栈','业务发展','发展趋势',
+          '战略规划','战略部署','投资并购','市场营销是','运营数据','IPO审计','内部审计',
+        ]
+        var blacklisted = false
+        for(var bl = 0; bl < NON_JOB_COMPOUNDS.length; bl++){
+          if(txt.indexOf(NON_JOB_COMPOUNDS[bl]) !== -1 && NON_JOB_COMPOUNDS[bl].indexOf(kw2) !== -1){
+            blacklisted = true; break
+          }
+        }
+        if(blacklisted) continue
+
+        // Context check: accept if next char is title suffix, prev char is job-request, or punctuation boundary
+        var TITLE_SUFFIX = '师员生手工经总理管事务计核政备划岗方向'
+        var JOB_BEFORE = '招聘找需和及与或'
+        var accepted = false
+        for(var pos = si.indexOf(kw2); pos !== -1 && !accepted; pos = si.indexOf(kw2, pos+1)){
+          var nc = si.charAt(pos + kw2.length)
+          var pc = pos > 0 ? si.charAt(pos - 1) : ''
+          if(nc && TITLE_SUFFIX.indexOf(nc) !== -1) accepted = true
+          else if(pc && JOB_BEFORE.indexOf(pc) !== -1) accepted = true
+          else if(nc && '，。、；：！？,.:;!?\n\r\t '.indexOf(nc) !== -1) accepted = true
+        }
+        if(!accepted) continue
+      }
+
+      if(isAlpha){
+        // English abbreviation — accept if next char is CJK; skip vocative use (e.g. "那个HR帮我看下")
+        var VOCATIVE = '的这那你们我帮看好先们是就还也又'
+        var JOB_AFTER = '岗位招聘职位经理总监主管工程师'
+        var aAccepted = false
+        for(var apos = si.indexOf(kw2.toUpperCase()); apos !== -1 && !aAccepted; apos = si.indexOf(kw2.toUpperCase(), apos+1)){
+          var anc = si.charAt(apos + kw2.length)
+          if(!anc || anc.charCodeAt(0) < 0x4E00) continue
+          if(VOCATIVE.indexOf(anc) !== -1){
+            // Vocative marker — check if job indicator follows within 6 chars
+            var after = si.substring(apos + kw2.length, apos + kw2.length + 6)
+            var hasJob = false
+            for(var ji = 0; ji < JOB_AFTER.length && !hasJob; ji++){
+              if(after.indexOf(JOB_AFTER.charAt(ji)) !== -1) hasJob = true
+            }
+            if(!hasJob) continue
+          }
+          aAccepted = true
+        }
+        if(!aAccepted) continue
+      }
+
+      found.push(kw2)
+    }
+  }
+
+  found.forEach(function(kw){
+    var title = CAT_TO_TITLE[kw] || kw
+    if(titles.indexOf(title) === -1) titles.push(title)
+  })
+
+  return titles
+}
+
+function parseReq(){
+  var txt = document.getElementById('req-input').value
+  var titles = extractTitles(txt)
+  var colors = ['red','orange','blue','purple','cyan','green']
+
+  // Step 1: Segment multi-position inputs
+  var segments = splitSegments(txt, titles)
+
+  // Step 2: Per-segment requirement extraction
+  var positions = segments.map(function(seg){ return extractReqs(seg.text, seg.title) })
+
+  // Step 3: Build structured output
+  var html = ''
+
+  // Summary
+  html += '<div class="card"><h4>\uD83D\uDCCB AI 识别到 <span style="color:var(--red)">'+titles.length+'个岗位需求</span></h4>'
+    +'<div class="chips">'+titles.map(function(t){return '<span class="chip b">'+t+'</span>'}).join('')+'</div>'
+    +'<p style="font-size:9px;color:var(--text3);margin-top:6px">输入'+txt.length+'字 · 已分段分析</p></div>'
+
+  // Per-position cards with completeness
+  positions.forEach(function(pos, i){
+    var clr = colors[i % colors.length]
+    var total = 5
+    var filled = (pos.edu.length?1:0)+(pos.exp.length?1:0)+(pos.sal.length?1:0)+(pos.loc.length?1:0)+(pos.skills.length?1:0)
+    var pct = Math.round(filled/total*100)
+    var barClr = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--orange)' : 'var(--red)'
+
+    html += '<div class="card" style="border-left:3px solid var(--'+clr+')">'
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+    html += '<h4 style="margin:0"><span style="color:var(--'+clr+')">\u25CF</span> '+pos.title+'</h4>'
+    html += '<span style="font-size:11px;font-weight:700;color:'+barClr+'">'+pct+'%</span></div>'
+    html += '<div style="height:3px;background:var(--bg2);border-radius:2px;margin-bottom:10px"><div style="height:100%;width:'+pct+'%;background:'+barClr+';border-radius:2px"></div></div>'
+    // Requirement tags
+    html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">'
+    var fields = [{k:'edu',l:'学历'},{k:'exp',l:'经验'},{k:'sal',l:'薪酬'},{k:'loc',l:'地点'},{k:'skills',l:'技能'}]
+    fields.forEach(function(f){
+      if(pos[f.k].length){
+        html += '<span style="font-size:10px;padding:2px 8px;background:rgba(52,211,153,.1);color:var(--green);border-radius:10px">\u2713 '+f.l+'：'+pos[f.k].join('、')+'</span>'
+      } else {
+        html += '<span style="font-size:10px;padding:2px 8px;background:rgba(239,68,68,.06);color:var(--red);border-radius:10px">\u2717 '+f.l+'待确认</span>'
+      }
+    })
+    html += '</div>'
+    if(pos.src.length) html += '<div style="font-size:10px;color:var(--text3)">目标公司：'+pos.src.join(' / ')+'</div>'
+    if(pos.team.length) html += '<div style="font-size:10px;color:var(--text3);margin-top:2px">'+pos.team.join('、')+'</div>'
+    html += '</div>'
+  })
+
+  // Risks (data-driven, not generic)
+  var risks = []
+  positions.forEach(function(pos, i){
+    if(!pos.edu.length) risks.push({lv:'warn', t:'岗位'+(i+1)+'（'+pos.title+'）未指定学历，简历筛选标准待确认'})
+    if(!pos.exp.length) risks.push({lv:'warn', t:'岗位'+(i+1)+'（'+pos.title+'）未指定经验年限，候选人范围过宽'})
+    if(!pos.sal.length) risks.push({lv:'bad', t:'岗位'+(i+1)+'（'+pos.title+'）未给薪酬预算，需与用人方确认'})
+  })
+  if(titles.length > 1) risks.push({lv:'bad', t:titles.length+'个岗位并行，建议排优先级'})
+  var allSrc = []
+  positions.forEach(function(p){ p.src.forEach(function(s){ if(allSrc.indexOf(s)===-1) allSrc.push(s) }) })
+  if(allSrc.length) risks.push({lv:'warn', t:'目标公司（'+allSrc.join('、')+'）竞业限制需排查'})
+  if(risks.length){
+    html += '<div class="card" style="border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.03)"><h4 class="bad">\u26A0\uFE0F 风险提示</h4><ul>'
+    risks.forEach(function(r){ html += '<li><span class="'+r.lv+'">\u26A0</span> '+r.t+'</li>' })
+    html += '</ul></div>'
+  }
+
+  // Actions (specific)
+  html += '<div class="card" style="border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.03)"><h4 class="good">\uD83D\uDCA1 行动建议</h4><ul>'
+  html += '<li><span class="good">立即启动</span>：已拆解为'+titles.length+'个独立需求</li>'
+  positions.forEach(function(pos, i){
+    if(!pos.sal.length) html += '<li><span class="warn">待确认</span>：岗位'+(i+1)+'（'+pos.title+'）需确认薪酬预算</li>'
+  })
+  html += '<li><span class="good">下一步</span>：上传简历 → 自动匹配 '+titles.join('/')+'</li>'
+  html += '</ul></div>'
+
+  document.getElementById('req-output').innerHTML = html
+
+  // Generate dynamic Step 3
+  if(titles.length > 0) generateJDContent(titles, txt)
+  // Sync Step 5
+  if(titles.length > 0){
+    var firstTitle = titles[0]
+    if(JOB_TEMPLATES[firstTitle]) currentJob = firstTitle
+    else { currentJob = 'custom'; customJobTitle = firstTitle }
+    buildJobSelector(); buildCalibTable()
+    document.getElementById('calib-before').style.display='block'
+    document.getElementById('calib-result').style.display='none'
+  }
+}
+
+function splitSegments(txt, titles){
+  if(titles.length <= 1) return [{title: titles[0]||'', text: txt}]
+  var sepRe = /(?:另外|还有|以及|同时|此外|其次|再[者要]|还[要得]|；|。\s*(?:对[了的]?|[还也])\s*)/g
+  var breaks = [], m
+  while((m = sepRe.exec(txt)) !== null) breaks.push({idx:m.index, len:m[0].length})
+  if(!breaks.length) return [{title: titles[0]||'', text: txt}]
+  breaks.sort(function(a,b){ return a.idx - b.idx })
+  var parts = [], last = 0
+  breaks.forEach(function(b){ parts.push(txt.substring(last, b.idx)); last = b.idx + b.len })
+  parts.push(txt.substring(last))
+  var result = [], ti = 0
+  parts.forEach(function(p){
+    p = p.trim(); if(!p) return
+    if(hasJobKW(p)){ result.push({title: titles[ti]||'', text: p}); ti++ }
+    else if(result.length) result[result.length-1].text += ' ' + p
+    else { result.push({title: titles[ti]||'', text: p}); ti++ }
+  })
+  return result.length ? result : [{title: titles[0]||'', text: txt}]
+}
+
+function hasJobKW(s){
+  var kws = ['招','聘','找','岗位','职位','缺人','要个','需要','工程师','经理','总监','主管',
+    '前端','后端','算法','测试','运维','安全','数据','产品','设计','运营','销售','市场',
+    '商务','客服','财务','法务','人事','行政','采购','游戏','HR','PM','BD']
+  for(var i=0;i<kws.length;i++) if(s.indexOf(kws[i])!==-1) return true
+  return false
+}
+
+function extractReqs(segText, title){
+  var t = segText
+  return {
+    title: title,
+    edu: dedup(t.match(/(?:博士|硕士|本科|大专|MBA|C9|985|211)/g) || []),
+    exp: dedup(t.match(/(\d+)\s*(?:年|yr)/g) || []),
+    sal: dedup(t.match(/(\d+)\s*[-到~]\s*(\d+)\s*万/g) || []),
+    loc: dedup((t.match(/(?:base|Base)\s*([\u4e00-\u9fa5]{2,6})/g) || []).concat(t.match(/(?:北京|上海|深圳|广州|杭州|成都|南京|武汉|西安|厦门|重庆|长沙|苏州)/g) || [])),
+    team: dedup(t.match(/(?:带团队|带队|\d+\s*人\s*(?:团队|组|部门))/g) || []),
+    src: dedup(t.match(/(?:Waymo|Apollo|华为|字节|阿里|腾讯|百度|美团|京东|小米|Google|Meta|Microsoft|Amazon|苹果|Uber|特斯拉|Tesla|四大)/g) || []),
+    skills: dedup((t.match(/(?:精通|熟悉|掌握|擅长|需要|要求|具备)\s*([\u4e00-\u9fa5A-Za-z\/\+\.]{2,16})/g) || []).map(function(s){return s.replace(/(?:精通|熟悉|掌握|擅长|需要|要求|具备)\s*/,'')}).filter(function(s){return s.length>=2}).slice(0,5))
+  }
+}
+
+function dedup(arr){ var r=[]; arr.forEach(function(v){if(r.indexOf(v)===-1)r.push(v)}); return r }
+
+
+// Step 2: Resume
+function parseResume(){
+  document.getElementById('upload-area').style.display='none'
+  document.getElementById('resume-parsing').style.display='block'
+  const s=['ps1','ps2','ps3','ps4','ps5','ps6']
+  s.forEach((id,i)=>{setTimeout(()=>{
+    if(i>0){document.getElementById(s[i-1]).className='parse-step done';document.getElementById(s[i-1]).querySelector('.check').textContent='✓'}
+    document.getElementById(id).className='parse-step active'
+    document.getElementById(id).querySelector('.check').textContent='⟳'
+  },i*500)})
+  setTimeout(()=>{document.getElementById(s[5]).className='parse-step done';document.getElementById(s[5]).querySelector('.check').textContent='✓'},6*500)
+  setTimeout(()=>{document.getElementById('resume-parsing').style.display='none';document.getElementById('resume-result').style.display='block'},6*500+400)
+}
+function resetResume(){
+  document.getElementById('resume-result').style.display='none'
+  document.getElementById('resume-parsing').style.display='none'
+  document.getElementById('upload-area').style.display='block'
+  ;['ps1','ps2','ps3','ps4','ps5','ps6'].forEach(id=>{const e=document.getElementById(id);e.className='parse-step';e.querySelector('.check').textContent='⏳'})
+}
+
+// Drag-drop
+const dz=document.getElementById('drop-zone')
+if(dz){dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over')})
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'))
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');parseResume()})}
+
+// ===== Dynamic JD Generation =====
+var JD_TEMPLATES = {
+  algo: {
+    resp: ['负责核心算法模块的设计、开发与优化','构建数据处理pipeline，推动模型训练与迭代','跟踪前沿技术，主导技术方案选型与落地','输出技术文档，指导团队成员技术成长'],
+    skills: ['扎实的算法基础与编程能力','熟练掌握Python/C++，熟悉主流ML框架','良好的系统设计与工程化能力','数据驱动的分析与优化经验'],
+    mgmtResp: ['制定技术路线图，把控整体技术方向','搭建并带领技术团队，培养核心骨干','协调跨部门资源，推动项目高质量交付','建立技术规范与工程标准'],
+    mgmtSkills: ['团队搭建与人才培养经验','出色的跨部门沟通与推动能力','技术决策与风险把控能力','项目管理与资源调配能力'],
+    tags: ['技术深耕','方案落地','工程优化'],
+    mgmtTags: ['技术Leader','团队搭建','跨部门协作'],
+  },
+  product: {
+    resp: ['深入分析用户需求，输出高质量PRD','规划产品路线图，驱动核心功能迭代','协调研发、设计、运营等团队推进项目','建立数据指标体系，用数据驱动产品决策'],
+    skills: ['优秀的需求分析与产品设计能力','熟练使用数据分析工具','出色的沟通协调与项目推动能力','对用户体验有深刻理解'],
+    mgmtResp: ['制定产品战略，把控产品方向与节奏','搭建产品团队，建立规范化的PRD流程','对接业务方需求，平衡各方优先级','建立产品数据看板，驱动业务增长'],
+    mgmtSkills: ['产品团队管理经验','商业sense与战略思维','出色的跨部门影响力','数据驱动的决策能力'],
+    tags: ['用户洞察','数据驱动','产品设计'],
+    mgmtTags: ['产品规划','团队管理','商业sense'],
+  },
+  tech: {
+    resp: ['负责系统核心模块的设计与开发','参与技术选型、架构设计与代码评审','优化系统性能，保障服务稳定性','持续改进工程质量，推动技术升级'],
+    skills: ['扎实的计算机基础与编程能力','熟悉主流开发框架与工具链','良好的系统设计与问题排查能力','优秀的代码质量意识'],
+    mgmtResp: ['制定技术方案，把控系统架构方向','搭建并带领研发团队，保障交付质量','建立代码规范、CI/CD与监控体系','协调跨团队技术合作与资源调配'],
+    mgmtSkills: ['技术团队管理与培养经验','系统架构设计与技术决策能力','出色的沟通协调与推动能力','项目管理与交付把控能力'],
+    tags: ['技术深耕','系统架构','工程优化'],
+    mgmtTags: ['技术Leader','团队搭建','架构设计'],
+  },
+  design: {
+    resp: ['负责产品视觉/交互/UI设计','建立并维护设计规范与组件库','与产品、研发紧密协作，确保设计落地','进行用户研究，用数据验证设计方案'],
+    skills: ['优秀的设计审美与创意能力','精通Figma/Sketch等设计工具','良好的用户研究与数据分析能力','出色的沟通表达与方案讲解能力'],
+    mgmtResp: ['制定设计团队方向与品质标准','搭建并带领设计团队','建立设计系统与规范体系','推动设计驱动的业务创新'],
+    mgmtSkills: ['设计团队管理经验','品牌意识与设计战略思维','跨团队协作与影响力','用户洞察与市场趋势判断'],
+    tags: ['设计创新','用户体验','设计系统'],
+    mgmtTags: ['设计管理','品牌战略','团队搭建'],
+  },
+  ops: {
+    resp: ['制定并执行运营策略，提升核心指标','负责用户/内容/活动运营的全链路管理','建立数据监控体系，持续优化运营效率','跨团队协作，推动运营产品化与自动化'],
+    skills: ['优秀的数据分析与策略制定能力','出色的文案策划与创意能力','良好的项目管理与执行能力','对用户增长与留存有深刻理解'],
+    mgmtResp: ['制定运营战略，把控整体运营节奏','搭建并带领运营团队','建立运营SOP与数据指标体系','协调跨部门资源，推动业务增长'],
+    mgmtSkills: ['运营团队管理经验','商业sense与增长思维','出色的跨部门协调能力','数据驱动的精细化运营能力'],
+    tags: ['数据运营','用户增长','策略制定'],
+    mgmtTags: ['运营管理','增长策略','团队搭建'],
+  },
+  sales: {
+    resp: ['开拓并维护重点客户资源','制定销售策略，完成业绩目标','深度理解客户需求，提供解决方案','维护客户关系，推动持续合作'],
+    skills: ['优秀的商务谈判与沟通能力','敏锐的市场洞察与客户分析能力','强烈的目标导向与抗压能力','良好的行业知识与解决方案能力'],
+    mgmtResp: ['制定销售战略与目标分解','搭建并带领销售团队','建立销售流程与激励体系','开拓重点行业与大客户'],
+    mgmtSkills: ['销售团队管理与培养经验','出色的商务谈判与关系维护','战略思维与市场布局能力','目标管理与业绩驱动能力'],
+    tags: ['商务拓展','客户管理','业绩驱动'],
+    mgmtTags: ['销售管理','团队搭建','战略规划'],
+  },
+  hr: {
+    resp: ['负责招聘全流程管理，高效交付人才','推动绩效管理与人才发展体系建设','维护员工关系，处理劳动关系事务','参与组织诊断与文化建设'],
+    skills: ['熟悉人力资源各模块运作','优秀的沟通协调与面试技巧','良好的数据分析与报告能力','劳动法规与合规知识'],
+    mgmtResp: ['制定人力资源战略规划','搭建并带领HR团队','建立组织诊断与人才盘点机制','推动企业文化建设与变革管理'],
+    mgmtSkills: ['HR团队管理经验','组织发展与变革管理能力','出色的跨部门影响力','战略思维与商业理解'],
+    tags: ['人才招聘','组织发展','文化建设'],
+    mgmtTags: ['HR管理','组织变革','团队搭建'],
+  },
+  finance: {
+    resp: ['负责财务核算、报表编制与分析','参与预算编制与成本管控','对接审计与税务相关事务','提供财务分析与决策支持'],
+    skills: ['扎实的财务会计专业知识','熟练使用财务软件与Excel','良好的数据分析与报告能力','熟悉财税法规与合规要求'],
+    mgmtResp: ['制定财务战略与预算规划','搭建并带领财务团队','建立内控体系与风险管理机制','对接董事会与投资者关系'],
+    mgmtSkills: ['财务管理团队经验','战略财务规划能力','出色的合规与风控意识','跨部门沟通与协调能力'],
+    tags: ['财务分析','预算管控','合规管理'],
+    mgmtTags: ['财务战略','团队搭建','风险管理'],
+  },
+  legal: {
+    resp: ['负责合同审核与法律风险评估','处理知识产权保护与合规事务','提供法律咨询与合规培训','参与公司治理与重大决策支持'],
+    skills: ['扎实的法律专业知识','优秀的合同审核与风险识别能力','良好的沟通协调与谈判能力','熟悉行业监管与合规要求'],
+    mgmtResp: ['制定法务合规战略与制度','搭建并带领法务团队','建立法律风险防控体系','处理重大法律事务与争议'],
+    mgmtSkills: ['法务团队管理经验','战略法律规划能力','出色的谈判与危机处理能力','跨部门协调与影响力'],
+    tags: ['合同审核','合规管理','风险防控'],
+    mgmtTags: ['法务管理','团队搭建','战略合规'],
+  },
+  game: {
+    resp: ['负责游戏玩法系统策划与数值设计','撰写策划文档，协调美术与研发实现','分析玩家行为数据，优化游戏体验','参与游戏版本规划与运营策略制定'],
+    skills: ['优秀的游戏设计与系统思维能力','良好的数据分析与报告能力','出色的沟通协调与文档能力','对游戏市场与玩家需求有深刻理解'],
+    mgmtResp: ['制定游戏产品规划与版本节奏','搭建并带领策划团队','建立策划规范与品质标准','协调跨部门资源推动项目上线'],
+    mgmtSkills: ['游戏团队管理经验','产品sense与市场洞察力','出色的跨部门协作能力','项目管理与交付把控能力'],
+    tags: ['游戏策划','数值设计','玩家洞察'],
+    mgmtTags: ['项目管理','团队搭建','产品规划'],
+  },
+  generic: {
+    resp: ['负责核心业务模块的规划与执行','建立标准化流程，提升团队效率','跨团队协作，推动目标达成','持续优化工作方法与产出质量'],
+    skills: ['扎实的专业知识与实践经验','优秀的沟通协调与执行力','良好的数据分析与报告能力','强烈的责任心与目标导向'],
+    mgmtResp: ['制定团队目标与执行计划','搭建并带领团队','建立工作规范与考核体系','协调资源推动业务增长'],
+    mgmtSkills: ['团队管理与培养经验','战略规划与执行能力','出色的沟通协调与影响力','目标管理与业绩驱动能力'],
+    tags: ['专业能力','执行推动','持续优化'],
+    mgmtTags: ['团队管理','战略规划','目标驱动'],
+  },
+}
+
+function getJDCategory(title){
+  var map = [
+    [['算法','AI','机器学习','深度学习','NLP','推荐','搜索','感知','自动驾驶','仿真','机器人'], 'algo'],
+    [['产品','PM'], 'product'],
+    [['前端','后端','开发','架构','客户端','安卓','iOS','运维','安全','测试','DevOps','SRE','DBA','数据','大数据'], 'tech'],
+    [['设计','UI','UX','交互','视觉'], 'design'],
+    [['运营','市场','公关','品牌','营销','增长'], 'ops'],
+    [['销售','商务','BD','大客户'], 'sales'],
+    [['HR','人事','人力','招聘','培训','OD','HRBP'], 'hr'],
+    [['财务','会计','审计','税务','投资','金融'], 'finance'],
+    [['法务','合规','知识产权'], 'legal'],
+    [['游戏','电竞','策划'], 'game'],
+  ]
+  for(var i = 0; i < map.length; i++){
+    for(var j = 0; j < map[i][0].length; j++){
+      if(title.indexOf(map[i][0][j]) !== -1) return map[i][1]
+    }
+  }
+  return 'generic'
+}
+
+function generateJDContent(titles, txt){
+  var edu = txt.match(/(?:博士|硕士|本科|大专|MBA|C9|985|211)/g) || []
+  var exp = txt.match(/(\d+)\s*(?:年|yr)/g) || []
+  var sal = txt.match(/(\d+)\s*[-到~]\s*(\d+)\s*万/g) || []
+  var loc = txt.match(/(?:base|Base)\s*([\u4e00-\u9fa5]{2,6})|(?:北京|上海|深圳|广州|杭州|成都|南京|武汉|西安|厦门|重庆|长沙|苏州)/g) || []
+  var skills = txt.match(/(?:精通|熟悉|掌握|擅长|需要|要求|具备)\s*([\u4e00-\u9fa5A-Za-z\/\+\.]{2,16})/g) || []
+  var team = txt.match(/(?:带团队|带队|\d+\s*人\s*(?:团队|组|部门))/g) || []
+  var src = txt.match(/(?:Waymo|Apollo|华为|字节|阿里|腾讯|百度|美团|京东|小米|Google|Meta|Microsoft|Amazon|苹果|Uber|特斯拉|Tesla|四大)/g) || []
+
+  var jdHtml = ''
+  var scoreHtml = ''
+  var quesHtml = ''
+  var colors = ['blue','green','purple','orange','cyan','red']
+
+  titles.forEach(function(title, idx){
+    var cat = getJDCategory(title)
+    var tpl = JD_TEMPLATES[cat]
+    var isMgmt = /(?:经理|总监|主管|VP|负责人|管理|Lead|首席|C[A-Z]O)/i.test(title)
+    var clr = colors[idx % colors.length]
+    var locStr = loc.length ? loc[0].replace(/^[Bb][Aa][Ss][Ee]\s*/,'') : '待定'
+    var expStr = exp.length ? exp[0] : (isMgmt ? '5年+' : '3年+')
+    var eduStr = edu.length ? edu.join('/') : (isMgmt ? '本科及以上' : '本科及以上')
+
+    // Salary suggestion
+    var salStr = ''
+    if(sal.length){
+      salStr = sal[0] + '万/年'
+    } else {
+      var base = isMgmt ? 60 : 30
+      salStr = base + '-' + Math.round(base*1.6) + '万/年（参考市场中位数）'
+    }
+
+    // Responsibilities
+    var resps = isMgmt ? tpl.mgmtResp : tpl.resp
+    // Add team management if mentioned
+    if(team.length && !isMgmt){
+      resps = resps.slice(0,3).concat(['带领小团队，保障项目交付质量'])
+    }
+    // Add custom skills from input
+    var skillList = skills.map(function(s){ return s.replace(/^(?:精通|熟悉|掌握|擅长|需要|要求|具备)\s*/,'') }).filter(function(s){ return s.length >= 2 })
+
+    var tags = isMgmt ? tpl.mgmtTags : tpl.tags
+    // Dynamic tags from input
+    if(skillList.length) tags = skillList.slice(0,2).concat(tags.slice(0,1))
+    if(src.length) tags.push('目标公司：' + src.slice(0,3).join('/'))
+
+    jdHtml += '<div class="card"><h4 style="color:var(--'+clr+')">\u25CF ' + title
+    if(titles.length > 1) jdHtml += ' <span style="font-size:9px;color:var(--text3)">岗位 ' + (idx+1) + '/' + titles.length + '</span>'
+    jdHtml += '</h4>'
+    if(locStr !== '待定') jdHtml += '<p style="font-size:11px;color:var(--text3);margin:4px 0 8px">\uD83D\uDCCD ' + locStr + '</p>'
+    jdHtml += '<p><b>岗位职责：</b></p><ul>'
+    resps.forEach(function(r){ jdHtml += '<li>' + r + '</li>' })
+    jdHtml += '</ul></div>'
+
+    jdHtml += '<div class="card"><h4>\uD83C\uDFAF 任职要求</h4><ul>'
+    jdHtml += '<li><span class="hl">必须</span>：' + expStr + '相关经验'
+    if(skillList.length) jdHtml += '，' + skillList.slice(0,2).join('、')
+    jdHtml += '</li>'
+    jdHtml += '<li><span class="hl">必须</span>：' + eduStr + '</li>'
+    var reqSkills = isMgmt ? tpl.mgmtSkills : tpl.skills
+    reqSkills.slice(0,2).forEach(function(s){ jdHtml += '<li><span class="good">加分</span>：' + s + '</li>' })
+    if(src.length) jdHtml += '<li><span class="good">加分</span>：有' + src.join('、') + '等一线公司经验</li>'
+    jdHtml += '</ul></div>'
+
+    jdHtml += '<div class="card"><h4>\uD83D\uDCB0 薪酬建议</h4>'
+    jdHtml += '<p>年薪 <b>' + salStr + '</b></p>'
+    if(sal.length && !isMgmt) jdHtml += '<p style="font-size:11px;color:var(--text3)">AI 对标市场数据后建议，具体以用人方确认为准</p>'
+    jdHtml += '</div>'
+
+    jdHtml += '<div class="chips">' + tags.map(function(t){ return '<span class="chip b">' + t + '</span>' }).join('') + '</div>'
+
+    // Score table for this title
+    var dims = isMgmt
+      ? [{n:'专业深度',p:35},{n:'团队管理',p:30},{n:'项目经验',p:20},{n:'沟通协作',p:15}]
+      : [{n:'专业深度',p:40},{n:'项目经验',p:30},{n:'问题解决',p:20},{n:'团队协作',p:10}]
+    scoreHtml += '<div class="card"><h4 style="color:var(--'+clr+')">\uD83D\uDCC0 ' + title + '</h4>'
+    dims.forEach(function(d){
+      scoreHtml += '<div class="score-label"><span>' + d.n + '（' + d.p + '%）</span><span class="val">/10</span></div>'
+      scoreHtml += '<div class="score-bar"><div class="fill" style="width:0;background:var(--' + clr + ')"></div></div>'
+    })
+    scoreHtml += '</div>'
+
+    // Questions for this title
+    quesHtml += '<div class="card"><h4 style="color:var(--'+clr+')">\uD83C\uDFAF ' + title + ' — 追问清单</h4><ul>'
+    if(isMgmt){
+      quesHtml += '<li>「你带过多大的团队？怎么分工和培养骨干？」</li>'
+      quesHtml += '<li>「最棘手的一次跨部门冲突，你怎么推动解决的？」</li>'
+      quesHtml += '<li><span class="warn">防空泛：</span>「给一个具体案例说明你的管理风格」</li>'
+    } else {
+      quesHtml += '<li>「最复杂的技术问题是什么？你怎么分析和解决的？」</li>'
+      quesHtml += '<li>「项目中最有成就感的一次优化，效果如何量化？」</li>'
+      quesHtml += '<li><span class="warn">防空泛：</span>「具体说说你在这个项目中负责的部分」</li>'
+    }
+    quesHtml += '</ul></div>'
+  })
+
+  document.getElementById('c-jd').innerHTML = '<div class="panel"><div class="panel-head"><div class="dot" style="background:var(--blue)"></div> 生成的 JD（基于需求自动优化）</div><div class="panel-body">' + jdHtml + '</div></div>'
+  document.getElementById('c-score').innerHTML = '<div class="panel"><div class="panel-head"><div class="dot" style="background:var(--purple)"></div> 结构化面试评分表</div><div class="panel-body">' + scoreHtml + '</div></div>'
+  document.getElementById('c-ques').innerHTML = '<div class="panel"><div class="panel-head"><div class="dot" style="background:var(--orange)"></div> AI 追问清单</div><div class="panel-body">' + quesHtml + '</div></div>'
+}
+
+// Step 3 tabs
+function showTab(t){['jd','score','ques'].forEach(x=>{document.getElementById('c-'+x).style.display=x===t?'block':'none';document.getElementById('t-'+x).classList.toggle('active',x===t)})}
+
+// Step 4 tabs
+function showCand(c){['a','b','c'].forEach(x=>{document.getElementById(x+'c-c').style.display=x===c?'block':'none';document.getElementById('c'+x).classList.toggle('active',x===c)})}
+
+// Step 5: Calibration — Job Type Templates
+var JOB_TEMPLATES = {
+  algo: {
+    name: '自动驾驶算法',
+    interviewers: ['技术VP 陈磊', '感知负责人 刘洋', 'HRBP 赵薇'],
+    dims: [
+      {name:'感知算法深度', type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[9.0,8.5,null]},
+      {name:'无图方案经验', type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[8.5,7.0,null]},
+      {name:'架构设计',     type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[8.0,8.5,null]},
+      {name:'团队管理',     type:'mgmt', wt:[0.6,0,0],     wm:[0.4,0,0.6], scores:[7.5,null,8.0]},
+    ]
+  },
+  pm: {
+    name: '产品经理',
+    interviewers: ['产品VP 王强', '资深PM 李娜', 'HRBP 赵薇'],
+    dims: [
+      {name:'需求分析',     type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[8.5,9.0,null]},
+      {name:'产品规划',     type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[8.0,8.0,null]},
+      {name:'数据驱动',     type:'tech', wt:[0.5,0.5,0],   wm:[0.3,0.3,0.4], scores:[7.0,8.5,null]},
+      {name:'跨团队协作',   type:'mgmt', wt:[0.4,0.2,0],   wm:[0.3,0.2,0.5], scores:[8.0,null,9.0]},
+    ]
+  },
+  frontend: {
+    name: '前端工程师',
+    interviewers: ['前端架构师 张伟', '技术Leader 周明', 'HRBP 赵薇'],
+    dims: [
+      {name:'前端技术深度', type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[9.0,8.0,null]},
+      {name:'工程化能力',   type:'tech', wt:[0.5,0.5,0],   wm:[0.4,0,0.6], scores:[8.5,8.0,null]},
+      {name:'性能优化',     type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[7.5,9.0,null]},
+      {name:'团队协作',     type:'mgmt', wt:[0.3,0.3,0],   wm:[0.2,0.2,0.6], scores:[8.0,8.0,8.5]},
+    ]
+  },
+  data: {
+    name: '数据分析师',
+    interviewers: ['数据总监 黄磊', '资深分析师 林洁', 'HRBP 赵薇'],
+    dims: [
+      {name:'数据建模',     type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[8.0,8.5,null]},
+      {name:'SQL/Python',   type:'tech', wt:[0.5,0.5,0],   wm:[0.4,0,0.6], scores:[7.5,9.0,null]},
+      {name:'业务洞察',     type:'tech', wt:[0.5,0.5,0],   wm:[0.3,0.3,0.4], scores:[8.5,8.0,null]},
+      {name:'沟通表达',     type:'mgmt', wt:[0.3,0.3,0],   wm:[0.2,0.2,0.6], scores:[7.0,null,8.5]},
+    ]
+  },
+  designer: {
+    name: 'UI/UX设计师',
+    interviewers: ['设计总监 陈艺', '资深UX 杨帆', 'HRBP 赵薇'],
+    dims: [
+      {name:'视觉设计',     type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[9.0,8.0,null]},
+      {name:'交互设计',     type:'tech', wt:[0.5,0.5,0],   wm:[0.4,0,0.6], scores:[8.0,8.5,null]},
+      {name:'用户研究',     type:'tech', wt:[0.4,0.6,0],   wm:[0.3,0.3,0.4], scores:[7.0,9.0,null]},
+      {name:'创新能力',     type:'mgmt', wt:[0.5,0.4,0],   wm:[0.3,0.2,0.5], scores:[8.5,null,8.0]},
+    ]
+  },
+  sales: {
+    name: '销售/BD',
+    interviewers: ['销售VP 郑凯', '区域总监 马丽', 'HRBP 赵薇'],
+    dims: [
+      {name:'行业理解',     type:'tech', wt:[0.5,0.5,0],   wm:[0.3,0.3,0.4], scores:[8.0,7.5,null]},
+      {name:'客户关系',     type:'tech', wt:[0.4,0.6,0],   wm:[0.3,0.2,0.5], scores:[9.0,8.0,null]},
+      {name:'方案能力',     type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[7.5,8.5,null]},
+      {name:'目标达成',     type:'mgmt', wt:[0.4,0.3,0],   wm:[0.2,0.2,0.6], scores:[8.5,null,9.0]},
+    ]
+  },
+  hr: {
+    name: 'HR/招聘',
+    interviewers: ['HRD 张总', '招聘经理 李芳', 'HRBP 赵薇'],
+    dims: [
+      {name:'招聘专业度',   type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[8.0,8.5,null]},
+      {name:'人才画像',     type:'tech', wt:[0.5,0.5,0],   wm:[0.3,0.3,0.4], scores:[7.5,8.0,null]},
+      {name:'渠道运营',     type:'tech', wt:[0.4,0.6,0],   wm:[0.3,0.2,0.5], scores:[8.5,8.0,null]},
+      {name:'组织发展',     type:'mgmt', wt:[0.4,0.3,0],   wm:[0.2,0.2,0.6], scores:[7.0,null,8.5]},
+    ]
+  },
+  backend: {
+    name: '后端工程师',
+    interviewers: ['架构师 孙磊', '技术Leader 吴强', 'HRBP 赵薇'],
+    dims: [
+      {name:'后端技术深度', type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[9.0,8.5,null]},
+      {name:'系统设计',     type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[8.0,8.0,null]},
+      {name:'性能优化',     type:'tech', wt:[0.5,0.5,0],   wm:[0.4,0,0.6], scores:[7.5,9.0,null]},
+      {name:'团队协作',     type:'mgmt', wt:[0.3,0.3,0],   wm:[0.2,0.2,0.6], scores:[8.0,8.0,8.5]},
+    ]
+  },
+}
+
+var currentJob = 'algo'
+var customJobTitle = '自定义岗位'
+
+// Generate calibration dimensions for any job title
+function generateDimsForTitle(title){
+  var isMgmt = /(?:经理|总监|主管|VP|负责人|管理|团队|lead)/i.test(title)
+  if(isMgmt){
+    return {
+      name: title,
+      interviewers: ['业务负责人', '技术/业务面试官', 'HRBP'],
+      dims: [
+        {name:'专业深度',     type:'tech', wt:[0.5,0.5,0],   wm:[0.3,0.3,0.4], scores:[8.0,8.5,null]},
+        {name:'项目经验',     type:'tech', wt:[0.5,0.5,0],   wm:[0.4,0,0.6], scores:[8.5,8.0,null]},
+        {name:'团队管理',     type:'mgmt', wt:[0.4,0.3,0],   wm:[0.2,0.2,0.6], scores:[7.5,null,8.5]},
+        {name:'沟通协作',     type:'mgmt', wt:[0.3,0.3,0],   wm:[0.2,0.2,0.6], scores:[8.0,8.0,8.0]},
+      ]
+    }
+  }
+  return {
+    name: title,
+    interviewers: ['技术/业务面试官', '团队Leader', 'HRBP'],
+    dims: [
+      {name:'专业深度',     type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[8.5,8.0,null]},
+      {name:'项目经验',     type:'tech', wt:[0.6,0.4,0],   wm:[0.4,0,0.6], scores:[8.0,8.5,null]},
+      {name:'问题解决',     type:'tech', wt:[0.5,0.5,0],   wm:[0.4,0,0.6], scores:[7.5,8.0,null]},
+      {name:'团队协作',     type:'mgmt', wt:[0.3,0.3,0],   wm:[0.2,0.2,0.6], scores:[8.0,8.0,8.5]},
+    ]
+  }
+}
+
+function buildJobSelector(){
+  var el = document.getElementById('job-selector')
+  var html = ''
+  for(var k in JOB_TEMPLATES){
+    html += '<button class="job-btn'+(k===currentJob?' active':'')+'" onclick="switchJobType(\''+k+'\')">'+JOB_TEMPLATES[k].name+'</button>'
+  }
+  // Custom job
+  html += '<button class="job-btn'+(currentJob==='custom'?' active':'')+'" onclick="switchJobType(\'custom\')">'+(currentJob==='custom' ? customJobTitle : '\u2795 自定义岗位')+'</button>'
+  if(currentJob === 'custom'){
+    html += '<input type="text" id="custom-title-input" value="'+customJobTitle+'" placeholder="输入岗位名称" style="padding:5px 10px;border-radius:8px;font-size:11px;background:var(--card2);border:1px solid var(--blue);color:var(--text);outline:none;width:120px;font-family:inherit" onkeyup="if(event.key===\'Enter\')applyCustomTitle()">'
+    html += '<button class="job-btn" onclick="applyCustomTitle()" style="border-color:var(--blue);color:var(--blue)">应用</button>'
+  }
+  el.innerHTML = html
+}
+
+function applyCustomTitle(){
+  var input = document.getElementById('custom-title-input')
+  if(input && input.value.trim()){
+    customJobTitle = input.value.trim()
+    buildJobSelector()
+    buildCalibTable()
+    document.getElementById('calib-before').style.display='block'
+    document.getElementById('calib-result').style.display='none'
+  }
+}
+
+function switchJobType(key){
+  currentJob = key
+  buildJobSelector()
+  buildCalibTable()
+  document.getElementById('calib-before').style.display='block'
+  document.getElementById('calib-result').style.display='none'
+}
+
+function buildCalibTable(){
+  var tpl = currentJob === 'custom' ? generateDimsForTitle(customJobTitle) : JOB_TEMPLATES[currentJob]
+  if(!tpl) tpl = generateDimsForTitle(customJobTitle)
+  var dims = tpl.dims
+  var invs = tpl.interviewers
+
+  // Head
+  var thead = '<tr><th>维度</th>'
+  for(var i=0;i<3;i++){
+    thead += '<th>面试官'+(i+1)+'<br><span style="font-weight:400;font-size:8px;text-transform:none;letter-spacing:0">'+invs[i]+'</span></th>'
+  }
+  thead += '<th>AI校准</th></tr>'
+  document.getElementById('calib-thead').innerHTML = thead
+
+  // Body
+  var tbody = ''
+  dims.forEach(function(d, idx){
+    tbody += '<tr><td>'+d.name+'</td>'
+    for(var i=0;i<3;i++){
+      var id = 's'+(idx+1)+['a','b','c'][i]
+      var val = d.scores[i]
+      if(val === null){
+        tbody += '<td class="num"><input class="score-input empty" id="'+id+'" value="—"></td>'
+      } else {
+        tbody += '<td class="num"><input class="score-input" id="'+id+'" value="'+val+'"></td>'
+      }
+    }
+    tbody += '<td class="num" id="cal-'+(idx+1)+'" style="color:var(--text3)">—</td></tr>'
+  })
+  tbody += '<tr style="background:rgba(79,140,255,.04)"><td><b>综合</b></td>'
+  tbody += '<td class="num" id="raw-avg-a" style="color:var(--text3)">—</td>'
+  tbody += '<td class="num" id="raw-avg-b" style="color:var(--text3)">—</td>'
+  tbody += '<td class="num" id="raw-avg-c" style="color:var(--text3)">—</td>'
+  tbody += '<td class="num" id="cal-0" style="color:var(--text3)">—</td></tr>'
+  document.getElementById('calib-tbody').innerHTML = tbody
+
+  // Rebind focus handlers
+  bindScoreInputs()
+}
+
+function bindScoreInputs(){
+  document.querySelectorAll('.score-input').forEach(function(el){
+    if(!el._bound){
+      el._bound = true
+      el.addEventListener('focus', function(){ if(this.value==='\u2014') this.value='' })
+      el.addEventListener('blur', function(){ if(this.value.trim()==='') this.value='\u2014' })
+    }
+  })
+}
+
+// Init Step 5 on page load
+buildJobSelector()
+buildCalibTable()
+
+// ===== Theme Toggle =====
+var isDark = true
+function toggleTheme(){
+  isDark = !isDark
+  document.documentElement.setAttribute('data-theme', isDark ? '' : 'light')
+  document.getElementById('theme-btn').textContent = isDark ? '☀️' : '🌙'
+}
+
+// ===== i18n =====
+var lang = 'cn'
+var I18N = {
+  cn: {
+    nav_caps: '能力', nav_metrics: '效果', nav_scenarios: '更多场景', nav_cta: '体验',
+    role_hr: 'HR 视角', role_mgr: '用人经理', role_ceo: 'CEO 仪表盘',
+    scenarios_label: 'MORE SCENARIOS', scenarios_title: 'AI Can Do Even <span class="grad">More</span>',
+  },
+  en: {
+    nav_caps: 'Capabilities', nav_metrics: 'Impact', nav_scenarios: 'More', nav_cta: 'Try It',
+    role_hr: 'HR View', role_mgr: 'Hiring Manager', role_ceo: 'CEO Dashboard',
+    scenarios_label: 'MORE SCENARIOS', scenarios_title: 'AI Can Do Even <span class="grad">More</span>',
+  }
+}
+function t(key){ return (I18N[lang] && I18N[lang][key]) || key }
+var I18N_HTML = ['scenarios_title']
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n')
+    var val = t(key)
+    if(I18N_HTML.indexOf(key) !== -1) el.innerHTML = val
+    else el.textContent = val
+  })
+}
+function toggleLang(){
+  lang = lang === 'cn' ? 'en' : 'cn'
+  document.getElementById('lang-btn').textContent = lang === 'cn' ? 'EN' : '中'
+  applyI18n()
+}
+
+// ===== Role Switching =====
+function switchRole(role){
+  ['hr','manager','ceo'].forEach(function(r){
+    document.getElementById('role-'+r).classList.toggle('active', r===role)
+  })
+  document.getElementById('hr-view').style.display = role==='hr' ? 'block' : 'none'
+  document.getElementById('manager-view').style.display = role==='manager' ? 'block' : 'none'
+  document.getElementById('manager-view').classList.toggle('active', role==='manager')
+  document.getElementById('ceo-dashboard').style.display = role==='ceo' ? 'block' : 'none'
+  document.getElementById('ceo-dashboard').classList.toggle('active', role==='ceo')
+}
+
+// ===== Chat Input → AI Typing → Auto Demo =====
+function handleChat(){
+  var input = document.getElementById('chat-input')
+  var txt = input.value.trim()
+  if(!txt) return
+  input.value = ''
+  // Show AI typing
+  var typingEl = document.getElementById('ai-typing')
+  var textEl = document.getElementById('ai-typing-text')
+  typingEl.style.display = 'block'
+  textEl.textContent = ''
+  var response = '收到！正在分析你的需求：「'+txt.substring(0,30)+(txt.length>30?'...':'')+'」\n识别到岗位关键词，正在拆解需求...'
+  var i = 0
+  var timer = setInterval(function(){
+    if(i < response.length){
+      textEl.textContent += response[i]; i++
+    } else {
+      clearInterval(timer)
+      setTimeout(function(){
+        typingEl.style.display = 'none'
+        // Fill input and trigger parse
+        document.getElementById('req-input').value = txt
+        scrollToSection('#demo')
+        switchRole('hr')
+        setTimeout(function(){ parseReq() }, 400)
+      }, 600)
+    }
+  }, 30)
+}
+
+// ===== Scenario Toggle =====
+function toggleScenario(el){
+  el.classList.toggle('open')
+}
+
+// ===== Dynamic Step 4 Candidates =====
+var CANDIDATE_TEMPLATES = {
+  algo: [
+    {name:'张明',age:38,title:'百度Apollo 高级技术总监',edu:'清华大学 博士 · CMU 博士后',exp:'7年Apollo+3年Waymo',match:92,strong:true,
+     adv:['Apollo核心，无图量产经验','管理22人，超出VP要求','C9博士 + 顶会16篇'],
+     risk:['百度7年竞业风险','VP给150万，此人市场价190万+'],
+     advice:'最优人选。建议：① Offer前确认竞业范围 ② 薪酬上调至190万+期权 ③ 用小米生态+L4量产前景做差异化吸引'},
+    {name:'李华',age:35,title:'华为ADS 感知专家',edu:'上海交大 硕士',exp:'5年华为+2年大疆',match:71,strong:false,
+     adv:['华为ADS核心团队','大疆+华为双重背景'],
+     risk:['仅管理8人，VP要求≥10人','硕士，非C9博士','华为竞业1-2年'],
+     advice:'不适合算法负责人，但作为感知模块TL纳入负责人团队很有价值'},
+    {name:'王芳',age:33,title:'Waymo Senior Staff',edu:'浙大博士 · 斯坦福访问学者',exp:'6年Waymo',match:68,strong:false,
+     adv:['Waymo核心，无图方案顶级经验','C9博士 + 顶会13篇'],
+     risk:['零管理经验，不适合负责人','在美国，回国意愿待确认'],
+     advice:'不适合负责人。建议作为高级算法专家引进，技术上为负责人兜底'},
+  ],
+  product: [
+    {name:'陈思远',age:34,title:'字节跳动 产品负责人',edu:'北京大学 硕士',exp:'6年字节+2年美团',match:88,strong:true,
+     adv:['DAU从500万做到2000万','字节增长方法论经验丰富','C端用户增长专家'],
+     risk:['薪酬预期80-100万，超预算','字节竞业6个月'],
+     advice:'最优人选。建议：① 预算上调至80万 ② 强调产品自主权和增长空间'},
+    {name:'刘婷',age:31,title:'美团 高级产品经理',edu:'复旦大学 本科',exp:'5年美团',match:75,strong:false,
+     adv:['本地生活C端经验扎实','数据驱动意识强'],
+     risk:['只做过工具型产品，缺增长经验','团队管理经验有限'],
+     advice:'适合产品岗位，但用户增长方向需要补充相关经验'},
+    {name:'赵磊',age:36,title:'阿里 产品总监',edu:'浙大 MBA',exp:'8年阿里',match:65,strong:false,
+     adv:['大厂产品体系成熟经验','带过15人产品团队'],
+     risk:['偏B端经验，C端增长弱','薪酬预期100万+'],
+     advice:'不适合C端增长方向，可考虑作为B端产品线储备'},
+  ],
+  tech: [
+    {name:'周明',age:32,title:'阿里 高级前端专家',edu:'中科大 硕士',exp:'6年阿里前端',match:90,strong:true,
+     adv:['主导过3个千万级DAU产品前端','React/Vue双精通，微前端架构经验','性能优化实战经验丰富'],
+     risk:['阿里P7，薪酬对标55-70万','竞业期6个月'],
+     advice:'强烈推荐。技术深度和工程化能力都超出预期，建议直接进入终面'},
+    {name:'吴芳',age:29,title:'腾讯 前端工程师',edu:'华科 本科',exp:'4年腾讯',match:72,strong:false,
+     adv:['微信小程序生态经验丰富','代码质量意识好'],
+     risk:['仅4年经验，岗位要求5年+','没有大型项目主导经验'],
+     advice:'经验略浅但潜力不错，可作为备选或降级录用'},
+    {name:'孙伟',age:35,title:'创业公司 CTO',edu:'北航 硕士',exp:'3年创业+4年百度',match:60,strong:false,
+     adv:['全栈能力强，独立搭建过系统','有技术决策和团队管理经验'],
+     risk:['创业公司技术栈偏小众','大厂系统化经验不足'],
+     advice:'不适合大厂核心岗位，可考虑中小型项目的技术负责人'},
+  ],
+  generic: [
+    {name:'候选人A',age:33,title:'头部公司 高级专家',edu:'985 硕士',exp:'6年核心业务经验',match:85,strong:true,
+     adv:['核心业务经验匹配度高','技术/业务深度超出预期'],
+     risk:['薪酬预期可能偏高','竞业限制需确认'],
+     advice:'优先推荐。建议先电话沟通确认薪酬预期和到岗时间'},
+    {name:'候选人B',age:30,title:'中型公司 经理',edu:'211 本科',exp:'5年相关经验',match:70,strong:false,
+     adv:['经验匹配度较好','性价比高'],
+     risk:['管理经验略浅','缺少大厂背景'],
+     advice:'可作为备选，适合预算有限的情况'},
+    {name:'候选人C',age:36,title:'跨行业 资深人士',edu:'海外硕士',exp:'8年跨行业经验',match:58,strong:false,
+     adv:['视野广，跨行业思维','管理经验丰富'],
+     risk:['专业深度不够','行业经验需要补充'],
+     advice:'不适合核心岗位，可考虑战略或管理方向的辅助角色'},
+  ]
+}
+
+function generateCandidates(titles){
+  var cat = titles.length > 0 ? getJDCategory(titles[0]) : 'generic'
+  var templates = CANDIDATE_TEMPLATES[cat] || CANDIDATE_TEMPLATES['generic']
+  var html = ''
+  templates.forEach(function(c, i){
+    var letter = ['A','B','C'][i]
+    var matchClass = c.match >= 85 ? 'strong' : c.match >= 70 ? 'medium' : 'weak'
+    var matchLabel = c.match >= 85 ? '强烈推荐' : c.match >= 70 ? '谨慎考虑' : '备选'
+    var matchColor = c.match >= 85 ? 'var(--green)' : c.match >= 70 ? 'var(--orange)' : 'var(--red)'
+
+    html += '<div id="dyn-ca-'+letter.toLowerCase()+'" style="display:'+(i===0?'block':'none')+'"><div class="two-col">'
+    html += '<div class="panel"><div class="panel-head"><div class="dot" style="background:var(--orange)"></div> 简历</div><div class="panel-body"><div class="card"><h4>'+c.name+' · '+c.age+'岁</h4><p><b>'+c.title+'</b><br>'+c.edu+'<br>'+c.exp+'</p></div></div></div>'
+    html += '<div class="panel"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 评估</div><div class="panel-body"><div class="hire-meter"><div style="font-size:10px;color:var(--text3)">匹配度</div><div class="hire-score '+matchClass+'">'+c.match+'</div><div style="color:'+matchColor+';font-weight:700;font-size:11px">'+matchLabel+'</div></div>'
+    html += '<div class="card"><h4 class="good">✅ 优势</h4><ul>'+c.adv.map(function(a){return '<li>'+a+'</li>'}).join('')+'</ul></div>'
+    html += '<div class="card"><h4 class="warn">⚠️ 风险</h4><ul>'+c.risk.map(function(r){return '<li>'+r+'</li>'}).join('')+'</ul></div>'
+    html += '<div class="card"><h4 class="hl">💡 AI 建议</h4><p>'+c.advice+'</p></div>'
+    html += '</div></div></div></div>'
+  })
+
+  // Update Step 4 tabs
+  var tabHtml = ''
+  templates.forEach(function(c, i){
+    var letter = ['A','B','C'][i]
+    tabHtml += '<button class="btn-outline'+(i===0?' active':'')+'" id="dyn-cbtn-'+letter.toLowerCase()+'" onclick="showDynCand(\''+letter.toLowerCase()+'\')">候选人'+letter+' · '+c.name+'</button>'
+  })
+  // Replace btn-row content
+  var step4 = document.getElementById('step-4')
+  step4.querySelector('.btn-row').innerHTML = tabHtml
+  // Hide original static candidates, show/hide dynamic container
+  var origDivs = step4.querySelectorAll('#ca-c, #cb-c, #cc-c')
+  origDivs.forEach(function(d){ d.style.display = 'none' })
+  // Find or create dynamic container
+  var dyn = document.getElementById('dyn-candidates')
+  if(!dyn){
+    dyn = document.createElement('div')
+    dyn.id = 'dyn-candidates'
+    step4.querySelector('.btn-row').after(dyn)
+  }
+  dyn.innerHTML = html
+
+  // Also populate manager view
+  populateManagerView(templates)
+}
+
+function showDynCand(c){
+  ['a','b','c'].forEach(function(x){
+    var el = document.getElementById('dyn-ca-'+x)
+    if(el) el.style.display = x===c ? 'block' : 'none'
+    var btn = document.getElementById('dyn-cbtn-'+x)
+    if(btn) btn.classList.toggle('active', x===c)
+  })
+}
+
+function populateManagerView(templates){
+  if(!templates || !templates.length) return
+  var sorted = templates.slice().sort(function(a,b){return b.match - a.match})
+  // Candidates comparison
+  var cmpHtml = '<table class="data-table"><thead><tr><th>候选人</th><th>匹配度</th><th>优势</th><th>风险</th></tr></thead><tbody>'
+  sorted.forEach(function(c){
+    var mc = c.match >= 85 ? 'var(--green)' : c.match >= 70 ? 'var(--orange)' : 'var(--red)'
+    cmpHtml += '<tr><td><b>'+c.name+'</b><br><span style="font-size:9px;color:var(--text3)">'+c.title+'</span></td>'
+    cmpHtml += '<td style="color:'+mc+';font-weight:700">'+c.match+'%</td>'
+    cmpHtml += '<td style="font-size:10px">'+c.adv[0]+'</td>'
+    cmpHtml += '<td style="font-size:10px;color:var(--text3)">'+c.risk[0]+'</td></tr>'
+  })
+  cmpHtml += '</tbody></table>'
+  document.getElementById('mgr-candidates').innerHTML = cmpHtml
+
+  // Ranking
+  var rankHtml = ''
+  sorted.forEach(function(c, i){
+    var medal = ['🥇','🥈','🥉'][i] || (i+1)+'.'
+    var mc = c.match >= 85 ? 'var(--green)' : c.match >= 70 ? 'var(--orange)' : 'var(--red)'
+    rankHtml += '<div class="card"><h4>'+medal+' '+c.name+' <span style="color:'+mc+';font-weight:700">'+c.match+'%</span></h4><p style="font-size:11px">'+c.advice+'</p></div>'
+  })
+  document.getElementById('mgr-ranking').innerHTML = rankHtml
+
+  // Decision
+  var best = sorted[0]
+  var decisionHtml = '<div class="hire-meter"><div style="font-size:10px;color:var(--text3)">AI 推荐</div><div class="hire-score '+(best.match>=85?'strong':'medium')+'">'+best.name+'</div></div>'
+  decisionHtml += '<div class="card"><h4 class="good">✅ 录用理由</h4><ul>'+best.adv.map(function(a){return '<li>'+a+'</li>'}).join('')+'</ul></div>'
+  decisionHtml += '<div class="card"><h4 class="warn">⚠️ 需确认</h4><ul>'+best.risk.map(function(r){return '<li>'+r+'</li>'}).join('')+'</ul></div>'
+  document.getElementById('mgr-decision').innerHTML = decisionHtml
+}
+
+// Patch parseReq to generate dynamic candidates
+var _origParseReq = parseReq
+parseReq = function(){
+  _origParseReq()
+  var txt = document.getElementById('req-input').value
+  var titles = extractTitles(txt)
+  if(titles.length > 0) generateCandidates(titles)
+}
+
+function runCalib(){
+  document.getElementById('calib-before').style.display='none'
+  document.getElementById('calib-result').style.display='block'
+  doCalib()
+}
+
+function doCalib(){
+  function readScore(id){
+    var el = document.getElementById(id)
+    if(!el) return null
+    var v = el.value.trim()
+    if(v === '\u2014' || v === '' || v === '-') return null
+    var n = parseFloat(v)
+    return isNaN(n) ? null : Math.max(0, Math.min(10, n))
+  }
+
+  var tpl = currentJob === 'custom' ? generateDimsForTitle(customJobTitle) : JOB_TEMPLATES[currentJob]
+  if(!tpl) tpl = generateDimsForTitle(customJobTitle)
+  var dims = tpl.dims
+
+  // Compute per-interviewer averages
+  var interAvgs = [0,0,0], interCounts = [0,0,0]
+  dims.forEach(function(d, idx){
+    for(var i=0;i<3;i++){
+      var id = 's'+(idx+1)+['a','b','c'][i]
+      var s = readScore(id)
+      if(s !== null){ interAvgs[i] += s; interCounts[i]++ }
+    }
+  })
+  for(var i=0;i<3;i++){
+    var el = document.getElementById('raw-avg-'+['a','b','c'][i])
+    if(el) el.innerHTML = interCounts[i] > 0 ? '<b>'+(interAvgs[i]/interCounts[i]).toFixed(1)+'</b>' : '<span style="color:var(--text3)">\u2014</span>'
+  }
+
+  var stepsEl = document.getElementById('calib-steps')
+  var html = ''
+  var overallSum = 0, overallW = 0
+
+  dims.forEach(function(d, idx){
+    var ids = ['s'+(idx+1)+'a','s'+(idx+1)+'b','s'+(idx+1)+'c']
+    var scores = ids.map(readScore).filter(function(x){return x !== null})
+    var n = scores.length
+    if(n === 0){
+      var cel = document.getElementById('cal-'+(idx+1))
+      if(cel) cel.innerHTML = '<span style="color:var(--text3)">数据不足</span>'
+      return
+    }
+    var mean = scores.reduce(function(a,b){return a+b}, 0) / n
+    var variance = scores.reduce(function(a,b){return a + (b-mean)**2}, 0) / n
+    var sigma = Math.sqrt(variance)
+
+    var w = d.type === 'tech' ? d.wt : d.wm
+    var wSum = 0, wScore = 0
+    ids.forEach(function(id, i){
+      var s = readScore(id)
+      if(s !== null && w[i] > 0){ wSum += w[i]; wScore += w[i] * s }
+    })
+    var calScore = (wScore / wSum).toFixed(1)
+    var conf = Math.max(0, 1 - sigma / 1.5).toFixed(2)
+    var isDiverge = sigma > 1.0
+
+    overallSum += parseFloat(calScore) * (d.type === 'tech' ? 0.6 : 0.3)
+    overallW += (d.type === 'tech' ? 0.6 : 0.3)
+
+    var cel2 = document.getElementById('cal-'+(idx+1))
+    if(cel2) cel2.innerHTML =
+      '<b style="color:'+(isDiverge ? 'var(--orange)' : 'var(--green)')+'">'+calScore+'</b>'+(isDiverge ? ' <span class="warn" style="font-size:9px">分歧</span>' : '')
+
+    var rawStr = ids.map(function(id,i){
+      var s = readScore(id)
+      return '面试官'+(i+1)+'='+(s !== null ? s : '\u2014')
+    }).join(' · ')
+
+    html += '<div class="card" style="'+(isDiverge ? 'border:1px solid rgba(245,158,11,.3)' : '')+'">'
+      +'<h4>'+d.name+' '+(isDiverge ? '<span class="warn" style="font-size:9px;margin-left:4px">\u03C3>1.0</span>' : '<span class="good" style="font-size:9px;margin-left:4px">一致</span>')+'</h4>'
+      +'<p style="font-family:Inter,monospace;font-size:10px;line-height:2;color:var(--text2)">'
+      +'原始分：'+rawStr+'<br>'
+      +'均值 \u03BC='+mean.toFixed(2)+' · 方差 \u03C3='+sigma.toFixed(2)+' · 置信度='+conf+'<br>'
+      +'权重：'+(d.type === 'tech' ? '技术维度 w=[0.6,0.4,0]' : '管理维度 w=[0.4,0,0.6]')+'<br>'
+      +'<b style="color:'+(isDiverge ? 'var(--orange)' : 'var(--green)')+'">校准分 = '+calScore+'</b>'
+      +'</p></div>'
+  })
+
+  stepsEl.innerHTML = html
+
+  if(overallW > 0){
+    var overall = (overallSum / overallW).toFixed(1)
+    document.getElementById('cal-0').innerHTML = '<b style="color:var(--green);font-size:15px">'+overall+'</b>'
+  }
+}
+</script>
+</body>
+</html>
