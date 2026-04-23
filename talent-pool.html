@@ -408,15 +408,7 @@ input,select,textarea{font-family:inherit}
       <div class="nav-item" data-nav="all"><span class="icon">👥</span><span>全部人才</span><span class="count" id="nav-all-count">0</span></div>
       <div class="nav-item" data-nav="starred"><span class="icon">📌</span><span>已收藏</span><span class="count" id="nav-starred-count">0</span></div>
       <div class="nav-section">按岗位</div>
-      <div class="pos-grid" id="pos-grid">
-        <div class="pos-card" data-nav="pos-tech" style="--pos-color:var(--primary)"><div class="pos-icon">💻</div><div class="pos-info"><div class="pos-name">技术</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-tech"></div></div></div><div class="pos-count" id="nav-pos-tech-count">0</div></div>
-        <div class="pos-card" data-nav="pos-product" style="--pos-color:var(--green)"><div class="pos-icon">📋</div><div class="pos-info"><div class="pos-name">产品</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-product"></div></div></div><div class="pos-count" id="nav-pos-product-count">0</div></div>
-        <div class="pos-card" data-nav="pos-design" style="--pos-color:var(--purple)"><div class="pos-icon">🎨</div><div class="pos-info"><div class="pos-name">设计</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-design"></div></div></div><div class="pos-count" id="nav-pos-design-count">0</div></div>
-        <div class="pos-card" data-nav="pos-ops" style="--pos-color:var(--orange)"><div class="pos-icon">⚙️</div><div class="pos-info"><div class="pos-name">运营</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-ops"></div></div></div><div class="pos-count" id="nav-pos-ops-count">0</div></div>
-        <div class="pos-card" data-nav="pos-marketing" style="--pos-color:var(--cyan)"><div class="pos-icon">📢</div><div class="pos-info"><div class="pos-name">市场</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-marketing"></div></div></div><div class="pos-count" id="nav-pos-marketing-count">0</div></div>
-        <div class="pos-card" data-nav="pos-leadership" style="--pos-color:var(--red)"><div class="pos-icon">👔</div><div class="pos-info"><div class="pos-name">管理层</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-leadership"></div></div></div><div class="pos-count" id="nav-pos-leadership-count">0</div></div>
-        <div class="pos-card" data-nav="pos-other" style="--pos-color:var(--text3)"><div class="pos-icon">📁</div><div class="pos-info"><div class="pos-name">其他</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-other"></div></div></div><div class="pos-count" id="nav-pos-other-count">0</div></div>
-      </div>
+      <div class="pos-grid" id="pos-grid"></div>
       <div class="nav-section">按公司</div>
       <div id="nav-companies"></div>
       <div class="nav-section">人才状态</div>
@@ -623,15 +615,20 @@ function findDuplicate(name, company) {
   return candidates.find(function(c) { return c.name.toLowerCase() === name && c.company.toLowerCase() === company; });
 }
 
-// ===== Position classification =====
+// ===== Position classification (config-driven) =====
+var POSITIONS = [
+  { key:'leadership', label:'管理层', icon:'👔', color:'var(--red)', keywords:/总监|vp|负责人|head|经理|director|manager|lead|chief|总裁|副总/ },
+  { key:'tech', label:'技术', icon:'💻', color:'var(--primary)', keywords:/ engineer|开发|工程师|架构师|算法|研发|后端|前端|全栈|测试|运维|devops| architect|python|java|c\+\+|go |node|react|vue|flutter|tensorflow|pytorch|机器学习|深度学习|自动驾驶|感知/ },
+  { key:'product', label:'产品', icon:'📋', color:'var(--green)', keywords:/产品|product|pm / },
+  { key:'design', label:'设计', icon:'🎨', color:'var(--purple)', keywords:/设计|design|ui|ux|交互|视觉|figma|sketch|photoshop/ },
+  { key:'ops', label:'运营', icon:'⚙️', color:'var(--orange)', keywords:/运营|operation|增长|用户增长|内容运营|社区运营|活动运营/ },
+  { key:'marketing', label:'市场', icon:'📢', color:'var(--cyan)', keywords:/市场|marketing|品牌|公关|pr |推广|传播|brand/ }
+];
 function classifyPosition(c) {
   var t = (c.title + ' ' + c.skills.join(' ')).toLowerCase();
-  if (/总监|vp|负责人|head|经理|director|manager|lead|chief|总裁|副总/.test(t)) return 'pos-leadership';
-  if (/ engineer|开发|工程师|架构师|算法|研发|后端|前端|全栈|测试|运维|devops| architect|python|java|c\+\+|go |node|react|vue|flutter|tensorflow|pytorch|机器学习|深度学习|自动驾驶|感知/.test(t)) return 'pos-tech';
-  if (/产品|product|pm /.test(t)) return 'pos-product';
-  if (/设计|design|ui|ux|交互|视觉|figma|sketch|photoshop/.test(t)) return 'pos-design';
-  if (/运营|operation|增长|用户增长|内容运营|社区运营|活动运营/.test(t)) return 'pos-ops';
-  if (/市场|marketing|品牌|公关|pr |推广|传播|brand/.test(t)) return 'pos-marketing';
+  for (var i = 0; i < POSITIONS.length; i++) {
+    if (POSITIONS[i].keywords.test(t)) return 'pos-' + POSITIONS[i].key;
+  }
   return 'pos-other';
 }
 
@@ -674,20 +671,30 @@ function renderList() {
   // Update counts
   document.getElementById('nav-all-count').textContent = candidates.length;
   document.getElementById('nav-starred-count').textContent = candidates.filter(function(c) { return c.starred; }).length;
-  // Position counts + progress bars
-  var posKeys = ['tech','product','design','ops','marketing','leadership','other'];
-  var posCounts = posKeys.map(function(k) { return candidates.filter(function(c) { return classifyPosition(c) === 'pos-' + k; }).length; });
-  var posMax = Math.max.apply(null, posCounts.concat([1]));
-  posKeys.forEach(function(k, i) {
-    var count = posCounts[i];
-    document.getElementById('nav-pos-' + k + '-count').textContent = count;
-    var bar = document.getElementById('pos-bar-' + k);
-    if (bar) bar.style.width = (count / posMax * 100) + '%';
+  // Position counts + progress bars (dynamic from POSITIONS config)
+  var posHtml = '';
+  var allPosCounts = POSITIONS.map(function(p) { return candidates.filter(function(c) { return classifyPosition(c) === 'pos-' + p.key; }).length; });
+  allPosCounts.push(candidates.filter(function(c) { return classifyPosition(c) === 'pos-other'; }).length);
+  var posMax = Math.max.apply(null, allPosCounts.concat([1]));
+  POSITIONS.forEach(function(p) {
+    var count = candidates.filter(function(c) { return classifyPosition(c) === 'pos-' + p.key; }).length;
+    var pct = Math.round(count / posMax * 100);
+    var active = currentNav === 'pos-' + p.key ? ' active' : '';
+    posHtml += '<div class="pos-card' + active + '" data-nav="pos-' + p.key + '" style="--pos-color:' + p.color + '">';
+    posHtml += '<div class="pos-icon">' + p.icon + '</div>';
+    posHtml += '<div class="pos-info"><div class="pos-name">' + p.label + '</div>';
+    posHtml += '<div class="pos-bar"><div class="pos-bar-fill" style="width:' + pct + '%"></div></div></div>';
+    posHtml += '<div class="pos-count">' + count + '</div></div>';
   });
-  // Update active state for pos-cards
-  document.querySelectorAll('.pos-card').forEach(function(el) {
-    el.classList.toggle('active', el.dataset.nav === currentNav);
-  });
+  // Add "其他" category
+  var otherCount = allPosCounts[allPosCounts.length - 1];
+  var otherActive = currentNav === 'pos-other' ? ' active' : '';
+  posHtml += '<div class="pos-card' + otherActive + '" data-nav="pos-other" style="--pos-color:var(--text3)">';
+  posHtml += '<div class="pos-icon">📁</div>';
+  posHtml += '<div class="pos-info"><div class="pos-name">其他</div>';
+  posHtml += '<div class="pos-bar"><div class="pos-bar-fill" style="width:' + Math.round(otherCount / posMax * 100) + '%"></div></div></div>';
+  posHtml += '<div class="pos-count">' + otherCount + '</div></div>';
+  document.getElementById('pos-grid').innerHTML = posHtml;
   // Talent status counts
   document.getElementById('nav-st-look-count').textContent = candidates.filter(function(c) { return c.opportunity === '看机会'; }).length;
   document.getElementById('nav-st-nolook-count').textContent = candidates.filter(function(c) { return c.opportunity === '不看机会'; }).length;
@@ -764,7 +771,7 @@ function renderCards(list) {
   var h = '<div class="card-view">';
   list.forEach(function(c) {
     var posKey = classifyPosition(c);
-    var posLabels = {'pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他'};
+    var posLabels = {}; POSITIONS.forEach(function(p) { posLabels['pos-' + p.key] = p.label; }); posLabels['pos-other'] = '其他';
     // Build bio text from tags or basic info
     var bioText = c.tags.length ? c.tags.join(' · ') : c.city + ' · ' + c.exp + '年经验' + (c.skills.length ? ' · ' + c.skills.slice(0, 3).join(', ') : '');
     h += '<div class="candidate-card" data-id="' + c.id + '">';
@@ -937,7 +944,7 @@ function renderOverview() {
 // Talent card for overview (borrowed from 人才鱼塘 talent-card pattern)
 function renderOverviewTalentCard(c) {
   var posKey = classifyPosition(c);
-  var posLabels = {'pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他'};
+  var posLabels = {}; POSITIONS.forEach(function(p) { posLabels['pos-' + p.key] = p.label; }); posLabels['pos-other'] = '其他';
   return '<div class="candidate-card" data-id="' + c.id + '" style="cursor:pointer">' +
     '<div class="candidate-card-header"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div class="info"><h3>' + c.name + '</h3><div class="meta"><span class="comp-dot" style="background:' + getCompanyColor(c.company) + ';width:6px;height:6px;margin-right:4px"></span>' + c.company + ' · ' + c.title + '</div></div></div>' +
     '<div class="tags">' + oppTag(c.opportunity) + '<span class="tag tag-blue">' + (posLabels[posKey] || '其他') + '</span></div>' +
@@ -1320,7 +1327,7 @@ document.addEventListener('click', function(e) {
     currentNav = navItem.dataset.nav;
     document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
     navItem.classList.add('active');
-    var titles = {all:'全部人才',starred:'已收藏','pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他','st-look':'看机会','st-nolook':'不看机会','st-pending':'待确认','link-yes':'有过链接','link-no':'未链接','src-headhunter':'猎头推荐','src-referral':'内部推荐','src-active':'主动投递','overview':'总览','pipeline':'挖猎管线'};
+    var titles = {all:'全部人才',starred:'已收藏','st-look':'看机会','st-nolook':'不看机会','st-pending':'待确认','link-yes':'有过链接','link-no':'未链接','src-headhunter':'猎头推荐','src-referral':'内部推荐','src-active':'主动投递','overview':'总览','pipeline':'挖猎管线'}; POSITIONS.forEach(function(p) { titles['pos-' + p.key] = p.label; }); titles['pos-other'] = '其他';
     var title = titles[currentNav];
     if (!title && currentNav.startsWith('comp-')) title = currentNav.substring(4);
     document.getElementById('list-title').textContent = title || '全部人才';
