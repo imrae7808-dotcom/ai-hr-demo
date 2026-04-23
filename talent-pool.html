@@ -420,9 +420,8 @@ input,select,textarea{font-family:inherit}
       <div class="nav-section">按公司</div>
       <div id="nav-companies"></div>
       <div class="nav-section">人才状态</div>
-      <div class="nav-item" data-nav="st-look-good"><span class="icon">🌟</span><span>看机会+优质</span><span class="count" id="nav-st-look-good-count">0</span></div>
-      <div class="nav-item" data-nav="st-look-normal"><span class="icon">👀</span><span>看机会+普通</span><span class="count" id="nav-st-look-normal-count">0</span></div>
-      <div class="nav-item" data-nav="st-nolook-good"><span class="icon">🔒</span><span>不看+优质</span><span class="count" id="nav-st-nolook-good-count">0</span></div>
+      <div class="nav-item" data-nav="st-look"><span class="icon">🌟</span><span>看机会</span><span class="count" id="nav-st-look-count">0</span></div>
+      <div class="nav-item" data-nav="st-nolook"><span class="icon">🔒</span><span>不看机会</span><span class="count" id="nav-st-nolook-count">0</span></div>
       <div class="nav-item" data-nav="st-pending"><span class="icon">❓</span><span>待确认</span><span class="count" id="nav-st-pending-count">0</span></div>
       <div class="nav-section">链接关系</div>
       <div class="nav-item" data-nav="link-yes"><span class="icon">🔗</span><span>有过链接</span><span class="count" id="nav-link-yes-count">0</span></div>
@@ -493,7 +492,6 @@ input,select,textarea{font-family:inherit}
         <div class="form-group"><label>薪资预期（万/年）</label><input type="number" id="f-salary" placeholder="120" min="0"></div>
         <div class="form-group"><label>匹配度 %</label><input type="number" id="f-match" placeholder="75" min="0" max="100"></div>
         <div class="form-group"><label>看机会状态</label><select id="f-opportunity"><option value="待确认">待确认</option><option value="看机会">看机会</option><option value="不看机会">不看机会</option></select></div>
-        <div class="form-group"><label>人才质量</label><select id="f-quality"><option value="待评估">待评估</option><option value="优质">优质</option><option value="普通">普通</option></select></div>
         <div class="form-group"><label>链接关系</label><label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-top:4px"><input type="checkbox" id="f-connected"> 有过链接</label></div>
         <div class="form-group full"><label>技能（回车添加）</label><div class="form-tags-input" id="f-skills-wrap"><input id="f-skills-input" placeholder="输入技能后回车"></div></div>
         <div class="form-group full"><label>标签（回车添加）</label><div class="form-tags-input" id="f-tags-wrap"><input id="f-tags-input" placeholder="输入标签后回车"></div></div>
@@ -651,10 +649,9 @@ function getFiltered() {
       if (c.company !== compName) return false;
     }
     // Talent status
-    if (currentNav === 'st-look-good') { if (c.opportunity !== '看机会' || c.quality !== '优质') return false; }
-    if (currentNav === 'st-look-normal') { if (c.opportunity !== '看机会' || c.quality !== '普通') return false; }
-    if (currentNav === 'st-nolook-good') { if (c.opportunity !== '不看机会' || c.quality !== '优质') return false; }
-    if (currentNav === 'st-pending') { if (c.opportunity !== '待确认' && c.quality !== '待评估') return false; }
+    if (currentNav === 'st-look') { if (c.opportunity !== '看机会') return false; }
+    if (currentNav === 'st-nolook') { if (c.opportunity !== '不看机会') return false; }
+    if (currentNav === 'st-pending') { if (c.opportunity !== '待确认') return false; }
     // Connection
     if (currentNav === 'link-yes' && !c.connected) return false;
     if (currentNav === 'link-no' && c.connected) return false;
@@ -692,10 +689,9 @@ function renderList() {
     el.classList.toggle('active', el.dataset.nav === currentNav);
   });
   // Talent status counts
-  document.getElementById('nav-st-look-good-count').textContent = candidates.filter(function(c) { return c.opportunity === '看机会' && c.quality === '优质'; }).length;
-  document.getElementById('nav-st-look-normal-count').textContent = candidates.filter(function(c) { return c.opportunity === '看机会' && c.quality === '普通'; }).length;
-  document.getElementById('nav-st-nolook-good-count').textContent = candidates.filter(function(c) { return c.opportunity === '不看机会' && c.quality === '优质'; }).length;
-  document.getElementById('nav-st-pending-count').textContent = candidates.filter(function(c) { return c.opportunity === '待确认' || c.quality === '待评估'; }).length;
+  document.getElementById('nav-st-look-count').textContent = candidates.filter(function(c) { return c.opportunity === '看机会'; }).length;
+  document.getElementById('nav-st-nolook-count').textContent = candidates.filter(function(c) { return c.opportunity === '不看机会'; }).length;
+  document.getElementById('nav-st-pending-count').textContent = candidates.filter(function(c) { return c.opportunity === '待确认'; }).length;
   // Connection counts
   document.getElementById('nav-link-yes-count').textContent = candidates.filter(function(c) { return c.connected; }).length;
   document.getElementById('nav-link-no-count').textContent = candidates.filter(function(c) { return !c.connected; }).length;
@@ -861,9 +857,9 @@ function renderOverview() {
   var companyNames = Object.keys(companies).slice(0, 5).join('/');
 
   h += '<div class="stats-row">';
-  h += '<div class="stat-card" style="cursor:pointer" onclick="overviewStatClick(\'st-look-good\')"><div class="label">积极看机会</div><div class="value green">' + lookCount + '</div><div class="change"><span class="up">↑</span> 较上月</div></div>';
+  h += '<div class="stat-card" style="cursor:pointer" onclick="overviewStatClick(\'st-look\')"><div class="label">积极看机会</div><div class="value green">' + lookCount + '</div><div class="change"><span class="up">↑</span> 较上月</div></div>';
   h += '<div class="stat-card" style="cursor:pointer" onclick="overviewStatClick(\'st-pending\')"><div class="label">开放聊聊</div><div class="value orange">' + pendingCount + '</div><div class="change"><span class="up">↑</span> 较上月</div></div>';
-  h += '<div class="stat-card" style="cursor:pointer" onclick="overviewStatClick(\'st-nolook-good\')"><div class="label">被动看</div><div class="value blue">' + noLookCount + '</div><div class="change">维持不变</div></div>';
+  h += '<div class="stat-card" style="cursor:pointer" onclick="overviewStatClick(\'st-nolook\')"><div class="label">被动看</div><div class="value blue">' + noLookCount + '</div><div class="change">维持不变</div></div>';
   h += '<div class="stat-card" style="cursor:pointer" onclick="overviewStatClick(\'all\')"><div class="label">覆盖公司</div><div class="value accent">' + companyCount + '</div><div class="change">' + companyNames + '</div></div>';
   h += '</div>';
   // Save snapshot for next comparison
@@ -979,7 +975,7 @@ function overviewStatClick(nav) {
   document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
   var target = document.querySelector('.nav-item[data-nav="' + nav + '"]');
   if (target) target.classList.add('active');
-  var titles = {'st-look-good':'积极看机会','st-pending':'开放聊聊','st-nolook-good':'被动看','all':'全部人才'};
+  var titles = {'st-look':'积极看机会','st-pending':'开放聊聊','st-nolook':'被动看','all':'全部人才'};
   document.getElementById('list-title').textContent = titles[nav] || '全部人才';
   document.getElementById('list-area').querySelector('.list-header').style.display = '';
   document.getElementById('candidate-list').style.display = '';
@@ -1154,7 +1150,7 @@ function exportList() {
   var filtered = getFiltered();
   var csv = '姓名,公司,职位,学历,经验,城市,薪资,来源,匹配度,看机会,质量,链接,状态,风险,技能,标签\n';
   filtered.forEach(function(c) {
-    csv += '"' + c.name + '","' + c.company + '","' + c.title + '","' + c.edu + '",' + c.exp + ',"' + c.city + '",' + c.salary + ',"' + c.source + '",' + c.match + ',"' + (c.opportunity||'') + '","' + (c.quality||'') + '",' + (c.connected ? '是' : '否') + ',"' + c.status + '","' + c.risk + '","' + c.skills.join(';') + '","' + c.tags.join(';') + '"\n';
+    csv += '"' + c.name + '","' + c.company + '","' + c.title + '","' + c.edu + '",' + c.exp + ',"' + c.city + '",' + c.salary + ',"' + c.source + '",' + c.match + ',"' + (c.opportunity||'') + '",' + (c.connected ? '是' : '否') + ',"' + c.status + '","' + c.risk + '","' + c.skills.join(';') + '","' + c.tags.join(';') + '"\n';
   });
   var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
   var link = document.createElement('a');
@@ -1197,7 +1193,6 @@ function openEditModal(id) {
   document.getElementById('f-salary').value = c.salary;
   document.getElementById('f-match').value = c.match;
   document.getElementById('f-opportunity').value = c.opportunity || '待确认';
-  document.getElementById('f-quality').value = c.quality || '待评估';
   document.getElementById('f-connected').checked = c.connected || false;
   document.getElementById('f-note').value = '';
   formSkills = c.skills.slice();
@@ -1215,7 +1210,6 @@ function clearForm() {
   document.getElementById('f-edu').value = '本科';
   document.getElementById('f-city').value = '北京';
   document.getElementById('f-opportunity').value = '待确认';
-  document.getElementById('f-quality').value = '待评估';
   document.getElementById('f-connected').checked = false;
   formSkills = [];
   formTags = [];
@@ -1249,7 +1243,6 @@ function saveForm() {
   var match = parseInt(document.getElementById('f-match').value) || 0;
   var source = document.getElementById('f-source').value;
   var opportunity = document.getElementById('f-opportunity').value;
-  var quality = document.getElementById('f-quality').value;
   var connected = document.getElementById('f-connected').checked;
 
   if (editingId !== null) {
@@ -1259,7 +1252,7 @@ function saveForm() {
       c.name = name; c.age = age; c.company = company; c.title = title;
       c.edu = edu; c.exp = exp; c.city = city; c.salary = salary;
       c.match = match; c.source = source;
-      c.opportunity = opportunity; c.quality = quality; c.connected = connected;
+      c.opportunity = opportunity; c.connected = connected;
       c.skills = formSkills.slice();
       c.tags = formTags.slice();
       saveData();
@@ -1272,7 +1265,7 @@ function saveForm() {
       edu: edu, exp: exp, city: city, salary: salary, source: source,
       skills: formSkills.slice(), tags: formTags.slice(),
       match: match, risk: 'low', status: 'active', starred: false,
-      opportunity: opportunity, quality: quality, connected: connected,
+      opportunity: opportunity, connected: connected,
       reminderDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
       activationHistory: [],
       timeline: [{ year: '至今', role: title, company: company }]
@@ -1342,7 +1335,7 @@ document.addEventListener('click', function(e) {
     currentNav = navItem.dataset.nav;
     document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
     navItem.classList.add('active');
-    var titles = {all:'全部人才',starred:'已收藏','pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他','st-look-good':'看机会+优质','st-look-normal':'看机会+普通','st-nolook-good':'不看+优质','st-pending':'待确认','link-yes':'有过链接','link-no':'未链接','src-headhunter':'猎头推荐','src-referral':'内部推荐','src-active':'主动投递','overview':'总览','pipeline':'挖猎管线'};
+    var titles = {all:'全部人才',starred:'已收藏','pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他','st-look':'看机会','st-nolook':'不看机会','st-pending':'待确认','link-yes':'有过链接','link-no':'未链接','src-headhunter':'猎头推荐','src-referral':'内部推荐','src-active':'主动投递','overview':'总览','pipeline':'挖猎管线'};
     var title = titles[currentNav];
     if (!title && currentNav.startsWith('comp-')) title = currentNav.substring(4);
     document.getElementById('list-title').textContent = title || '全部人才';
