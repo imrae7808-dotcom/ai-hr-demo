@@ -500,9 +500,49 @@ function renderCards(list) {
 }
 
 // ===== Overview / Org Chart =====
+// ===== Company Org Structures (real data) =====
+var companyOrgs = {
+  '腾讯': {
+    ceo: '马化腾',
+    groups: [
+      { name: 'CDG 企业发展事业群', desc: '战略级新业务培育与创新发展', icon: '🚀', depts: ['金融科技', '腾讯广告', '可持续社会价值(SSV)', '战略发展部', '腾讯投资', '市场与公关部'] },
+      { name: 'IEG 互动娱乐事业群', desc: '游戏研发、发行、运营全链条', icon: '🎮', depts: ['天美工作室群', '光子工作室群', '魔方工作室群', '北极光工作室群', 'NExT Studios', '游戏国际发行', '游戏数据', '游戏安全'] },
+      { name: 'TEG 技术工程事业群', desc: 'AI大模型、基础设施、安全', icon: '🔧', depts: ['混元大模型', '混元多模态模型', 'AI Infra', 'Robotics X', 'AI平台部', '数据计算平台', '云架构平台', '数据库研发', '安全平台', '信息安全部'] },
+      { name: 'WXG 微信事业群', desc: '微信生态：社交、支付、内容、电商', icon: '💬', depts: ['视频号', '公众号&小程序', '基础微信', '技术架构', '企业微信', '微信支付', '微信搜索', '微信小店'] },
+      { name: 'PCG 平台与内容事业群', desc: 'QQ、新闻、视频、应用宝', icon: '📱', depts: ['QQ', '腾讯新闻', '腾讯视频', '应用宝', 'PCG技术线'] },
+      { name: 'CSIG 云与智慧产业事业群', desc: '云计算、安全、AI应用、行业方案', icon: '☁️', depts: ['腾讯云', '腾讯安全', '智慧出行', '智慧零售', '元宝(AI助手)', '腾讯会议', 'CodeBuddy', '优图实验室', '多媒体实验室'] },
+      { name: 'S线 职能系统', desc: '公共事务、法务、财务、HR', icon: '🏢', depts: ['职能线(S1)', '财经线(S2)', 'HR与管理线(S3)'] }
+    ]
+  }
+};
+
+// Generic org structure for unknown companies
+function genericOrg(members) {
+  var groups = [
+    { name: '技术线', icon: '💻', key: 'pos-tech' },
+    { name: '产品线', icon: '📋', key: 'pos-product' },
+    { name: '设计线', icon: '🎨', key: 'pos-design' },
+    { name: '运营线', icon: '⚙️', key: 'pos-ops' },
+    { name: '市场线', icon: '📢', key: 'pos-marketing' },
+    { name: '管理层', icon: '👔', key: 'pos-leadership' }
+  ];
+  return groups.map(function(g) {
+    var m = members.filter(function(c) { return classifyPosition(c) === g.key; });
+    return { name: g.name, icon: g.icon, depts: [], members: m };
+  });
+}
+
+function renderMemberCard(c) {
+  var cls = 'org-member';
+  if (c.opportunity === '看机会') cls += ' looking';
+  if (c.connected) cls += ' connected';
+  return '<div class="' + cls + '" data-action="overview-open" data-id="' + c.id + '">' +
+    '<div class="avatar" style="background:' + avatarColor(c.id) + ';width:22px;height:22px;font-size:9px">' + c.name[0] + '</div>' +
+    '<div><div class="mname">' + c.name + '</div><div class="mtitle">' + c.title + ' · ' + c.city + '</div></div></div>';
+}
+
 function renderOverview() {
   var el = document.getElementById('overview-area');
-  // Group candidates by company
   var companyMap = {};
   candidates.forEach(function(c) {
     if (!c.company) return;
@@ -512,53 +552,69 @@ function renderOverview() {
   var companies = Object.keys(companyMap).sort();
 
   if (!companies.length) {
-    el.innerHTML = '<div class="empty-state" style="padding:60px 20px"><div class="icon">📊</div><p>暂无数据，添加候选人后可查看公司人才总览</p></div>';
+    el.innerHTML = '<div class="empty-state" style="padding:60px 20px"><div class="icon">📊</div><p>暂无数据，添加候选人后可查看公司人才总览</p><p style="font-size:11px;color:var(--text3);margin-top:6px">添加候选人后，可按公司查看组织架构</p></div>';
     return;
   }
 
   var h = '<div class="overview-header">📊 人才总览 <span class="sub">' + companies.length + '家公司 · ' + candidates.length + '位候选人</span></div>';
 
-  // Demo VP-level positions for each company
-  var vpRoles = [
-    { key: 'pos-tech', label: '技术VP', icon: '💻' },
-    { key: 'pos-product', label: '产品VP', icon: '📋' },
-    { key: 'pos-design', label: '设计VP', icon: '🎨' },
-    { key: 'pos-ops', label: '运营VP', icon: '⚙️' },
-    { key: 'pos-marketing', label: '市场VP', icon: '📢' },
-    { key: 'pos-leadership', label: '总经理', icon: '👔' }
-  ];
-
   companies.forEach(function(compName) {
     var members = companyMap[compName];
+    var org = companyOrgs[compName];
+
     h += '<div class="org-card">';
     h += '<div class="org-card-header"><h3>🏢 ' + compName + ' <span class="badge">' + members.length + '人</span></h3></div>';
-    h += '<div class="org-tree">';
-    // CEO node
-    h += '<div class="org-node ceo">CEO / 总经理</div>';
-    h += '<div class="org-connector"></div>';
-    // VP branches
-    h += '<div class="org-branches">';
-    vpRoles.forEach(function(vp) {
-      var branchMembers = members.filter(function(c) { return classifyPosition(c) === vp.key; });
-      h += '<div class="org-branch">';
-      h += '<div class="org-node vp">' + vp.icon + ' ' + vp.label + '<span class="role">' + (branchMembers.length ? branchMembers.length + '人' : '空缺') + '</span></div>';
-      h += '<div class="org-members">';
-      if (branchMembers.length) {
-        branchMembers.forEach(function(c) {
-          var cls = 'org-member';
-          if (c.opportunity === '看机会') cls += ' looking';
-          if (c.connected) cls += ' connected';
-          h += '<div class="' + cls + '" data-action="overview-open" data-id="' + c.id + '">';
-          h += '<div class="avatar" style="background:' + avatarColor(c.id) + ';width:22px;height:22px;font-size:9px">' + c.name[0] + '</div>';
-          h += '<div><div class="mname">' + c.name + '</div><div class="mtitle">' + c.title + ' · ' + c.city + '</div></div>';
-          h += '</div>';
+
+    if (org) {
+      // Real org structure
+      h += '<div style="text-align:center;margin-bottom:12px"><div class="org-node ceo" style="display:inline-block">👑 ' + org.ceo + ' <span class="role" style="font-size:9px;color:var(--text3)">CEO</span></div></div>';
+      h += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">';
+      org.groups.forEach(function(grp) {
+        h += '<div style="background:var(--bg);border-radius:var(--radius);padding:10px;border:1px solid var(--border)">';
+        h += '<div style="font-size:12px;font-weight:700;margin-bottom:4px">' + grp.icon + ' ' + grp.name + '</div>';
+        h += '<div style="font-size:10px;color:var(--text2);margin-bottom:6px">' + grp.desc + '</div>';
+        // Show departments as tags
+        h += '<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px">';
+        grp.depts.forEach(function(d) { h += '<span class="tag tag-blue" style="font-size:8px">' + d + '</span>'; });
+        h += '</div>';
+        // Match candidates to this group by keyword
+        var grpLower = grp.name.toLowerCase();
+        var grpMembers = members.filter(function(c) {
+          var t = (c.title + ' ' + c.company + ' ' + c.tags.join(' ') + ' ' + c.skills.join(' ')).toLowerCase();
+          // Match by group name keywords
+          if (grp.name.indexOf('技术') !== -1 || grp.name.indexOf('TEG') !== -1) return classifyPosition(c) === 'pos-tech';
+          if (grp.name.indexOf('互动') !== -1 || grp.name.indexOf('IEG') !== -1) return /游戏|互动|娱乐/.test(t) || classifyPosition(c) === 'pos-tech';
+          if (grp.name.indexOf('微信') !== -1 || grp.name.indexOf('WXG') !== -1) return /微信|wxg/.test(t);
+          if (grp.name.indexOf('云') !== -1 || grp.name.indexOf('CSIG') !== -1) return /云|csig|安全|ai/.test(t) || classifyPosition(c) === 'pos-tech';
+          if (grp.name.indexOf('平台') !== -1 || grp.name.indexOf('PCG') !== -1) return /qq|视频|新闻|内容/.test(t);
+          if (grp.name.indexOf('职能') !== -1 || grp.name.indexOf('S线') !== -1) return classifyPosition(c) === 'pos-leadership';
+          return false;
         });
-      } else {
-        h += '<div class="org-vacancy">（空缺）</div>';
-      }
-      h += '</div></div>';
-    });
-    h += '</div></div></div>';
+        if (grpMembers.length) {
+          grpMembers.forEach(function(c) { h += renderMemberCard(c); });
+        }
+        h += '</div>';
+      });
+      h += '</div>';
+    } else {
+      // Generic structure for unknown companies
+      var gOrg = genericOrg(members);
+      h += '<div style="text-align:center;margin-bottom:12px"><div class="org-node ceo" style="display:inline-block">CEO / 总经理</div></div>';
+      h += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">';
+      gOrg.forEach(function(g) {
+        if (g.members.length === 0 && g.depts.length === 0) return;
+        h += '<div style="background:var(--bg);border-radius:var(--radius);padding:10px;border:1px solid var(--border)">';
+        h += '<div style="font-size:12px;font-weight:700;margin-bottom:6px">' + g.icon + ' ' + g.name + '</div>';
+        if (g.members.length) {
+          g.members.forEach(function(c) { h += renderMemberCard(c); });
+        } else {
+          h += '<div class="org-vacancy">暂无相关人选</div>';
+        }
+        h += '</div>';
+      });
+      h += '</div>';
+    }
+    h += '</div>';
   });
 
   el.innerHTML = h;
