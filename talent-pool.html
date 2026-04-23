@@ -744,7 +744,7 @@ function qualTag(q) { return q === '优质' ? '<span class="tag" style="backgrou
 function connIcon(v) { return v ? '<span style="color:var(--green);font-size:13px" title="有过链接">🔗</span>' : '<span style="color:var(--text3);font-size:11px" title="未链接">○</span>'; }
 
 function renderTable(list) {
-  var h = '<table class="candidate-table"><thead><tr><th>候选人</th><th>职位</th><th>看机会</th><th>质量</th><th>链接</th><th>来源</th><th>技能</th><th>保温</th><th></th></tr></thead><tbody>';
+  var h = '<table class="candidate-table"><thead><tr><th>候选人</th><th>职位</th><th>看机会</th><th>链接</th><th>来源</th><th>技能</th><th>保温</th><th></th></tr></thead><tbody>';
   list.forEach(function(c) {
     var remDays = daysUntil(c.reminderDate);
     var remHtml = remDays <= 0 ? '<span style="background:var(--red-light);color:var(--red);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600">需联系</span>' : remDays <= 7 ? '<span style="background:var(--orange-light);color:var(--orange);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600">' + remDays + '天</span>' : '<span style="font-size:10px;color:var(--text3)">' + remDays + '天</span>';
@@ -752,7 +752,6 @@ function renderTable(list) {
     h += '<td><div class="name-cell"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div><div class="name">' + c.name + '</div><div class="company"><span class="comp-dot" style="background:' + getCompanyColor(c.company) + ';width:6px;height:6px;margin-right:3px"></span>' + c.company + '</div></div></div></td>';
     h += '<td style="font-size:11px">' + c.title + '</td>';
     h += '<td>' + oppTag(c.opportunity) + '</td>';
-    h += '<td>' + qualTag(c.quality) + '</td>';
     h += '<td>' + connIcon(c.connected) + '</td>';
     h += '<td><span class="tag ' + sourceTagColor(c.source) + '">' + c.source + '</span></td>';
     h += '<td><div class="tags">' + c.skills.slice(0, 2).map(function(s) { return '<span class="tag tag-blue">' + s + '</span>'; }).join('') + '</div></td>';
@@ -774,7 +773,7 @@ function renderCards(list) {
     var bioText = c.tags.length ? c.tags.join(' · ') : c.city + ' · ' + c.exp + '年经验' + (c.skills.length ? ' · ' + c.skills.slice(0, 3).join(', ') : '');
     h += '<div class="candidate-card" data-id="' + c.id + '">';
     h += '<div class="candidate-card-header"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div class="info"><h3>' + c.name + '</h3><div class="meta">' + c.company + ' · ' + c.title + '</div></div></div>';
-    h += '<div class="tags">' + oppTag(c.opportunity) + qualTag(c.quality) + connIcon(c.connected) + '<span class="tag tag-blue">' + (posLabels[posKey] || '其他') + '</span></div>';
+    h += '<div class="tags">' + oppTag(c.opportunity) + connIcon(c.connected) + '<span class="tag tag-blue">' + (posLabels[posKey] || '其他') + '</span></div>';
     h += '<div style="font-size:12px;color:var(--text2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-top:8px">' + bioText + '</div>';
     h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">';
     h += '<span style="font-size:10px;color:var(--text3)">' + c.city + ' · ' + c.exp + '年</span>';
@@ -955,7 +954,7 @@ function renderOverviewTalentCard(c) {
   var posLabels = {'pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他'};
   return '<div class="candidate-card" data-id="' + c.id + '" style="cursor:pointer">' +
     '<div class="candidate-card-header"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div class="info"><h3>' + c.name + '</h3><div class="meta"><span class="comp-dot" style="background:' + getCompanyColor(c.company) + ';width:6px;height:6px;margin-right:4px"></span>' + c.company + ' · ' + c.title + '</div></div></div>' +
-    '<div class="tags">' + oppTag(c.opportunity) + qualTag(c.quality) + '<span class="tag tag-blue">' + (posLabels[posKey] || '其他') + '</span></div>' +
+    '<div class="tags">' + oppTag(c.opportunity) + '<span class="tag tag-blue">' + (posLabels[posKey] || '其他') + '</span></div>' +
     '<div class="bio" style="font-size:12px;color:var(--text2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-top:8px">' + (c.tags.length ? c.tags.join(' · ') : c.city + ' · ' + c.exp + '年经验') + '</div>' +
     '</div>';
 }
@@ -1045,7 +1044,6 @@ function showDetail(id) {
   h += '</div>';
   h += '<div class="detail-section"><h4>人才画像</h4><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">';
   h += '<div style="text-align:center;padding:8px;background:var(--bg);border-radius:8px"><div style="font-size:13px;font-weight:700">' + oppTag(c.opportunity) + '</div><div style="font-size:9px;color:var(--text3);margin-top:2px">看机会状态</div></div>';
-  h += '<div style="text-align:center;padding:8px;background:var(--bg);border-radius:8px"><div style="font-size:13px;font-weight:700">' + qualTag(c.quality) + '</div><div style="font-size:9px;color:var(--text3);margin-top:2px">人才质量</div></div>';
   h += '<div style="text-align:center;padding:8px;background:var(--bg);border-radius:8px"><div style="font-size:13px;font-weight:700">' + connIcon(c.connected) + ' ' + (c.connected ? '有链接' : '无链接') + '</div><div style="font-size:9px;color:var(--text3);margin-top:2px">链接关系</div></div>';
   h += '</div></div>';
   h += '<div class="detail-section"><h4>标签</h4><div class="detail-tags"><span class="tag ' + sourceTagColor(c.source) + '">' + c.source + '</span><span class="tag tag-blue">' + c.edu + '</span><span class="tag tag-green">' + c.exp + '年</span><span class="tag tag-purple">' + c.city + '</span>' + riskTag(c.risk) + c.tags.map(function(t) { return '<span class="tag tag-cyan">' + t + '</span>'; }).join('') + '</div></div>';
