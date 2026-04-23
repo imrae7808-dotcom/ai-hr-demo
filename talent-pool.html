@@ -186,18 +186,32 @@ input,select,textarea{font-family:inherit}
 <div class="app">
   <div class="sidebar">
     <div class="sidebar-header"><div class="logo"><span>AI</span> 人才库</div></div>
-    <div class="sidebar-nav">
+    <div class="sidebar-nav" id="sidebar-nav">
       <div class="nav-section">人才库</div>
-      <div class="nav-item active" data-nav="all"><span class="icon">👥</span><span>全部候选人</span><span class="count" id="nav-all-count">0</span></div>
+      <div class="nav-item active" data-nav="all"><span class="icon">👥</span><span>全部人才</span><span class="count" id="nav-all-count">0</span></div>
       <div class="nav-item" data-nav="starred"><span class="icon">📌</span><span>已收藏</span><span class="count" id="nav-starred-count">0</span></div>
-      <div class="nav-section">状态</div>
-      <div class="nav-item" data-nav="active"><span class="icon">🟢</span><span>活跃</span><span class="count" id="nav-active-count">0</span></div>
-      <div class="nav-item" data-nav="warm"><span class="icon">🟡</span><span>保温中</span><span class="count" id="nav-warm-count">0</span></div>
-      <div class="nav-item" data-nav="risk"><span class="icon">🔴</span><span>流失风险</span><span class="count" id="nav-risk-count">0</span></div>
+      <div class="nav-section">按岗位</div>
+      <div class="nav-item" data-nav="pos-tech"><span class="icon">💻</span><span>技术</span><span class="count" id="nav-pos-tech-count">0</span></div>
+      <div class="nav-item" data-nav="pos-product"><span class="icon">📋</span><span>产品</span><span class="count" id="nav-pos-product-count">0</span></div>
+      <div class="nav-item" data-nav="pos-design"><span class="icon">🎨</span><span>设计</span><span class="count" id="nav-pos-design-count">0</span></div>
+      <div class="nav-item" data-nav="pos-ops"><span class="icon">⚙️</span><span>运营</span><span class="count" id="nav-pos-ops-count">0</span></div>
+      <div class="nav-item" data-nav="pos-marketing"><span class="icon">📢</span><span>市场</span><span class="count" id="nav-pos-marketing-count">0</span></div>
+      <div class="nav-item" data-nav="pos-leadership"><span class="icon">👔</span><span>管理层</span><span class="count" id="nav-pos-leadership-count">0</span></div>
+      <div class="nav-item" data-nav="pos-other"><span class="icon">📁</span><span>其他</span><span class="count" id="nav-pos-other-count">0</span></div>
+      <div class="nav-section">按公司</div>
+      <div id="nav-companies"></div>
+      <div class="nav-section">人才状态</div>
+      <div class="nav-item" data-nav="st-look-good"><span class="icon">🌟</span><span>看机会+优质</span><span class="count" id="nav-st-look-good-count">0</span></div>
+      <div class="nav-item" data-nav="st-look-normal"><span class="icon">👀</span><span>看机会+普通</span><span class="count" id="nav-st-look-normal-count">0</span></div>
+      <div class="nav-item" data-nav="st-nolook-good"><span class="icon">🔒</span><span>不看+优质</span><span class="count" id="nav-st-nolook-good-count">0</span></div>
+      <div class="nav-item" data-nav="st-pending"><span class="icon">❓</span><span>待确认</span><span class="count" id="nav-st-pending-count">0</span></div>
+      <div class="nav-section">链接关系</div>
+      <div class="nav-item" data-nav="link-yes"><span class="icon">🔗</span><span>有过链接</span><span class="count" id="nav-link-yes-count">0</span></div>
+      <div class="nav-item" data-nav="link-no"><span class="icon">○</span><span>未链接</span><span class="count" id="nav-link-no-count">0</span></div>
       <div class="nav-section">来源</div>
-      <div class="nav-item" data-nav="src-headhunter"><span class="icon">🔍</span><span>猎头推荐</span><span class="count" id="nav-headhunter-count">0</span></div>
-      <div class="nav-item" data-nav="src-referral"><span class="icon">🤝</span><span>内部推荐</span><span class="count" id="nav-referral-count">0</span></div>
-      <div class="nav-item" data-nav="src-active"><span class="icon">📨</span><span>主动投递</span><span class="count" id="nav-activeapply-count">0</span></div>
+      <div class="nav-item" data-nav="src-headhunter"><span class="icon">🔍</span><span>猎头推荐</span><span class="count" id="nav-src-headhunter-count">0</span></div>
+      <div class="nav-item" data-nav="src-referral"><span class="icon">🤝</span><span>内部推荐</span><span class="count" id="nav-src-referral-count">0</span></div>
+      <div class="nav-item" data-nav="src-active"><span class="icon">📨</span><span>主动投递</span><span class="count" id="nav-src-active-count">0</span></div>
     </div>
     <div class="sidebar-footer"><span>v3.0</span></div>
   </div>
@@ -247,6 +261,9 @@ input,select,textarea{font-family:inherit}
         <div class="form-group"><label>城市</label><select id="f-city"><option value="北京">北京</option><option value="上海">上海</option><option value="深圳">深圳</option><option value="杭州">杭州</option><option value="广州">广州</option><option value="成都">成都</option><option value="南京">南京</option><option value="武汉">武汉</option></select></div>
         <div class="form-group"><label>薪资预期（万/年）</label><input type="number" id="f-salary" placeholder="120" min="0"></div>
         <div class="form-group"><label>匹配度 %</label><input type="number" id="f-match" placeholder="75" min="0" max="100"></div>
+        <div class="form-group"><label>看机会状态</label><select id="f-opportunity"><option value="待确认">待确认</option><option value="看机会">看机会</option><option value="不看机会">不看机会</option></select></div>
+        <div class="form-group"><label>人才质量</label><select id="f-quality"><option value="待评估">待评估</option><option value="优质">优质</option><option value="普通">普通</option></select></div>
+        <div class="form-group"><label>链接关系</label><label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-top:4px"><input type="checkbox" id="f-connected"> 有过链接</label></div>
         <div class="form-group full"><label>技能（回车添加）</label><div class="form-tags-input" id="f-skills-wrap"><input id="f-skills-input" placeholder="输入技能后回车"></div></div>
         <div class="form-group full"><label>标签（回车添加）</label><div class="form-tags-input" id="f-tags-wrap"><input id="f-tags-input" placeholder="输入标签后回车"></div></div>
         <div class="form-group full"><label>备注</label><textarea id="f-note" placeholder="推荐理由、沟通情况等"></textarea></div>
@@ -318,13 +335,40 @@ function findDuplicate(name, company) {
   return candidates.find(function(c) { return c.name.toLowerCase() === name && c.company.toLowerCase() === company; });
 }
 
+// ===== Position classification =====
+function classifyPosition(c) {
+  var t = (c.title + ' ' + c.skills.join(' ')).toLowerCase();
+  if (/总监|vp|负责人|head|经理|director|manager|lead|chief|总裁|副总/.test(t)) return 'pos-leadership';
+  if (/ engineer|开发|工程师|架构师|算法|研发|后端|前端|全栈|测试|运维|devops| architect|python|java|c\+\+|go |node|react|vue|flutter|tensorflow|pytorch|机器学习|深度学习|自动驾驶|感知/.test(t)) return 'pos-tech';
+  if (/产品|product|pm /.test(t)) return 'pos-product';
+  if (/设计|design|ui|ux|交互|视觉|figma|sketch|photoshop/.test(t)) return 'pos-design';
+  if (/运营|operation|增长|用户增长|内容运营|社区运营|活动运营/.test(t)) return 'pos-ops';
+  if (/市场|marketing|品牌|公关|pr |推广|传播|brand/.test(t)) return 'pos-marketing';
+  return 'pos-other';
+}
+
 // ===== Filtering =====
 function getFiltered() {
   return candidates.filter(function(c) {
-    if (currentNav === 'active' && c.status !== 'active') return false;
-    if (currentNav === 'warm' && c.status !== 'warm') return false;
-    if (currentNav === 'risk' && c.risk === 'low') return false;
     if (currentNav === 'starred' && !c.starred) return false;
+    // Position
+    if (currentNav.startsWith('pos-')) {
+      if (classifyPosition(c) !== currentNav) return false;
+    }
+    // Company (dynamic, prefix: comp-)
+    if (currentNav.startsWith('comp-')) {
+      var compName = currentNav.substring(4);
+      if (c.company !== compName) return false;
+    }
+    // Talent status
+    if (currentNav === 'st-look-good') { if (c.opportunity !== '看机会' || c.quality !== '优质') return false; }
+    if (currentNav === 'st-look-normal') { if (c.opportunity !== '看机会' || c.quality !== '普通') return false; }
+    if (currentNav === 'st-nolook-good') { if (c.opportunity !== '不看机会' || c.quality !== '优质') return false; }
+    if (currentNav === 'st-pending') { if (c.opportunity !== '待确认' && c.quality !== '待评估') return false; }
+    // Connection
+    if (currentNav === 'link-yes' && !c.connected) return false;
+    if (currentNav === 'link-no' && c.connected) return false;
+    // Source
     if (currentNav === 'src-headhunter' && c.source !== '猎头推荐') return false;
     if (currentNav === 'src-referral' && c.source !== '内部推荐') return false;
     if (currentNav === 'src-active' && c.source !== '主动投递') return false;
@@ -343,12 +387,35 @@ function renderList() {
   // Update counts
   document.getElementById('nav-all-count').textContent = candidates.length;
   document.getElementById('nav-starred-count').textContent = candidates.filter(function(c) { return c.starred; }).length;
-  document.getElementById('nav-active-count').textContent = candidates.filter(function(c) { return c.status === 'active'; }).length;
-  document.getElementById('nav-warm-count').textContent = candidates.filter(function(c) { return c.status === 'warm'; }).length;
-  document.getElementById('nav-risk-count').textContent = candidates.filter(function(c) { return c.risk === 'high' || c.risk === 'medium'; }).length;
-  document.getElementById('nav-headhunter-count').textContent = candidates.filter(function(c) { return c.source === '猎头推荐'; }).length;
-  document.getElementById('nav-referral-count').textContent = candidates.filter(function(c) { return c.source === '内部推荐'; }).length;
-  document.getElementById('nav-activeapply-count').textContent = candidates.filter(function(c) { return c.source === '主动投递'; }).length;
+  // Position counts
+  document.getElementById('nav-pos-tech-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-tech'; }).length;
+  document.getElementById('nav-pos-product-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-product'; }).length;
+  document.getElementById('nav-pos-design-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-design'; }).length;
+  document.getElementById('nav-pos-ops-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-ops'; }).length;
+  document.getElementById('nav-pos-marketing-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-marketing'; }).length;
+  document.getElementById('nav-pos-leadership-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-leadership'; }).length;
+  document.getElementById('nav-pos-other-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-other'; }).length;
+  // Talent status counts
+  document.getElementById('nav-st-look-good-count').textContent = candidates.filter(function(c) { return c.opportunity === '看机会' && c.quality === '优质'; }).length;
+  document.getElementById('nav-st-look-normal-count').textContent = candidates.filter(function(c) { return c.opportunity === '看机会' && c.quality === '普通'; }).length;
+  document.getElementById('nav-st-nolook-good-count').textContent = candidates.filter(function(c) { return c.opportunity === '不看机会' && c.quality === '优质'; }).length;
+  document.getElementById('nav-st-pending-count').textContent = candidates.filter(function(c) { return c.opportunity === '待确认' || c.quality === '待评估'; }).length;
+  // Connection counts
+  document.getElementById('nav-link-yes-count').textContent = candidates.filter(function(c) { return c.connected; }).length;
+  document.getElementById('nav-link-no-count').textContent = candidates.filter(function(c) { return !c.connected; }).length;
+  // Source counts
+  document.getElementById('nav-src-headhunter-count').textContent = candidates.filter(function(c) { return c.source === '猎头推荐'; }).length;
+  document.getElementById('nav-src-referral-count').textContent = candidates.filter(function(c) { return c.source === '内部推荐'; }).length;
+  document.getElementById('nav-src-active-count').textContent = candidates.filter(function(c) { return c.source === '主动投递'; }).length;
+  // Dynamic company nav
+  var companyMap = {};
+  candidates.forEach(function(c) { if (c.company) companyMap[c.company] = (companyMap[c.company] || 0) + 1; });
+  var companies = Object.keys(companyMap).sort();
+  var compHtml = companies.map(function(name) {
+    var active = currentNav === 'comp-' + name ? ' active' : '';
+    return '<div class="nav-item' + active + '" data-nav="comp-' + name + '"><span class="icon">🏢</span><span>' + name + '</span><span class="count">' + companyMap[name] + '</span></div>';
+  }).join('');
+  document.getElementById('nav-companies').innerHTML = compHtml || '<div style="padding:4px 12px;font-size:10px;color:var(--text3)">暂无数据</div>';
   document.getElementById('list-count').textContent = '共 ' + filtered.length + ' 人';
 
   if (!filtered.length) {
@@ -358,19 +425,24 @@ function renderList() {
   if (viewMode === 'table') renderTable(filtered); else renderCards(filtered);
 }
 
+function oppTag(o) { return o === '看机会' ? '<span class="tag tag-green">看机会</span>' : o === '不看机会' ? '<span class="tag" style="background:#f1f5f9;color:#94a3b8">不看</span>' : '<span class="tag tag-orange">待确认</span>'; }
+function qualTag(q) { return q === '优质' ? '<span class="tag" style="background:rgba(245,158,11,.12);color:#d97706">优质</span>' : q === '普通' ? '<span class="tag tag-blue">普通</span>' : '<span class="tag" style="background:#f1f5f9;color:#94a3b8">待评估</span>'; }
+function connIcon(v) { return v ? '<span style="color:var(--green);font-size:13px" title="有过链接">🔗</span>' : '<span style="color:var(--text3);font-size:11px" title="未链接">○</span>'; }
+
 function renderTable(list) {
-  var h = '<table class="candidate-table"><thead><tr><th>候选人</th><th>职位</th><th>来源</th><th>技能</th><th>经验</th><th>城市</th><th>匹配</th><th>状态</th><th>风险</th><th>保温</th><th></th></tr></thead><tbody>';
+  var h = '<table class="candidate-table"><thead><tr><th>候选人</th><th>职位</th><th>看机会</th><th>质量</th><th>链接</th><th>来源</th><th>技能</th><th>保温</th><th></th></tr></thead><tbody>';
   list.forEach(function(c) {
     var remDays = daysUntil(c.reminderDate);
     var remHtml = remDays <= 0 ? '<span style="background:var(--red-light);color:var(--red);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600">需联系</span>' : remDays <= 7 ? '<span style="background:var(--orange-light);color:var(--orange);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600">' + remDays + '天</span>' : '<span style="font-size:10px;color:var(--text3)">' + remDays + '天</span>';
     h += '<tr data-id="' + c.id + '">';
     h += '<td><div class="name-cell"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div><div class="name">' + c.name + '</div><div class="company">' + c.company + '</div></div></div></td>';
     h += '<td style="font-size:11px">' + c.title + '</td>';
+    h += '<td>' + oppTag(c.opportunity) + '</td>';
+    h += '<td>' + qualTag(c.quality) + '</td>';
+    h += '<td>' + connIcon(c.connected) + '</td>';
     h += '<td><span class="tag ' + sourceTagColor(c.source) + '">' + c.source + '</span></td>';
     h += '<td><div class="tags">' + c.skills.slice(0, 2).map(function(s) { return '<span class="tag tag-blue">' + s + '</span>'; }).join('') + '</div></td>';
-    h += '<td>' + c.exp + '年</td><td>' + c.city + '</td>';
-    h += '<td><span style="color:' + matchColor(c.match) + ';font-weight:700;font-size:12px">' + (c.match ? c.match + '%' : '-') + '</span></td>';
-    h += '<td>' + statusDot(c.status) + '</td><td>' + riskTag(c.risk) + '</td><td>' + remHtml + '</td>';
+    h += '<td>' + remHtml + '</td>';
     h += '<td><button class="btn btn-sm btn-outline" data-action="star" data-id="' + c.id + '">' + (c.starred ? '★' : '☆') + '</button> ';
     h += '<button class="btn btn-sm btn-outline" data-action="edit" data-id="' + c.id + '">编辑</button> ';
     h += '<button class="btn btn-sm btn-danger" data-action="delete" data-id="' + c.id + '">删除</button></td></tr>';
@@ -384,9 +456,9 @@ function renderCards(list) {
   list.forEach(function(c) {
     h += '<div class="candidate-card" data-id="' + c.id + '">';
     h += '<div class="candidate-card-header"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div class="info"><h3>' + c.name + '</h3><div class="meta">' + c.company + ' · ' + c.title + '</div></div></div>';
-    h += '<div class="tags">' + c.skills.slice(0, 3).map(function(s) { return '<span class="tag tag-blue">' + s + '</span>'; }).join('') + '<span class="tag ' + sourceTagColor(c.source) + '">' + c.source + '</span>' + riskTag(c.risk) + '</div>';
-    h += '<div class="detail-row"><span class="label">匹配度</span><span class="value" style="color:' + matchColor(c.match) + '">' + (c.match ? c.match + '%' : '未填写') + '</span></div>';
+    h += '<div class="tags">' + oppTag(c.opportunity) + qualTag(c.quality) + connIcon(c.connected) + '<span class="tag ' + sourceTagColor(c.source) + '">' + c.source + '</span></div>';
     h += '<div class="detail-row"><span class="label">城市</span><span class="value">' + c.city + '</span></div>';
+    h += '<div class="detail-row"><span class="label">经验</span><span class="value">' + c.exp + '年</span></div>';
     h += '<div class="detail-row" style="border:none;padding-top:6px"><button class="btn btn-sm btn-outline" data-action="star" data-id="' + c.id + '">' + (c.starred ? '★ 已收藏' : '☆ 收藏') + '</button>';
     h += '<span><button class="btn btn-sm btn-outline" data-action="edit" data-id="' + c.id + '">编辑</button> <button class="btn btn-sm btn-danger" data-action="delete" data-id="' + c.id + '">删除</button></span></div>';
     h += '</div>';
@@ -412,6 +484,11 @@ function showDetail(id) {
   h += '<div><div style="font-size:20px;font-weight:800">' + c.age + '</div><div style="font-size:9px;color:var(--text3)">年龄</div></div>';
   h += '<div><div style="font-size:20px;font-weight:800">' + (remDays <= 0 ? '<span style="color:var(--red)">!</span>' : remDays + '天') + '</div><div style="font-size:9px;color:var(--text3)">下次联系</div></div>';
   h += '</div>';
+  h += '<div class="detail-section"><h4>人才画像</h4><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">';
+  h += '<div style="text-align:center;padding:8px;background:var(--bg);border-radius:8px"><div style="font-size:13px;font-weight:700">' + oppTag(c.opportunity) + '</div><div style="font-size:9px;color:var(--text3);margin-top:2px">看机会状态</div></div>';
+  h += '<div style="text-align:center;padding:8px;background:var(--bg);border-radius:8px"><div style="font-size:13px;font-weight:700">' + qualTag(c.quality) + '</div><div style="font-size:9px;color:var(--text3);margin-top:2px">人才质量</div></div>';
+  h += '<div style="text-align:center;padding:8px;background:var(--bg);border-radius:8px"><div style="font-size:13px;font-weight:700">' + connIcon(c.connected) + ' ' + (c.connected ? '有链接' : '无链接') + '</div><div style="font-size:9px;color:var(--text3);margin-top:2px">链接关系</div></div>';
+  h += '</div></div>';
   h += '<div class="detail-section"><h4>标签</h4><div class="detail-tags"><span class="tag ' + sourceTagColor(c.source) + '">' + c.source + '</span><span class="tag tag-blue">' + c.edu + '</span><span class="tag tag-green">' + c.exp + '年</span><span class="tag tag-purple">' + c.city + '</span>' + riskTag(c.risk) + c.tags.map(function(t) { return '<span class="tag tag-cyan">' + t + '</span>'; }).join('') + '</div></div>';
   h += '<div class="detail-section"><h4>技能</h4><div class="detail-tags">' + c.skills.map(function(s) { return '<span class="tag tag-blue">' + s + '</span>'; }).join('') + '</div></div>';
   h += '<div class="detail-section"><h4>职业轨迹</h4>' + c.timeline.map(function(t) { return '<div class="timeline-item"><div class="dot"></div><div><div class="time">' + t.year + '</div><div class="role">' + t.role + '</div><div class="company">' + t.company + '</div></div></div>'; }).join('') + '</div>';
@@ -495,9 +572,9 @@ function confirmDelete() {
 
 function exportList() {
   var filtered = getFiltered();
-  var csv = '姓名,公司,职位,学历,经验,城市,薪资,来源,匹配度,状态,风险,技能,标签\n';
+  var csv = '姓名,公司,职位,学历,经验,城市,薪资,来源,匹配度,看机会,质量,链接,状态,风险,技能,标签\n';
   filtered.forEach(function(c) {
-    csv += '"' + c.name + '","' + c.company + '","' + c.title + '","' + c.edu + '",' + c.exp + ',"' + c.city + '",' + c.salary + ',"' + c.source + '",' + c.match + ',"' + c.status + '","' + c.risk + '","' + c.skills.join(';') + '","' + c.tags.join(';') + '"\n';
+    csv += '"' + c.name + '","' + c.company + '","' + c.title + '","' + c.edu + '",' + c.exp + ',"' + c.city + '",' + c.salary + ',"' + c.source + '",' + c.match + ',"' + (c.opportunity||'') + '","' + (c.quality||'') + '",' + (c.connected ? '是' : '否') + ',"' + c.status + '","' + c.risk + '","' + c.skills.join(';') + '","' + c.tags.join(';') + '"\n';
   });
   var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
   var link = document.createElement('a');
@@ -539,6 +616,9 @@ function openEditModal(id) {
   document.getElementById('f-city').value = c.city;
   document.getElementById('f-salary').value = c.salary;
   document.getElementById('f-match').value = c.match;
+  document.getElementById('f-opportunity').value = c.opportunity || '待确认';
+  document.getElementById('f-quality').value = c.quality || '待评估';
+  document.getElementById('f-connected').checked = c.connected || false;
   document.getElementById('f-note').value = '';
   formSkills = c.skills.slice();
   formTags = c.tags.slice();
@@ -554,6 +634,9 @@ function clearForm() {
   document.getElementById('f-source').value = '主动投递';
   document.getElementById('f-edu').value = '本科';
   document.getElementById('f-city').value = '北京';
+  document.getElementById('f-opportunity').value = '待确认';
+  document.getElementById('f-quality').value = '待评估';
+  document.getElementById('f-connected').checked = false;
   formSkills = [];
   formTags = [];
   renderFormTags('f-skills-wrap', 'f-skills-input', formSkills);
@@ -585,6 +668,9 @@ function saveForm() {
   var salary = parseInt(document.getElementById('f-salary').value) || 0;
   var match = parseInt(document.getElementById('f-match').value) || 0;
   var source = document.getElementById('f-source').value;
+  var opportunity = document.getElementById('f-opportunity').value;
+  var quality = document.getElementById('f-quality').value;
+  var connected = document.getElementById('f-connected').checked;
 
   if (editingId !== null) {
     // Edit existing
@@ -593,6 +679,7 @@ function saveForm() {
       c.name = name; c.age = age; c.company = company; c.title = title;
       c.edu = edu; c.exp = exp; c.city = city; c.salary = salary;
       c.match = match; c.source = source;
+      c.opportunity = opportunity; c.quality = quality; c.connected = connected;
       c.skills = formSkills.slice();
       c.tags = formTags.slice();
       saveData();
@@ -605,6 +692,7 @@ function saveForm() {
       edu: edu, exp: exp, city: city, salary: salary, source: source,
       skills: formSkills.slice(), tags: formTags.slice(),
       match: match, risk: 'low', status: 'active', starred: false,
+      opportunity: opportunity, quality: quality, connected: connected,
       reminderDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
       activationHistory: [],
       timeline: [{ year: '至今', role: title, company: company }]
@@ -672,8 +760,10 @@ document.addEventListener('click', function(e) {
     currentNav = navItem.dataset.nav;
     document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
     navItem.classList.add('active');
-    var titles = {all:'全部候选人',starred:'已收藏',active:'活跃',warm:'保温中',risk:'流失风险','src-headhunter':'猎头推荐','src-referral':'内部推荐','src-active':'主动投递'};
-    document.getElementById('list-title').textContent = titles[currentNav] || '全部候选人';
+    var titles = {all:'全部人才',starred:'已收藏','pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他','st-look-good':'看机会+优质','st-look-normal':'看机会+普通','st-nolook-good':'不看+优质','st-pending':'待确认','link-yes':'有过链接','link-no':'未链接','src-headhunter':'猎头推荐','src-referral':'内部推荐','src-active':'主动投递'};
+    var title = titles[currentNav];
+    if (!title && currentNav.startsWith('comp-')) title = currentNav.substring(4);
+    document.getElementById('list-title').textContent = title || '全部人才';
     renderList();
     return;
   }
