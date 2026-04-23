@@ -312,6 +312,67 @@ input,select,textarea{font-family:inherit}
 .pos-card:hover .pos-count{background:var(--primary-light);color:var(--primary)}
 .pos-card.active .pos-count{background:rgba(79,110,247,.15);color:var(--primary)}
 
+/* Company Color Dot */
+.comp-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+/* Org Tree (borrowed from 人才鱼塘) */
+.org-tree{display:flex;flex-direction:column;align-items:center;gap:0}
+.org-line-v{width:2px;background:var(--border);margin:0 auto}
+.org-line-h{position:relative;height:2px;background:var(--border);margin:0 60px}
+.org-line-h::before{content:'';position:absolute;left:0;top:-4px;width:2px;height:10px;background:var(--border)}
+.org-line-h::after{content:'';position:absolute;right:0;top:-4px;width:2px;height:10px;background:var(--border)}
+.org-sub-tree{display:flex;flex-direction:column;align-items:center}
+.org-sub-depts{display:flex;flex-direction:column;gap:6px;width:100%}
+.org-sub-card{background:var(--card-hover);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:11px;transition:all .2s}
+.org-sub-card:hover{border-color:var(--primary)}
+.org-sub-name{font-weight:600;color:var(--text);margin-bottom:2px;font-size:11px}
+.org-sub-head{color:var(--text2);font-size:10px}
+.org-sub-tag{color:var(--primary);font-size:9px;margin-top:2px}
+.org-card-top{background:var(--primary);border-color:var(--primary);min-width:200px}
+.org-card-top .org-card-title{color:rgba(255,255,255,.8);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.org-card-top .org-card-name{color:#fff;font-size:16px;font-weight:600;margin:4px 0}
+.org-card-top .org-card-note{color:rgba(255,255,255,.7);font-size:10px}
+.org-level{display:flex;gap:16px;justify-content:center}
+
+/* Insight Card (borrowed from 人才鱼塘) */
+.insight-card{background:var(--card-hover);border:1px solid var(--border);border-radius:8px;padding:16px}
+.insight-card .insight-title{font-size:12px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.insight-card .insight-item{font-size:12px;color:var(--text2);padding:3px 0;line-height:1.5}
+.progress-row{margin-bottom:8px}
+.progress-row .progress-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.progress-row .progress-label span:first-child{font-weight:500}
+.progress-row .progress-label span:last-child{color:var(--text2)}
+.progress-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+
+/* Departed Talent Card */
+.dept-card{padding:8px;border:1px solid var(--border);border-radius:6px;transition:all .2s}
+.dept-card:hover{border-color:var(--orange);background:var(--orange-light)}
+.dept-card .dept-name{font-size:12px;font-weight:500}
+.dept-card .dept-note{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* Pipeline View */
+.pipeline-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.pipeline-group{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;transition:all .25s}
+.pipeline-group:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.pipeline-group .pg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.pipeline-group .pg-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.pipeline-group .pg-count{font-size:11px;color:var(--text3)}
+.pipeline-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;transition:background .15s}
+.pipeline-item:last-child{border-bottom:none}
+.pipeline-item:hover{background:var(--primary-light);margin:0 -8px;padding:8px;border-radius:var(--radius)}
+.pipeline-item .pi-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.pipeline-item .pi-info{flex:1;min-width:0}
+.pipeline-item .pi-name{font-weight:600;font-size:12px}
+.pipeline-item .pi-dept{font-size:10px;color:var(--text2)}
+.pipeline-item .pi-info-tag{font-size:9px;color:var(--text3);margin-top:1px}
+.tag-pipeline{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:600}
+.tag-pipeline.green{background:rgba(16,185,129,.12);color:var(--green)}
+.tag-pipeline.yellow{background:rgba(245,158,11,.12);color:var(--orange)}
+.tag-pipeline.blue{background:rgba(79,110,247,.12);color:var(--primary)}
+.tag-pipeline.red{background:rgba(239,68,68,.12);color:var(--red)}
+.tag-pipeline.gray{background:rgba(148,163,184,.12);color:var(--text3)}
+
 @media(max-width:768px){
   .sidebar{width:56px;transition:width .3s}
   .sidebar .nav-item span:not(.icon):not(.count){display:none}
@@ -331,6 +392,8 @@ input,select,textarea{font-family:inherit}
   .stats-row{grid-template-columns:repeat(2,1fr)}
   .filter-bar{gap:6px}
   .filter-btn{padding:5px 10px;font-size:11px}
+  .pipeline-grid{grid-template-columns:1fr}
+  .org-level{flex-wrap:wrap;gap:8px}
 }
 </style>
 </head>
@@ -368,6 +431,8 @@ input,select,textarea{font-family:inherit}
       <div class="nav-item" data-nav="src-headhunter"><span class="icon">🔍</span><span>猎头推荐</span><span class="count" id="nav-src-headhunter-count">0</span></div>
       <div class="nav-item" data-nav="src-referral"><span class="icon">🤝</span><span>内部推荐</span><span class="count" id="nav-src-referral-count">0</span></div>
       <div class="nav-item" data-nav="src-active"><span class="icon">📨</span><span>主动投递</span><span class="count" id="nav-src-active-count">0</span></div>
+      <div class="nav-section">分析</div>
+      <div class="nav-item" data-nav="pipeline"><span class="icon">🔀</span><span>挖猎管线</span></div>
     </div>
     <div class="sidebar-footer"><span class="ver">v4.0</span> AI人才库</div>
   </div>
@@ -485,6 +550,65 @@ var deleteTargetId = null;
 var formSkills = [];
 var formTags = [];
 
+// ===== Company Colors (borrowed from 人才鱼塘) =====
+var COMPANY_COLORS = {
+  '腾讯':'#07c160','百度':'#4e6ef2','阿里巴巴':'#ff6a00','字节跳动':'#fe2c55',
+  '华为':'#cf0a2c','美团':'#ffc107','京东':'#e4393c','网易':'#c23030',
+  '小米':'#ff6900','蔚来':'#00bfff','小鹏':'#00d4aa','理想':'#00c4b3',
+  '快手':'#ff4906','小红书':'#ff2442','商汤':'#6a5acd','大疆':'#00a3e0'
+};
+function getCompanyColor(name) { return COMPANY_COLORS[name] || '#64748b'; }
+
+// ===== Pipeline Data (borrowed from 人才鱼塘) =====
+var PIPELINE_DATA = [
+  { type:'技术负责人', name:'张伟', dept:'搜索算法', level:'P8', status:'active', info:'百度NLP团队，10年经验，对大模型应用有深入研究' },
+  { type:'技术负责人', name:'李明', dept:'推荐系统', level:'P7', status:'pending', info:'字节跳动推荐算法，擅长CTR预估和深度学习' },
+  { type:'技术负责人', name:'王芳', dept:'自动驾驶感知', level:'P8', status:'tracking', info:'小鹏汽车感知算法负责人，LiDAR方向' },
+  { type:'产品负责人', name:'赵静', dept:'商业化产品', level:'P8', status:'active', info:'阿里妈妈产品专家，广告系统架构经验' },
+  { type:'产品负责人', name:'陈浩', dept:'AI产品', level:'P7', status:'hired', info:'已入职，负责AI平台产品线' },
+  { type:'产品负责人', name:'刘洋', dept:'数据产品', level:'P7', status:'rejected', info:'面试未通过，技术深度不足' },
+  { type:'市场负责人', name:'孙丽', dept:'品牌营销', level:'M3', status:'active', info:'前华为终端品牌总监，高端品牌操盘经验' },
+  { type:'市场负责人', name:'周磊', dept:'数字营销', level:'M2', status:'pending', info:'腾讯广告商业化，效果广告专家' },
+  { type:'市场负责人', name:'吴娜', dept:'公关传播', level:'M3', status:'declined', info:'目前在蔚来，地点原因不考虑' },
+  { type:'设计负责人', name:'郑伟', dept:'品牌设计', level:'P7', status:'tracking', info:'字节跳动设计团队，品牌视觉经验丰富' },
+  { type:'设计负责人', name:'黄芳', dept:'UX设计', level:'P6', status:'pending', info:'蚂蚁集团UX负责人，B端设计体系' },
+  { type:'运营负责人', name:'林杰', dept:'用户运营', level:'M2', status:'active', info:'美团用户增长负责人，DAU从0到1经验' },
+  { type:'运营负责人', name:'何婷', dept:'内容运营', level:'M2', status:'hired', info:'已入职，负责社区内容生态' },
+  { type:'运营负责人', name:'罗伟', dept:'活动运营', level:'M1', status:'rejected', info:'经验偏执行层面，缺少策略能力' }
+];
+var PIPELINE_STATUS = {
+  active:{label:'触达中',color:'green'}, pending:{label:'待触达',color:'yellow'},
+  tracking:{label:'长期跟进',color:'blue'}, hired:{label:'已入职',color:'green'},
+  rejected:{label:'面试未通过',color:'red'}, declined:{label:'地点不考虑',color:'gray'}
+};
+
+// ===== Departed Talent (borrowed from 人才鱼塘) =====
+var DEPARTED_TALENT = [
+  { name:'贾净东', title:'原vivo品牌领域负责人', company:'vivo', note:'现担任安克CMO', date:'2024' },
+  { name:'吕婷', title:'品牌战略部总监', company:'理想', note:'2022.8离开去长安深蓝，2018-2021宝马资深市场数字化营销经理', date:'2022' },
+  { name:'刘涛', title:'高级总监', company:'理想', note:'2025.4加入奇瑞星途负责市场部，前汽车之家总编', date:'2025' },
+  { name:'王雅君', title:'媒介投放总监', company:'理想', note:'2022.10离开加入自如，理想初创团队成员，2014-2017北京奔驰数字营销经理', date:'2022' },
+  { name:'翟元', title:'内容和公关总监', company:'理想', note:'前汽车之家主编，理想所有对外公关稿件均为翟元亲自执笔', date:'2023' }
+];
+
+// ===== Org Insights (borrowed from 人才鱼塘) =====
+var ORG_INSIGHTS = {
+  '腾讯': {
+    insights: [
+      '技术驱动：AI大模型、混元为核心战略方向',
+      '组织扁平：事业群制，决策链路短',
+      '人才流动：内部活水计划，跨BG轮岗常见',
+      '校招为主：核心岗位以校招培养为主',
+      '薪酬竞争力：总包行业领先，期权比例高'
+    ],
+    progress: [
+      { label:'技术岗位', done:3, total:5 },
+      { label:'产品岗位', done:1, total:3 },
+      { label:'市场岗位', done:2, total:4 }
+    ]
+  }
+};
+
 // ===== Helpers =====
 var COLORS = ['#4f6ef7','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#14b8a6'];
 function avatarColor(id) { return COLORS[id % COLORS.length]; }
@@ -585,7 +709,7 @@ function renderList() {
   var companies = Object.keys(companyMap).sort();
   var compHtml = companies.map(function(name) {
     var active = currentNav === 'comp-' + name ? ' active' : '';
-    return '<div class="nav-item' + active + '" data-nav="comp-' + name + '"><span class="icon">🏢</span><span>' + name + '</span><span class="count">' + companyMap[name] + '</span></div>';
+    return '<div class="nav-item' + active + '" data-nav="comp-' + name + '"><span class="comp-dot" style="background:' + getCompanyColor(name) + ';margin-left:2px"></span><span>' + name + '</span><span class="count">' + companyMap[name] + '</span></div>';
   }).join('');
   document.getElementById('nav-companies').innerHTML = compHtml || '<div style="padding:4px 12px;font-size:10px;color:var(--text3)">暂无数据</div>';
   document.getElementById('list-count').textContent = '共 ' + filtered.length + ' 人';
@@ -625,7 +749,7 @@ function renderTable(list) {
     var remDays = daysUntil(c.reminderDate);
     var remHtml = remDays <= 0 ? '<span style="background:var(--red-light);color:var(--red);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600">需联系</span>' : remDays <= 7 ? '<span style="background:var(--orange-light);color:var(--orange);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600">' + remDays + '天</span>' : '<span style="font-size:10px;color:var(--text3)">' + remDays + '天</span>';
     h += '<tr data-id="' + c.id + '">';
-    h += '<td><div class="name-cell"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div><div class="name">' + c.name + '</div><div class="company">' + c.company + '</div></div></div></td>';
+    h += '<td><div class="name-cell"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div><div class="name">' + c.name + '</div><div class="company"><span class="comp-dot" style="background:' + getCompanyColor(c.company) + ';width:6px;height:6px;margin-right:3px"></span>' + c.company + '</div></div></div></td>';
     h += '<td style="font-size:11px">' + c.title + '</td>';
     h += '<td>' + oppTag(c.opportunity) + '</td>';
     h += '<td>' + qualTag(c.quality) + '</td>';
@@ -718,17 +842,24 @@ function renderOverview() {
   candidates.forEach(function(c) { companies[c.company] = true; });
   var companyCount = Object.keys(companies).length;
 
+  // Trend indicators (borrowed from 人才鱼塘)
+  var lastTotal = parseInt(localStorage.getItem('hr-talent-lastTotal') || total);
+  var totalDiff = total - lastTotal;
+  var trendHtml = totalDiff > 0 ? '<span class="up">↑ ' + totalDiff + '</span> 较上次' : totalDiff < 0 ? '<span class="down">↓ ' + Math.abs(totalDiff) + '</span> 较上次' : '维持不变';
+
   var h = '';
 
-  // Stats Row
+  // Stats Row with trend indicators
   h += '<div class="stats-row">';
-  h += '<div class="stat-card"><div class="label">总人才数</div><div class="value accent">' + total + '</div><div class="change">覆盖 ' + companyCount + ' 家公司</div></div>';
+  h += '<div class="stat-card"><div class="label">总人才数</div><div class="value accent">' + total + '</div><div class="change">' + trendHtml + '</div></div>';
   h += '<div class="stat-card"><div class="label">活跃人才</div><div class="value green">' + activeCount + '</div><div class="change"><span class="up">↑</span> ' + activeCount + '人活跃中</div></div>';
   h += '<div class="stat-card"><div class="label">保温人才</div><div class="value orange">' + warmCount + '</div><div class="change">需定期触达</div></div>';
   h += '<div class="stat-card"><div class="label">已收藏 / 已链接</div><div class="value blue">' + starredCount + ' / ' + linkedCount + '</div><div class="change">收藏' + starredCount + '人 · 链接' + linkedCount + '人</div></div>';
   h += '</div>';
+  // Save snapshot for next comparison
+  localStorage.setItem('hr-talent-lastTotal', total);
 
-  // Position filter bar (borrowed from 人才鱼塘 filter-btn pattern)
+  // Position filter bar
   var posKeys = ['tech','product','design','ops','marketing','leadership','other'];
   var posLabels = {'tech':'技术','product':'产品','design':'设计','ops':'运营','marketing':'市场','leadership':'管理层','other':'其他'};
   h += '<div style="margin-bottom:16px;font-size:14px;font-weight:700">按岗位分布</div>';
@@ -740,45 +871,84 @@ function renderOverview() {
   });
   h += '</div>';
   h += '<div id="overview-pos-grid" class="card-view" style="padding:0">';
-  // Show all talent cards initially
-  candidates.forEach(function(c) {
-    h += renderOverviewTalentCard(c);
+  candidates.forEach(function(c) { h += renderOverviewTalentCard(c); });
+  h += '</div>';
+
+  // ===== Tencent Org Tree (borrowed from 人才鱼塘 tree layout) =====
+  h += '<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin:24px 0;overflow-x:auto">';
+  h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">';
+  h += '<div class="comp-dot" style="background:' + getCompanyColor('腾讯') + '"></div>';
+  h += '<div style="font-size:18px;font-weight:600">腾讯组织架构</div>';
+  h += '<span class="tag tag-blue" style="margin-left:8px">重点对标</span>';
+  h += '</div>';
+
+  // Tree: CEO → Groups
+  h += '<div class="org-tree">';
+  // Level 1: CEO
+  h += '<div class="org-level" style="justify-content:center;margin-bottom:0">';
+  h += '<div class="org-card org-card-top"><div class="org-card-title">董事会主席兼CEO</div><div class="org-card-name">' + org.ceo + '</div><div class="org-card-note">1998年创立腾讯</div></div>';
+  h += '</div>';
+  h += '<div class="org-line-v" style="height:24px"></div>';
+  // Horizontal line
+  h += '<div class="org-line-h" style="width:80%"></div>';
+  // Level 2: Groups (show first 4)
+  h += '<div class="org-level" style="justify-content:space-between;margin-top:0;flex-wrap:wrap;gap:12px">';
+  org.groups.slice(0, 4).forEach(function(grp) {
+    h += '<div class="org-card"><div class="org-card-dept" style="color:' + getCompanyColor('腾讯') + '">' + grp.name.split(' ')[0] + '</div>';
+    h += '<div class="org-card-name" style="font-size:12px">' + grp.desc.substring(0, 15) + '...</div>';
+    h += '<div class="org-card-size">' + grp.depts.length + '个部门</div></div>';
   });
   h += '</div>';
-
-  // Tencent header
-  h += '<div style="text-align:center;padding:30px 0 10px">';
-  h += '<div style="font-size:22px;font-weight:800;margin-bottom:4px">🏢 腾讯组织架构</div>';
-  h += '<div style="font-size:12px;color:var(--text2)">8个事业群 + 3条职能线 · 119个二级部门 · 数据来源：join.qq.com</div>';
-  h += '</div>';
-
-  // CEO
-  h += '<div style="text-align:center;margin:16px 0"><div class="org-node ceo" style="display:inline-block;font-size:14px;padding:10px 24px">👑 ' + org.ceo + ' <span style="font-size:10px;color:var(--text3);font-weight:400">董事会主席兼CEO</span></div></div>';
-
-  // Groups grid
-  h += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;padding:0 10px">';
-  org.groups.forEach(function(grp) {
-    h += '<div class="org-card" style="margin-bottom:0">';
-    h += '<div class="org-card-header" style="margin-bottom:8px;padding-bottom:8px"><h3 style="font-size:13px">' + grp.icon + ' ' + grp.name + '</h3></div>';
-    h += '<div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.4">' + grp.desc + '</div>';
-    h += '<div style="display:flex;flex-wrap:wrap;gap:4px">';
-    grp.depts.forEach(function(d) { h += '<span class="tag tag-blue" style="font-size:9px;padding:3px 8px">' + d + '</span>'; });
-    h += '</div>';
-    h += '</div>';
+  // Level 3: Sub-departments (first 2 groups)
+  h += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:24px">';
+  org.groups.slice(0, 2).forEach(function(grp) {
+    h += '<div class="org-sub-tree"><div class="org-line-v" style="height:16px"></div><div class="org-sub-depts">';
+    grp.depts.slice(0, 4).forEach(function(d) {
+      h += '<div class="org-sub-card"><div class="org-sub-name">' + d + '</div></div>';
+    });
+    if (grp.depts.length > 4) h += '<div style="font-size:10px;color:var(--text3);text-align:center;padding:4px">+' + (grp.depts.length - 4) + ' 更多</div>';
+    h += '</div></div>';
   });
-  h += '</div>';
+  h += '</div></div>';
+
+  // ===== Organization Insights (borrowed from 人才鱼塘) =====
+  var insights = ORG_INSIGHTS['腾讯'];
+  if (insights) {
+    h += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:24px">';
+    // Left: Insights
+    h += '<div class="insight-card"><div class="insight-title">🔍 组织核心洞察</div>';
+    insights.insights.forEach(function(item) { h += '<div class="insight-item">• ' + item + '</div>'; });
+    h += '</div>';
+    // Right: Pipeline progress
+    h += '<div class="insight-card"><div class="insight-title">🎯 核心岗位挖猎进度</div>';
+    insights.progress.forEach(function(p) {
+      var pct = Math.round(p.done / p.total * 100);
+      h += '<div class="progress-row"><div class="progress-label"><span>' + p.label + '</span><span>' + p.done + '/' + p.total + '</span></div>';
+      h += '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;background:var(--green)"></div></div></div>';
+    });
+    h += '</div></div>';
+  }
+
+  // ===== Departed Talent (borrowed from 人才鱼塘) =====
+  h += '<div style="margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">';
+  h += '<div style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px">⚠️ 部分离任核心人才</div>';
+  h += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px">';
+  DEPARTED_TALENT.forEach(function(p) {
+    h += '<div class="dept-card"><div class="dept-name">' + p.name + ' · ' + p.title + '</div>';
+    h += '<div class="dept-note">' + p.note + '</div>';
+    h += '<div style="font-size:9px;color:var(--text3);margin-top:3px">' + p.company + ' · ' + p.date + '</div></div>';
+  });
+  h += '</div></div>';
 
   el.innerHTML = h;
 }
 
 // Talent card for overview (borrowed from 人才鱼塘 talent-card pattern)
 function renderOverviewTalentCard(c) {
-  var oppLabel = c.opportunity === '看机会' ? '看机会' : c.opportunity === '不看机会' ? '不看' : '待确认';
-  var qualLabel = c.quality === '优质' ? '优质' : c.quality === '普通' ? '普通' : '待评估';
   var posKey = classifyPosition(c);
   var posLabels = {'pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他'};
   return '<div class="candidate-card" data-id="' + c.id + '" style="cursor:pointer">' +
-    '<div class="candidate-card-header"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div class="info"><h3>' + c.name + '</h3><div class="meta">' + c.company + ' · ' + c.title + '</div></div></div>' +
+    '<div class="candidate-card-header"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div class="info"><h3>' + c.name + '</h3><div class="meta"><span class="comp-dot" style="background:' + getCompanyColor(c.company) + ';width:6px;height:6px;margin-right:4px"></span>' + c.company + ' · ' + c.title + '</div></div></div>' +
     '<div class="tags">' + oppTag(c.opportunity) + qualTag(c.quality) + '<span class="tag tag-blue">' + (posLabels[posKey] || '其他') + '</span></div>' +
     '<div class="bio" style="font-size:12px;color:var(--text2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-top:8px">' + (c.tags.length ? c.tags.join(' · ') : c.city + ' · ' + c.exp + '年经验') + '</div>' +
     '</div>';
@@ -793,6 +963,59 @@ function filterOverviewPos(pos, btn) {
   grid.innerHTML = filtered.length ? filtered.map(function(c) { return renderOverviewTalentCard(c); }).join('') : '<div class="empty-state" style="grid-column:1/-1"><div class="icon">🔍</div><p>该岗位暂无人才</p></div>';
 }
 
+// ===== Pipeline View (borrowed from 人才鱼塘 挖猎管线) =====
+function renderPipeline() {
+  var el = document.getElementById('overview-area');
+
+  // Group by type
+  var byType = {};
+  PIPELINE_DATA.forEach(function(p) {
+    if (!byType[p.type]) byType[p.type] = [];
+    byType[p.type].push(p);
+  });
+
+  // Stats
+  var stats = {
+    total: PIPELINE_DATA.length,
+    active: PIPELINE_DATA.filter(function(p) { return p.status === 'active'; }).length,
+    pending: PIPELINE_DATA.filter(function(p) { return p.status === 'pending'; }).length,
+    hired: PIPELINE_DATA.filter(function(p) { return p.status === 'hired'; }).length
+  };
+
+  var typeIcons = {'技术负责人':'💻','产品负责人':'📋','市场负责人':'📢','设计负责人':'🎨','运营负责人':'⚙️'};
+  var h = '';
+
+  // Stats row
+  h += '<div class="stats-row">';
+  h += '<div class="stat-card"><div class="label">目标人选</div><div class="value accent">' + stats.total + '</div><div class="change">共跟踪目标</div></div>';
+  h += '<div class="stat-card"><div class="label">触达中</div><div class="value green">' + stats.active + '</div><div class="change"><span class="up">↑</span> 积极推进</div></div>';
+  h += '<div class="stat-card"><div class="label">待触达</div><div class="value orange">' + stats.pending + '</div><div class="change">需安排触达</div></div>';
+  h += '<div class="stat-card"><div class="label">已入职</div><div class="value blue">' + stats.hired + '</div><div class="change">成功转化</div></div>';
+  h += '</div>';
+
+  // Pipeline grid by type
+  h += '<div class="pipeline-grid">';
+  Object.keys(byType).forEach(function(type) {
+    var items = byType[type];
+    h += '<div class="pipeline-group">';
+    h += '<div class="pg-header"><div class="pg-title">' + (typeIcons[type] || '📋') + ' ' + type + '</div><div class="pg-count">' + items.length + '人</div></div>';
+    items.forEach(function(p) {
+      var st = PIPELINE_STATUS[p.status] || {label:p.status,color:'gray'};
+      var colors = ['#4f6ef7','#10b981','#f59e0b','#8b5cf6','#06b6d4','#ef4444'];
+      var ci = p.name.charCodeAt(0) % colors.length;
+      h += '<div class="pipeline-item">';
+      h += '<div class="pi-avatar" style="background:' + colors[ci] + '">' + p.name[0] + '</div>';
+      h += '<div class="pi-info"><div class="pi-name">' + p.name + '</div><div class="pi-dept">' + p.dept + ' · ' + p.level + '</div><div class="pi-info-tag">' + p.info.substring(0, 30) + (p.info.length > 30 ? '...' : '') + '</div></div>';
+      h += '<span class="tag-pipeline ' + st.color + '">' + st.label + '</span>';
+      h += '</div>';
+    });
+    h += '</div>';
+  });
+  h += '</div>';
+
+  el.innerHTML = h;
+}
+
 // ===== Detail Panel =====
 function showDetail(id) {
   var c = candidates.find(function(x) { return x.id === id; });
@@ -803,7 +1026,7 @@ function showDetail(id) {
   var radar = [80,70,75,65,60,72]; // default values
 
   var h = '<button class="detail-close" id="detail-close-btn">✕</button>';
-  h += '<div class="detail-header"><div class="avatar" style="background:' + avatarColor(c.id) + ';width:48px;height:48px;font-size:18px">' + c.name[0] + '</div><div class="info"><h2>' + c.name + '</h2><div class="meta">' + c.company + ' · ' + c.title + '<br>' + c.edu + ' · ' + c.exp + '年 · ' + c.city + '</div></div></div>';
+  h += '<div class="detail-header"><div class="avatar" style="background:' + avatarColor(c.id) + ';width:48px;height:48px;font-size:18px">' + c.name[0] + '</div><div class="info"><h2>' + c.name + '</h2><div class="meta"><span class="comp-dot" style="background:' + getCompanyColor(c.company) + ';width:6px;height:6px;margin-right:4px"></span>' + c.company + ' · ' + c.title + '<br>' + c.edu + ' · ' + c.exp + '年 · ' + c.city + '</div></div></div>';
   h += '<div class="detail-section" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">';
   h += '<div class="detail-metric" style="position:relative;overflow:hidden;padding:10px 4px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--primary)"></div><div style="font-size:20px;font-weight:800;color:var(--primary)">' + (c.match ? c.match + '%' : '-') + '</div><div style="font-size:9px;color:var(--text3)">匹配度</div></div>';
   h += '<div class="detail-metric" style="position:relative;overflow:hidden;padding:10px 4px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--green)"></div><div style="font-size:20px;font-weight:800;color:var(--green)">' + (c.salary ? c.salary + '万' : '-') + '</div><div style="font-size:9px;color:var(--text3)">薪资</div></div>';
@@ -1091,17 +1314,19 @@ document.addEventListener('click', function(e) {
     currentNav = navItem.dataset.nav;
     document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
     navItem.classList.add('active');
-    var titles = {all:'全部人才',starred:'已收藏','pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他','st-look-good':'看机会+优质','st-look-normal':'看机会+普通','st-nolook-good':'不看+优质','st-pending':'待确认','link-yes':'有过链接','link-no':'未链接','src-headhunter':'猎头推荐','src-referral':'内部推荐','src-active':'主动投递','overview':'总览'};
+    var titles = {all:'全部人才',starred:'已收藏','pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他','st-look-good':'看机会+优质','st-look-normal':'看机会+普通','st-nolook-good':'不看+优质','st-pending':'待确认','link-yes':'有过链接','link-no':'未链接','src-headhunter':'猎头推荐','src-referral':'内部推荐','src-active':'主动投递','overview':'总览','pipeline':'挖猎管线'};
     var title = titles[currentNav];
     if (!title && currentNav.startsWith('comp-')) title = currentNav.substring(4);
     document.getElementById('list-title').textContent = title || '全部人才';
-    // Toggle overview vs list view
+    // Toggle overview vs list vs pipeline view
     var isOverview = currentNav === 'overview';
-    document.getElementById('list-area').querySelector('.list-header').style.display = isOverview ? 'none' : '';
-    document.getElementById('candidate-list').style.display = isOverview ? 'none' : '';
-    document.getElementById('overview-area').className = isOverview ? 'active' : '';
-    document.querySelector('.view-toggle').style.display = isOverview ? 'none' : '';
-    if (isOverview) { renderOverview(); } else { renderList(); }
+    var isPipeline = currentNav === 'pipeline';
+    var isSpecialView = isOverview || isPipeline;
+    document.getElementById('list-area').querySelector('.list-header').style.display = isSpecialView ? 'none' : '';
+    document.getElementById('candidate-list').style.display = isSpecialView ? 'none' : '';
+    document.getElementById('overview-area').className = isSpecialView ? 'active' : '';
+    document.querySelector('.view-toggle').style.display = isSpecialView ? 'none' : '';
+    if (isOverview) { renderOverview(); } else if (isPipeline) { renderPipeline(); } else { renderList(); }
     return;
   }
   if (posCard) {
