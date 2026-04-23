@@ -369,7 +369,7 @@ function renderTable(list) {
     h += '<td><span class="tag ' + sourceTagColor(c.source) + '">' + c.source + '</span></td>';
     h += '<td><div class="tags">' + c.skills.slice(0, 2).map(function(s) { return '<span class="tag tag-blue">' + s + '</span>'; }).join('') + '</div></td>';
     h += '<td>' + c.exp + '年</td><td>' + c.city + '</td>';
-    h += '<td><span style="color:' + matchColor(c.match) + ';font-weight:700;font-size:12px">' + c.match + '%</span></td>';
+    h += '<td><span style="color:' + matchColor(c.match) + ';font-weight:700;font-size:12px">' + (c.match ? c.match + '%' : '-') + '</span></td>';
     h += '<td>' + statusDot(c.status) + '</td><td>' + riskTag(c.risk) + '</td><td>' + remHtml + '</td>';
     h += '<td><button class="btn btn-sm btn-outline" data-action="star" data-id="' + c.id + '">' + (c.starred ? '★' : '☆') + '</button> ';
     h += '<button class="btn btn-sm btn-outline" data-action="edit" data-id="' + c.id + '">编辑</button> ';
@@ -385,7 +385,7 @@ function renderCards(list) {
     h += '<div class="candidate-card" data-id="' + c.id + '">';
     h += '<div class="candidate-card-header"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div class="info"><h3>' + c.name + '</h3><div class="meta">' + c.company + ' · ' + c.title + '</div></div></div>';
     h += '<div class="tags">' + c.skills.slice(0, 3).map(function(s) { return '<span class="tag tag-blue">' + s + '</span>'; }).join('') + '<span class="tag ' + sourceTagColor(c.source) + '">' + c.source + '</span>' + riskTag(c.risk) + '</div>';
-    h += '<div class="detail-row"><span class="label">匹配度</span><span class="value" style="color:' + matchColor(c.match) + '">' + c.match + '%</span></div>';
+    h += '<div class="detail-row"><span class="label">匹配度</span><span class="value" style="color:' + matchColor(c.match) + '">' + (c.match ? c.match + '%' : '未填写') + '</span></div>';
     h += '<div class="detail-row"><span class="label">城市</span><span class="value">' + c.city + '</span></div>';
     h += '<div class="detail-row" style="border:none;padding-top:6px"><button class="btn btn-sm btn-outline" data-action="star" data-id="' + c.id + '">' + (c.starred ? '★ 已收藏' : '☆ 收藏') + '</button>';
     h += '<span><button class="btn btn-sm btn-outline" data-action="edit" data-id="' + c.id + '">编辑</button> <button class="btn btn-sm btn-danger" data-action="delete" data-id="' + c.id + '">删除</button></span></div>';
@@ -407,8 +407,8 @@ function showDetail(id) {
   var h = '<button class="detail-close" id="detail-close-btn">✕</button>';
   h += '<div class="detail-header"><div class="avatar" style="background:' + avatarColor(c.id) + ';width:48px;height:48px;font-size:18px">' + c.name[0] + '</div><div class="info"><h2>' + c.name + '</h2><div class="meta">' + c.company + ' · ' + c.title + '<br>' + c.edu + ' · ' + c.exp + '年 · ' + c.city + '</div></div></div>';
   h += '<div class="detail-section" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">';
-  h += '<div><div style="font-size:20px;font-weight:800;color:var(--primary)">' + c.match + '%</div><div style="font-size:9px;color:var(--text3)">匹配度</div></div>';
-  h += '<div><div style="font-size:20px;font-weight:800;color:var(--green)">' + c.salary + '万</div><div style="font-size:9px;color:var(--text3)">薪资</div></div>';
+  h += '<div><div style="font-size:20px;font-weight:800;color:var(--primary)">' + (c.match ? c.match + '%' : '-') + '</div><div style="font-size:9px;color:var(--text3)">匹配度</div></div>';
+  h += '<div><div style="font-size:20px;font-weight:800;color:var(--green)">' + (c.salary ? c.salary + '万' : '-') + '</div><div style="font-size:9px;color:var(--text3)">薪资</div></div>';
   h += '<div><div style="font-size:20px;font-weight:800">' + c.age + '</div><div style="font-size:9px;color:var(--text3)">年龄</div></div>';
   h += '<div><div style="font-size:20px;font-weight:800">' + (remDays <= 0 ? '<span style="color:var(--red)">!</span>' : remDays + '天') + '</div><div style="font-size:9px;color:var(--text3)">下次联系</div></div>';
   h += '</div>';
@@ -582,8 +582,8 @@ function saveForm() {
   var edu = document.getElementById('f-edu').value;
   var exp = parseInt(document.getElementById('f-exp').value) || 5;
   var city = document.getElementById('f-city').value;
-  var salary = parseInt(document.getElementById('f-salary').value) || 80;
-  var match = parseInt(document.getElementById('f-match').value) || 70;
+  var salary = parseInt(document.getElementById('f-salary').value) || 0;
+  var match = parseInt(document.getElementById('f-match').value) || 0;
   var source = document.getElementById('f-source').value;
 
   if (editingId !== null) {
@@ -1006,6 +1006,26 @@ function parseResumeText(text) {
     if (text.indexOf(cities[ci2]) !== -1) { result.city = cities[ci2]; break; }
   }
 
+  // ===== Salary (真实薪资) =====
+  // Try: "期望薪资：30万" / "目前薪资：40万" / "年薪：50万" / "薪资：30-50万"
+  var salaryPatterns = [
+    /(?:期望|期望薪资|目前|当前|现有|年薪|月薪|薪资|薪酬|待遇)[：:\s]*(\d{2,3})\s*[万w]/i,
+    /(\d{2,3})\s*[-~至到]\s*(\d{2,3})\s*[万w]/,
+    /(\d{2,3})\s*[万w](?:\/年|\/月|每年|每月)?/
+  ];
+  for (var si = 0; si < salaryPatterns.length; si++) {
+    var salaryMatch = text.match(salaryPatterns[si]);
+    if (salaryMatch) {
+      // If range like "30-50万", take the lower number as current, upper as expected
+      if (salaryMatch[2]) {
+        result.salary = salaryMatch[1]; // current salary = lower bound
+      } else {
+        result.salary = salaryMatch[1];
+      }
+      break;
+    }
+  }
+
   console.log('[简历解析结果]', result);
   return result;
 }
@@ -1053,6 +1073,7 @@ function fillFormFromParsed(r) {
   if (ext.exp) document.getElementById('f-exp').value = ext.exp;
   if (ext.city) document.getElementById('f-city').value = ext.city;
   if (ext.age) document.getElementById('f-age').value = ext.age;
+  if (ext.salary) document.getElementById('f-salary').value = ext.salary;
 
   // Skills
   formSkills = ext.skills ? ext.skills.slice() : [];
