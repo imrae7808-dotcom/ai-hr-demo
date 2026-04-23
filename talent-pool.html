@@ -1635,25 +1635,27 @@ function parseResumeText(text) {
   if (ageMatch) result.age = ageMatch[1];
 
   // ===== Name (improved) =====
-  // Try "姓名：XXX" pattern first
+  // Try structured labels first
   var nameLabel = text.match(/姓名[：:\s]*([^\s,，。\d]{2,4})/);
+  if (!nameLabel) nameLabel = text.match(/姓\s*名[：:\s]*([^\s,，。\d]{2,4})/);
+  if (!nameLabel) nameLabel = text.match(/^([^\s,，。\d]{2,4})\s*[/／|｜]\s*(?:男|女)/m);
   if (nameLabel) {
-    result.name = nameLabel[1];
+    result.name = nameLabel[1].trim();
   } else {
-    // Look for a short pure-Chinese line in the first 8 lines
-    var skipWords = /^(求职|简历|个人|基本|联系|电话|邮箱|教育|工作|技能|项目|经验|自我|职业|期望|求职意向|个人信息|教育背景|工作经验|专业技能|项目经验|在校|实习|荣誉|证书)/;
-    for (var i = 0; i < Math.min(lines.length, 8); i++) {
+    // Look for a short pure-Chinese line in the first 10 lines
+    var skipWords = /^(求职|简历|个人|基本|联系|电话|邮箱|教育|工作|技能|项目|经验|自我|职业|期望|求职意向|个人信息|教育背景|工作经验|专业技能|项目经验|在校|实习|荣誉|证书|自我评价|自我介绍|专业|学历|毕业|院校|手机|现居|居住|户籍|生日|出生|民族|政治|婚姻|健康|身高|体重|籍贯|户口)/;
+    for (var i = 0; i < Math.min(lines.length, 10); i++) {
       var line = lines[i];
-      if (line.length < 2 || line.length > 6) continue;
+      if (line.length < 2 || line.length > 5) continue;
       if (/[@\d]/.test(line)) continue;
       if (skipWords.test(line)) continue;
-      if (/^[一-龥]{2,4}$/.test(line)) { result.name = line; break; }
+      if (/^[一-龥一-龥]{2,4}$/.test(line)) { result.name = line; break; }
     }
-    // Fallback: if still no name, use first non-empty short line
+    // Fallback: use first non-empty short line that looks like a name
     if (!result.name && lines.length > 0) {
-      for (var i2 = 0; i2 < Math.min(lines.length, 5); i2++) {
+      for (var i2 = 0; i2 < Math.min(lines.length, 8); i2++) {
         var l = lines[i2];
-        if (l.length >= 2 && l.length <= 4 && !skipWords.test(l) && !/[@\d]/.test(l)) {
+        if (l.length >= 2 && l.length <= 4 && !skipWords.test(l) && !/[@\d]/.test(l) && !/^[a-zA-Z]/.test(l)) {
           result.name = l;
           break;
         }
@@ -1688,19 +1690,81 @@ function parseResumeText(text) {
   if (expMatch) result.exp = expMatch[1];
 
   // ===== Company (improved) =====
-  // Try "公司：XXX" / "就职于XXX" / "任职于XXX" patterns first
-  var compLabel = text.match(/(?:公司|就职于|任职于| currently at | working at )[\s：:]*([^\s,，。\n]{2,20})/i);
+  var KNOWN_COMPANIES = [
+    // 互联网大厂
+    '百度', '阿里巴巴', '腾讯', '字节跳动', '华为', '美团', '京东', '网易', '小米',
+    // AI / 新能源
+    '蔚来', '小鹏', '理想', '小马智行', '地平线', '商汤', '旷视', '寒武纪', '云从科技', '依图科技',
+    // 内容 / 社交
+    '快手', '小红书', 'B站', '哔哩哔哩', '微博', '豆瓣', '知乎', '陌陌', 'Soul',
+    // 电商 / 零售
+    '拼多多', '唯品会', '苏宁', '国美', '得物', '闲鱼', '盒马',
+    // 金融 / 保险
+    '蚂蚁集团', '陆金所', '微众银行', '招商银行', '平安', '中国平安',
+    // 芯片 / 硬件
+    '中芯国际', '长江存储', '紫光', '大疆', 'OPPO', 'vivo', '荣耀', '联想', '英特尔', '英伟达', '高通', '博世', '德州仪器', 'ARM',
+    // 外企
+    'Google', 'Google China', 'Microsoft', 'Apple', 'Amazon', 'Meta', 'Netflix', 'Uber', 'Airbnb', 'Stripe', 'Twitter', 'LinkedIn',
+    'Waymo', 'Tesla', 'NVIDIA', 'Intel', 'Qualcomm', 'Oracle', 'SAP', 'IBM', 'Cisco',
+    // 咨询 / 服务
+    '麦肯锡', 'BCG', '贝恩', '埃森哲', '德勤', '普华永道', '毕马威', '安永',
+    // 其他
+    '滴滴', '携程', '去哪儿', '飞猪', '马蜂窝', '途牛', '哈啰', '货拉拉', '满帮',
+    '新浪', '搜狐', '凤凰网', '36氪', '虎嗅', '钉钉', '飞书', '企业微信', '石墨文档', '语雀',
+    '网易游戏', '米哈游', '莉莉丝', '完美世界', '盛趣游戏', '三七互娱', '掌趣科技'
+  ];
+  // Step 1: Try explicit labels
+  var compLabel = text.match(/(?:公司名称|就职公司|所在公司|公司|就职于|任职于|employer|company|currently at|working at)[\s：:]*([^\s,，。\n]{2,20})/i);
   if (compLabel) {
     result.company = compLabel[1].trim();
-  } else {
-    // Known companies list
-    var knownCompanies = ['百度', '阿里', '腾讯', '字节跳动', '华为', '美团', '京东', '网易', '小米', '蔚来', '小鹏', '理想', '小马智行', 'Waymo', 'Google', 'Microsoft', 'Apple', 'Amazon', 'Meta', '商汤', '旷视', '地平线', '大疆', '滴滴', '快手', '小红书', 'B站', '哔哩哔哩', '新浪', '搜狐', '携程', '蚂蚁', '钉钉', '微软', '英特尔', '英伟达', '高通', '博世', '微软'];
-    for (var ci = 0; ci < knownCompanies.length; ci++) {
-      if (text.indexOf(knownCompanies[ci]) !== -1) {
-        result.company = knownCompanies[ci];
+  }
+  // Step 2: Look in work experience section for the first company name
+  if (!result.company) {
+    var workSection = -1;
+    for (var wi = 0; wi < lines.length; wi++) {
+      if (/(?:工作经历|工作经验|工作履历|Work Experience|Experience)/.test(lines[wi])) {
+        workSection = wi + 1;
         break;
       }
     }
+    if (workSection > 0) {
+      // In work experience section, company name often appears as a standalone line or before a date range
+      for (var wj = workSection; wj < Math.min(workSection + 15, lines.length); wj++) {
+        var wl = lines[wj];
+        // Skip empty, date-only, or title-like lines
+        if (!wl || wl.length < 2 || wl.length > 20) continue;
+        if (/\d{4}[年./-]/.test(wl) && wl.length < 15) continue; // date line
+        if (/(?:工程师|经理|总监|专家|架构师|设计师|产品经理|负责人|lead|engineer|manager|director)/i.test(wl)) continue;
+        if (/(?:部门|团队|项目|产品|业务)/.test(wl) && wl.length < 8) continue;
+        // If it contains known company name or looks like a company name (Chinese chars + possible suffix)
+        var knownMatch = false;
+        for (var ck = 0; ck < KNOWN_COMPANIES.length; ck++) {
+          if (wl.indexOf(KNOWN_COMPANIES[ck]) !== -1) { result.company = KNOWN_COMPANIES[ck]; knownMatch = true; break; }
+        }
+        if (knownMatch) break;
+        // Heuristic: line is 2-8 chars, pure Chinese, not a common word → likely company
+        if (/^[一-龥]{2,8}$/.test(wl) && !/^(项目|产品|技术|研发|市场|运营|设计|测试|数据|算法|前端|后端|部门|团队|负责|主导|参与|负责)$/.test(wl)) {
+          result.company = wl;
+          break;
+        }
+      }
+    }
+  }
+  // Step 3: Scan full text for known company names, but prefer matches near work-related context
+  if (!result.company) {
+    var bestCompany = '', bestScore = 0;
+    for (var ci = 0; ci < KNOWN_COMPANIES.length; ci++) {
+      var idx = text.indexOf(KNOWN_COMPANIES[ci]);
+      if (idx === -1) continue;
+      // Score based on proximity to work keywords
+      var context = text.substring(Math.max(0, idx - 60), idx + KNOWN_COMPANIES[ci].length + 60);
+      var score = 1;
+      if (/(?:工作|任职|就职|就职于|任职于|公司|employment|experience)/i.test(context)) score = 3;
+      if (/(?:技术部|产品部|研发|事业群|BG|BU)/i.test(context)) score = 2;
+      if (/(?:简历|求职|期望|自我评价|教育背景|个人信息)/.test(context)) score = 0.5;
+      if (score > bestScore) { bestScore = score; bestCompany = KNOWN_COMPANIES[ci]; }
+    }
+    if (bestCompany && bestScore >= 1) result.company = bestCompany;
   }
 
   // ===== Title (improved - search entire text) =====
