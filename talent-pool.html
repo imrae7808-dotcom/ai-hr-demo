@@ -163,6 +163,14 @@ input,select,textarea{font-family:inherit}
 .empty-state .icon{font-size:40px;margin-bottom:10px;opacity:.5}
 .empty-state p{font-size:12px}
 
+/* Upload */
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:32px 16px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--primary);background:var(--primary-light)}
+.upload-file{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border-radius:var(--radius);margin-top:6px;font-size:11px}
+.upload-file .fname{flex:1;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.upload-file .fsize{color:var(--text3);font-size:10px;flex-shrink:0}
+.upload-file .fremove{background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;padding:2px 4px;flex-shrink:0}
+
 @media(max-width:768px){.sidebar{width:56px}.sidebar .nav-item span:not(.icon):not(.count){display:none}.sidebar-header .logo span{display:none}.sidebar-footer{display:none}.nav-section{display:none}.detail-panel{width:100%}}
 </style>
 </head>
@@ -191,6 +199,7 @@ input,select,textarea{font-family:inherit}
       <div class="search-box"><span class="icon">🔍</span><input type="text" id="search" placeholder="搜索姓名、公司、技能、职位..."></div>
       <div class="topbar-actions">
         <button class="btn btn-outline btn-sm" id="btn-export">导出</button>
+        <button class="btn btn-outline btn-sm" id="btn-upload">📄 上传简历</button>
         <button class="btn btn-primary btn-sm" id="btn-add">+ 添加候选人</button>
       </div>
     </div>
@@ -232,6 +241,29 @@ input,select,textarea{font-family:inherit}
     <div class="modal-footer">
       <button class="btn btn-outline" id="btn-cancel">取消</button>
       <button class="btn btn-primary" id="btn-save">确认添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Upload Resume -->
+<div class="modal-overlay" id="modal-upload">
+  <div class="modal">
+    <div class="modal-header"><h3>上传简历</h3><button class="modal-close" id="modal-upload-close">✕</button></div>
+    <div class="modal-body">
+      <div class="upload-zone" id="upload-zone">
+        <div style="font-size:36px;margin-bottom:8px;opacity:.6">📎</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:3px">点击或拖拽文件到此处</div>
+        <div style="font-size:11px;color:var(--text2)">支持 PDF、DOC、DOCX，可同时上传多个</div>
+        <div style="margin-top:8px;display:flex;gap:5px;justify-content:center">
+          <span class="tag tag-blue">PDF</span><span class="tag tag-blue">DOC</span><span class="tag tag-blue">DOCX</span>
+        </div>
+        <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx" style="display:none">
+      </div>
+      <div id="upload-file-list" style="margin-top:10px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="btn-upload-cancel">取消</button>
+      <button class="btn btn-primary" id="btn-upload-confirm" disabled>确认上传并填写信息</button>
     </div>
   </div>
 </div>
@@ -572,11 +604,20 @@ function saveForm() {
       timeline: [{ year: '至今', role: title, company: company }]
     };
     candidates.push(newC);
+    // Attach uploaded file info
+    if (pendingUploadFile) {
+      newC.tags.push('简历: ' + pendingUploadFile.name);
+      pendingUploadFile = null;
+    }
     showToast('已添加 ' + name);
   }
 
   document.getElementById('modal-add').classList.remove('open');
   renderList();
+  // Process next uploaded file if any
+  if (uploadedFiles.length > 0) {
+    setTimeout(confirmUpload, 300);
+  }
 }
 
 function renderFormTags(wrapId, inputId, arr) {
@@ -721,6 +762,94 @@ document.addEventListener('keydown', function(e) {
     document.querySelectorAll('.modal-overlay').forEach(function(el) { el.classList.remove('open'); });
   }
 });
+
+// ===== Upload Resume =====
+var uploadedFiles = [];
+
+function openUploadModal() {
+  uploadedFiles = [];
+  document.getElementById('upload-file-list').innerHTML = '';
+  document.getElementById('file-input').value = '';
+  document.getElementById('btn-upload-confirm').disabled = true;
+  document.getElementById('modal-upload').classList.add('open');
+}
+
+function handleUploadFiles(files) {
+  for (var i = 0; i < files.length; i++) {
+    var f = files[i];
+    var ext = f.name.split('.').pop().toLowerCase();
+    if (['pdf', 'doc', 'docx'].indexOf(ext) === -1) {
+      showToast('不支持的格式: ' + ext);
+      continue;
+    }
+    uploadedFiles.push(f);
+  }
+  renderUploadList();
+}
+
+function renderUploadList() {
+  var el = document.getElementById('upload-file-list');
+  document.getElementById('btn-upload-confirm').disabled = uploadedFiles.length === 0;
+  if (!uploadedFiles.length) { el.innerHTML = ''; return; }
+  el.innerHTML = uploadedFiles.map(function(f, i) {
+    var sz = f.size > 1048576 ? (f.size / 1048576).toFixed(1) + 'MB' : (f.size / 1024).toFixed(0) + 'KB';
+    var icon = f.name.endsWith('.pdf') ? '📕' : '📘';
+    return '<div class="upload-file"><span>' + icon + '</span><span class="fname">' + f.name + '</span><span class="fsize">' + sz + '</span><button class="fremove" data-i="' + i + '">✕</button></div>';
+  }).join('');
+  el.querySelectorAll('.fremove').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      uploadedFiles.splice(parseInt(this.dataset.i), 1);
+      renderUploadList();
+    });
+  });
+}
+
+function confirmUpload() {
+  if (!uploadedFiles.length) return;
+  var file = uploadedFiles[0];
+  uploadedFiles.shift();
+  var base = file.name.replace(/\.[^.]+$/, '');
+  var parts = base.split(/[_\-\s\/\\]+/).filter(function(p) { return p.length >= 2 && p.length <= 8; });
+
+  // Try to extract name, company, title from filename
+  var extracted = { name: '', company: '', title: '' };
+  if (parts.length >= 1) extracted.name = parts[0];
+  if (parts.length >= 2) extracted.company = parts[1];
+  if (parts.length >= 3) extracted.title = parts[2];
+
+  // Close upload modal, open add form with pre-filled data
+  document.getElementById('modal-upload').classList.remove('open');
+  editingId = null;
+  document.getElementById('modal-title').textContent = '从简历添加 — ' + file.name;
+  document.getElementById('btn-save').textContent = '确认添加';
+  clearForm();
+
+  if (extracted.name) document.getElementById('f-name').value = extracted.name;
+  if (extracted.company) document.getElementById('f-company').value = extracted.company;
+  if (extracted.title) document.getElementById('f-title').value = extracted.title;
+  document.getElementById('f-source').value = '主动投递';
+
+  // Store file reference on the candidate when saved
+  pendingUploadFile = file;
+  document.getElementById('modal-add').classList.add('open');
+  document.getElementById('f-name').focus();
+}
+
+var pendingUploadFile = null;
+
+// Drag & drop on upload zone
+var uz = document.getElementById('upload-zone');
+uz.addEventListener('click', function() { document.getElementById('file-input').click(); });
+uz.addEventListener('dragover', function(e) { e.preventDefault(); uz.classList.add('dragover'); });
+uz.addEventListener('dragleave', function() { uz.classList.remove('dragover'); });
+uz.addEventListener('drop', function(e) { e.preventDefault(); uz.classList.remove('dragover'); handleUploadFiles(e.dataTransfer.files); });
+document.getElementById('file-input').addEventListener('change', function() { handleUploadFiles(this.files); this.value = ''; });
+
+// Upload modal buttons
+document.getElementById('btn-upload').addEventListener('click', openUploadModal);
+document.getElementById('modal-upload-close').addEventListener('click', function() { document.getElementById('modal-upload').classList.remove('open'); });
+document.getElementById('btn-upload-cancel').addEventListener('click', function() { document.getElementById('modal-upload').classList.remove('open'); });
+document.getElementById('btn-upload-confirm').addEventListener('click', confirmUpload);
 
 // Init
 renderList();
