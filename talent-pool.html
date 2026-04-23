@@ -152,7 +152,7 @@ input,select,textarea{font-family:inherit}
 .candidate-card .detail-row .value{font-weight:600;color:var(--text)}
 
 /* Detail Panel */
-.detail-panel{width:400px;background:var(--sidebar);border-left:1px solid var(--border);overflow-y:auto;flex-shrink:0;transition:transform .3s cubic-bezier(.4,0,.2,1),box-shadow .3s;transform:translateX(100%);position:absolute;right:0;top:0;bottom:0;z-index:10;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.detail-panel{width:480px;background:var(--sidebar);border-left:1px solid var(--border);overflow-y:auto;flex-shrink:0;transition:transform .3s cubic-bezier(.4,0,.2,1),box-shadow .3s;transform:translateX(100%);position:absolute;right:0;top:0;bottom:0;z-index:10;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 .detail-panel::-webkit-scrollbar{width:4px}
 .detail-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 .detail-panel.open{transform:translateX(0);box-shadow:-8px 0 30px rgba(0,0,0,.1)}
@@ -770,17 +770,17 @@ function renderCards(list) {
   list.forEach(function(c) {
     var posKey = classifyPosition(c);
     var posLabels = {'pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他'};
+    // Build bio text from tags or basic info
+    var bioText = c.tags.length ? c.tags.join(' · ') : c.city + ' · ' + c.exp + '年经验' + (c.skills.length ? ' · ' + c.skills.slice(0, 3).join(', ') : '');
     h += '<div class="candidate-card" data-id="' + c.id + '">';
     h += '<div class="candidate-card-header"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div class="info"><h3>' + c.name + '</h3><div class="meta">' + c.company + ' · ' + c.title + '</div></div></div>';
-    h += '<div class="tags">' + oppTag(c.opportunity) + qualTag(c.quality) + connIcon(c.connected) + '<span class="tag tag-blue">' + (posLabels[posKey] || '其他') + '</span><span class="tag ' + sourceTagColor(c.source) + '">' + c.source + '</span></div>';
-    h += '<div class="detail-row"><span class="label">城市</span><span class="value">' + c.city + '</span></div>';
-    h += '<div class="detail-row"><span class="label">经验</span><span class="value">' + c.exp + '年</span></div>';
-    if (c.skills.length) {
-      h += '<div class="detail-row"><span class="label">技能</span><span class="value" style="font-size:9px">' + c.skills.slice(0, 3).join(', ') + (c.skills.length > 3 ? '...' : '') + '</span></div>';
-    }
-    h += '<div class="detail-row" style="border:none;padding-top:6px"><button class="btn btn-sm btn-outline" data-action="star" data-id="' + c.id + '">' + (c.starred ? '★ 已收藏' : '☆ 收藏') + '</button>';
-    h += '<span><button class="btn btn-sm btn-outline" data-action="edit" data-id="' + c.id + '">编辑</button> <button class="btn btn-sm btn-danger" data-action="delete" data-id="' + c.id + '">删除</button></span></div>';
-    h += '</div>';
+    h += '<div class="tags">' + oppTag(c.opportunity) + qualTag(c.quality) + connIcon(c.connected) + '<span class="tag tag-blue">' + (posLabels[posKey] || '其他') + '</span></div>';
+    h += '<div style="font-size:12px;color:var(--text2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-top:8px">' + bioText + '</div>';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">';
+    h += '<span style="font-size:10px;color:var(--text3)">' + c.city + ' · ' + c.exp + '年</span>';
+    h += '<div><button class="btn btn-sm btn-outline" data-action="star" data-id="' + c.id + '">' + (c.starred ? '★' : '☆') + '</button> ';
+    h += '<button class="btn btn-sm btn-outline" data-action="edit" data-id="' + c.id + '">编辑</button></div>';
+    h += '</div></div>';
   });
   h += '</div>';
   document.getElementById('candidate-list').innerHTML = h;
@@ -848,6 +848,12 @@ function renderOverview() {
   var trendHtml = totalDiff > 0 ? '<span class="up">↑ ' + totalDiff + '</span> 较上次' : totalDiff < 0 ? '<span class="down">↓ ' + Math.abs(totalDiff) + '</span> 较上次' : '维持不变';
 
   var h = '';
+
+  // Page Header (borrowed from 人才鱼塘)
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">';
+  h += '<div><div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--text),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent">人才雷达</div>';
+  h += '<div style="font-size:12px;color:var(--text2);margin-top:2px">智能人才管理全景 · 共' + total + '位人才 · ' + companyCount + '家公司</div></div>';
+  h += '</div>';
 
   // Stats Row with trend indicators
   h += '<div class="stats-row">';
@@ -984,6 +990,10 @@ function renderPipeline() {
 
   var typeIcons = {'技术负责人':'💻','产品负责人':'📋','市场负责人':'📢','设计负责人':'🎨','运营负责人':'⚙️'};
   var h = '';
+
+  // Page Header
+  h += '<div style="margin-bottom:20px"><div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--text),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent">挖猎管线</div>';
+  h += '<div style="font-size:12px;color:var(--text2);margin-top:2px">核心岗位挖猎进度追踪 · 共' + stats.total + '位目标人选</div></div>';
 
   // Stats row
   h += '<div class="stats-row">';
