@@ -239,6 +239,29 @@ input,select,textarea{font-family:inherit}
 .parse-preview{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-top:10px;max-height:150px;overflow-y:auto;font-size:10px;color:var(--text2);white-space:pre-wrap;line-height:1.5;font-family:monospace}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* Stats Row (borrowed from 人才鱼塘) */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 16px;position:relative;overflow:hidden;transition:all .25s}
+.stat-card:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.stat-card .label{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:6px}
+.stat-card .value{font-size:28px;font-weight:800;line-height:1;margin-bottom:6px}
+.stat-card .value.green{color:var(--green)}
+.stat-card .value.blue{color:var(--primary)}
+.stat-card .value.orange{color:var(--orange)}
+.stat-card .value.accent{color:var(--primary)}
+.stat-card .change{font-size:10px;color:var(--text3);display:flex;align-items:center;gap:4px}
+.stat-card .change .up{color:var(--green);font-weight:600}
+.stat-card .change .down{color:var(--red);font-weight:600}
+
+/* Filter Bar (borrowed from 人才鱼塘) */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:0 2px}
+.filter-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
+.filter-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+.filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* Improved Talent Card (bio clamp) */
+.talent-card .bio{font-size:12px;color:var(--text2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-top:8px}
+
 /* Overview / Org Chart */
 #overview-area{display:none;padding:20px;overflow-y:auto;height:100%}
 #overview-area.active{display:block}
@@ -305,6 +328,9 @@ input,select,textarea{font-family:inherit}
   .modal{width:95vw;max-height:90vh}
   .form-grid{grid-template-columns:1fr}
   .gradient-bg .orb{opacity:.06}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .filter-bar{gap:6px}
+  .filter-btn{padding:5px 10px;font-size:11px}
 }
 </style>
 </head>
@@ -568,7 +594,25 @@ function renderList() {
     document.getElementById('candidate-list').innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>未找到匹配的候选人</p></div>';
     return;
   }
+  // Mini stats row above list (when not filtering by specific category)
+  var statsHtml = '';
+  if (currentNav === 'all' || currentNav === 'starred') {
+    var aCount = candidates.filter(function(c) { return c.status === 'active'; }).length;
+    var wCount = candidates.filter(function(c) { return c.status === 'warm'; }).length;
+    var sCount = candidates.filter(function(c) { return c.starred; }).length;
+    statsHtml = '<div class="stats-row" style="margin:0 20px 12px">';
+    statsHtml += '<div class="stat-card"><div class="label">总人才</div><div class="value accent" style="font-size:22px">' + candidates.length + '</div></div>';
+    statsHtml += '<div class="stat-card"><div class="label">活跃</div><div class="value green" style="font-size:22px">' + aCount + '</div></div>';
+    statsHtml += '<div class="stat-card"><div class="label">保温</div><div class="value orange" style="font-size:22px">' + wCount + '</div></div>';
+    statsHtml += '<div class="stat-card"><div class="label">已收藏</div><div class="value blue" style="font-size:22px">' + sCount + '</div></div>';
+    statsHtml += '</div>';
+  }
   if (viewMode === 'table') renderTable(filtered); else renderCards(filtered);
+  // Prepend stats before the rendered list
+  if (statsHtml) {
+    var listEl = document.getElementById('candidate-list');
+    listEl.insertAdjacentHTML('afterbegin', statsHtml);
+  }
 }
 
 function oppTag(o) { return o === '看机会' ? '<span class="tag tag-green">看机会</span>' : o === '不看机会' ? '<span class="tag" style="background:#f1f5f9;color:#94a3b8">不看</span>' : '<span class="tag tag-orange">待确认</span>'; }
@@ -600,11 +644,16 @@ function renderTable(list) {
 function renderCards(list) {
   var h = '<div class="card-view">';
   list.forEach(function(c) {
+    var posKey = classifyPosition(c);
+    var posLabels = {'pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他'};
     h += '<div class="candidate-card" data-id="' + c.id + '">';
     h += '<div class="candidate-card-header"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div class="info"><h3>' + c.name + '</h3><div class="meta">' + c.company + ' · ' + c.title + '</div></div></div>';
-    h += '<div class="tags">' + oppTag(c.opportunity) + qualTag(c.quality) + connIcon(c.connected) + '<span class="tag ' + sourceTagColor(c.source) + '">' + c.source + '</span></div>';
+    h += '<div class="tags">' + oppTag(c.opportunity) + qualTag(c.quality) + connIcon(c.connected) + '<span class="tag tag-blue">' + (posLabels[posKey] || '其他') + '</span><span class="tag ' + sourceTagColor(c.source) + '">' + c.source + '</span></div>';
     h += '<div class="detail-row"><span class="label">城市</span><span class="value">' + c.city + '</span></div>';
     h += '<div class="detail-row"><span class="label">经验</span><span class="value">' + c.exp + '年</span></div>';
+    if (c.skills.length) {
+      h += '<div class="detail-row"><span class="label">技能</span><span class="value" style="font-size:9px">' + c.skills.slice(0, 3).join(', ') + (c.skills.length > 3 ? '...' : '') + '</span></div>';
+    }
     h += '<div class="detail-row" style="border:none;padding-top:6px"><button class="btn btn-sm btn-outline" data-action="star" data-id="' + c.id + '">' + (c.starred ? '★ 已收藏' : '☆ 收藏') + '</button>';
     h += '<span><button class="btn btn-sm btn-outline" data-action="edit" data-id="' + c.id + '">编辑</button> <button class="btn btn-sm btn-danger" data-action="delete" data-id="' + c.id + '">删除</button></span></div>';
     h += '</div>';
@@ -658,10 +707,47 @@ function renderMemberCard(c) {
 function renderOverview() {
   var el = document.getElementById('overview-area');
   var org = companyOrgs['腾讯'];
+
+  // Compute stats
+  var total = candidates.length;
+  var activeCount = candidates.filter(function(c) { return c.status === 'active'; }).length;
+  var warmCount = candidates.filter(function(c) { return c.status === 'warm'; }).length;
+  var starredCount = candidates.filter(function(c) { return c.starred; }).length;
+  var linkedCount = candidates.filter(function(c) { return c.connected; }).length;
+  var companies = {};
+  candidates.forEach(function(c) { companies[c.company] = true; });
+  var companyCount = Object.keys(companies).length;
+
   var h = '';
 
+  // Stats Row
+  h += '<div class="stats-row">';
+  h += '<div class="stat-card"><div class="label">总人才数</div><div class="value accent">' + total + '</div><div class="change">覆盖 ' + companyCount + ' 家公司</div></div>';
+  h += '<div class="stat-card"><div class="label">活跃人才</div><div class="value green">' + activeCount + '</div><div class="change"><span class="up">↑</span> ' + activeCount + '人活跃中</div></div>';
+  h += '<div class="stat-card"><div class="label">保温人才</div><div class="value orange">' + warmCount + '</div><div class="change">需定期触达</div></div>';
+  h += '<div class="stat-card"><div class="label">已收藏 / 已链接</div><div class="value blue">' + starredCount + ' / ' + linkedCount + '</div><div class="change">收藏' + starredCount + '人 · 链接' + linkedCount + '人</div></div>';
+  h += '</div>';
+
+  // Position filter bar (borrowed from 人才鱼塘 filter-btn pattern)
+  var posKeys = ['tech','product','design','ops','marketing','leadership','other'];
+  var posLabels = {'tech':'技术','product':'产品','design':'设计','ops':'运营','marketing':'市场','leadership':'管理层','other':'其他'};
+  h += '<div style="margin-bottom:16px;font-size:14px;font-weight:700">按岗位分布</div>';
+  h += '<div class="filter-bar">';
+  h += '<button class="filter-btn active" onclick="filterOverviewPos(\'all\',this)">全部 (' + total + ')</button>';
+  posKeys.forEach(function(k) {
+    var count = candidates.filter(function(c) { return classifyPosition(c) === 'pos-' + k; }).length;
+    if (count > 0) h += '<button class="filter-btn" onclick="filterOverviewPos(\'' + k + '\',this)">' + posLabels[k] + ' (' + count + ')</button>';
+  });
+  h += '</div>';
+  h += '<div id="overview-pos-grid" class="card-view" style="padding:0">';
+  // Show all talent cards initially
+  candidates.forEach(function(c) {
+    h += renderOverviewTalentCard(c);
+  });
+  h += '</div>';
+
   // Tencent header
-  h += '<div style="text-align:center;padding:20px 0 10px">';
+  h += '<div style="text-align:center;padding:30px 0 10px">';
   h += '<div style="font-size:22px;font-weight:800;margin-bottom:4px">🏢 腾讯组织架构</div>';
   h += '<div style="font-size:12px;color:var(--text2)">8个事业群 + 3条职能线 · 119个二级部门 · 数据来源：join.qq.com</div>';
   h += '</div>';
@@ -683,6 +769,28 @@ function renderOverview() {
   h += '</div>';
 
   el.innerHTML = h;
+}
+
+// Talent card for overview (borrowed from 人才鱼塘 talent-card pattern)
+function renderOverviewTalentCard(c) {
+  var oppLabel = c.opportunity === '看机会' ? '看机会' : c.opportunity === '不看机会' ? '不看' : '待确认';
+  var qualLabel = c.quality === '优质' ? '优质' : c.quality === '普通' ? '普通' : '待评估';
+  var posKey = classifyPosition(c);
+  var posLabels = {'pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他'};
+  return '<div class="candidate-card" data-id="' + c.id + '" style="cursor:pointer">' +
+    '<div class="candidate-card-header"><div class="avatar" style="background:' + avatarColor(c.id) + '">' + c.name[0] + '</div><div class="info"><h3>' + c.name + '</h3><div class="meta">' + c.company + ' · ' + c.title + '</div></div></div>' +
+    '<div class="tags">' + oppTag(c.opportunity) + qualTag(c.quality) + '<span class="tag tag-blue">' + (posLabels[posKey] || '其他') + '</span></div>' +
+    '<div class="bio" style="font-size:12px;color:var(--text2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-top:8px">' + (c.tags.length ? c.tags.join(' · ') : c.city + ' · ' + c.exp + '年经验') + '</div>' +
+    '</div>';
+}
+
+// Filter overview by position (uses filter-btn pattern)
+function filterOverviewPos(pos, btn) {
+  document.querySelectorAll('.filter-bar .filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  var grid = document.getElementById('overview-pos-grid');
+  var filtered = pos === 'all' ? candidates : candidates.filter(function(c) { return classifyPosition(c) === 'pos-' + pos; });
+  grid.innerHTML = filtered.length ? filtered.map(function(c) { return renderOverviewTalentCard(c); }).join('') : '<div class="empty-state" style="grid-column:1/-1"><div class="icon">🔍</div><p>该岗位暂无人才</p></div>';
 }
 
 // ===== Detail Panel =====
