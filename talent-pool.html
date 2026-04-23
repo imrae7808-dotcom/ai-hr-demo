@@ -272,14 +272,33 @@ input,select,textarea{font-family:inherit}
 .org-connector{width:1px;height:20px;background:var(--border);margin:0 auto}
 .org-hline{height:1px;background:var(--border);margin:0 auto}
 
+/* Position Grid */
+.pos-grid{display:flex;flex-direction:column;gap:4px;padding:0 4px}
+.pos-card{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius);cursor:pointer;transition:all .2s cubic-bezier(.4,0,.2,1);border:1px solid transparent;position:relative;overflow:hidden}
+.pos-card::before{content:'';position:absolute;left:0;top:15%;height:70%;width:3px;border-radius:0 3px 3px 0;background:var(--pos-color);opacity:0;transition:opacity .2s}
+.pos-card:hover{background:var(--primary-light);border-color:var(--border)}
+.pos-card:hover::before{opacity:1}
+.pos-card.active{background:var(--primary-light);border-color:rgba(79,110,247,.2)}
+.pos-card.active::before{opacity:1}
+.pos-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0}
+.pos-info{flex:1;min-width:0}
+.pos-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px}
+.pos-bar{height:3px;background:var(--bg);border-radius:2px;overflow:hidden}
+.pos-bar-fill{height:100%;border-radius:2px;background:var(--pos-color);transition:width .6s cubic-bezier(.4,0,.2,1);width:0%}
+.pos-count{font-size:10px;font-weight:700;color:var(--text3);background:var(--bg);padding:1px 6px;border-radius:8px;min-width:20px;text-align:center;flex-shrink:0;transition:all .2s}
+.pos-card:hover .pos-count{background:var(--primary-light);color:var(--primary)}
+.pos-card.active .pos-count{background:rgba(79,110,247,.15);color:var(--primary)}
+
 @media(max-width:768px){
   .sidebar{width:56px;transition:width .3s}
   .sidebar .nav-item span:not(.icon):not(.count){display:none}
   .sidebar-header .logo span{display:none}
   .sidebar-footer{display:none}
   .nav-section{display:none}
+  .pos-grid{display:none}
   .detail-panel{width:100%}
   .topbar{padding:10px 16px}
+  .topbar-badge{display:none}
   .search-box{max-width:none}
   .card-view{grid-template-columns:1fr;padding:10px 12px}
   .candidate-card{padding:12px}
@@ -300,13 +319,15 @@ input,select,textarea{font-family:inherit}
       <div class="nav-item" data-nav="all"><span class="icon">👥</span><span>全部人才</span><span class="count" id="nav-all-count">0</span></div>
       <div class="nav-item" data-nav="starred"><span class="icon">📌</span><span>已收藏</span><span class="count" id="nav-starred-count">0</span></div>
       <div class="nav-section">按岗位</div>
-      <div class="nav-item" data-nav="pos-tech"><span class="icon">💻</span><span>技术</span><span class="count" id="nav-pos-tech-count">0</span></div>
-      <div class="nav-item" data-nav="pos-product"><span class="icon">📋</span><span>产品</span><span class="count" id="nav-pos-product-count">0</span></div>
-      <div class="nav-item" data-nav="pos-design"><span class="icon">🎨</span><span>设计</span><span class="count" id="nav-pos-design-count">0</span></div>
-      <div class="nav-item" data-nav="pos-ops"><span class="icon">⚙️</span><span>运营</span><span class="count" id="nav-pos-ops-count">0</span></div>
-      <div class="nav-item" data-nav="pos-marketing"><span class="icon">📢</span><span>市场</span><span class="count" id="nav-pos-marketing-count">0</span></div>
-      <div class="nav-item" data-nav="pos-leadership"><span class="icon">👔</span><span>管理层</span><span class="count" id="nav-pos-leadership-count">0</span></div>
-      <div class="nav-item" data-nav="pos-other"><span class="icon">📁</span><span>其他</span><span class="count" id="nav-pos-other-count">0</span></div>
+      <div class="pos-grid" id="pos-grid">
+        <div class="pos-card" data-nav="pos-tech" style="--pos-color:var(--primary)"><div class="pos-icon">💻</div><div class="pos-info"><div class="pos-name">技术</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-tech"></div></div></div><div class="pos-count" id="nav-pos-tech-count">0</div></div>
+        <div class="pos-card" data-nav="pos-product" style="--pos-color:var(--green)"><div class="pos-icon">📋</div><div class="pos-info"><div class="pos-name">产品</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-product"></div></div></div><div class="pos-count" id="nav-pos-product-count">0</div></div>
+        <div class="pos-card" data-nav="pos-design" style="--pos-color:var(--purple)"><div class="pos-icon">🎨</div><div class="pos-info"><div class="pos-name">设计</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-design"></div></div></div><div class="pos-count" id="nav-pos-design-count">0</div></div>
+        <div class="pos-card" data-nav="pos-ops" style="--pos-color:var(--orange)"><div class="pos-icon">⚙️</div><div class="pos-info"><div class="pos-name">运营</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-ops"></div></div></div><div class="pos-count" id="nav-pos-ops-count">0</div></div>
+        <div class="pos-card" data-nav="pos-marketing" style="--pos-color:var(--cyan)"><div class="pos-icon">📢</div><div class="pos-info"><div class="pos-name">市场</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-marketing"></div></div></div><div class="pos-count" id="nav-pos-marketing-count">0</div></div>
+        <div class="pos-card" data-nav="pos-leadership" style="--pos-color:var(--red)"><div class="pos-icon">👔</div><div class="pos-info"><div class="pos-name">管理层</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-leadership"></div></div></div><div class="pos-count" id="nav-pos-leadership-count">0</div></div>
+        <div class="pos-card" data-nav="pos-other" style="--pos-color:var(--text3)"><div class="pos-icon">📁</div><div class="pos-info"><div class="pos-name">其他</div><div class="pos-bar"><div class="pos-bar-fill" id="pos-bar-other"></div></div></div><div class="pos-count" id="nav-pos-other-count">0</div></div>
+      </div>
       <div class="nav-section">按公司</div>
       <div id="nav-companies"></div>
       <div class="nav-section">人才状态</div>
@@ -506,14 +527,20 @@ function renderList() {
   // Update counts
   document.getElementById('nav-all-count').textContent = candidates.length;
   document.getElementById('nav-starred-count').textContent = candidates.filter(function(c) { return c.starred; }).length;
-  // Position counts
-  document.getElementById('nav-pos-tech-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-tech'; }).length;
-  document.getElementById('nav-pos-product-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-product'; }).length;
-  document.getElementById('nav-pos-design-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-design'; }).length;
-  document.getElementById('nav-pos-ops-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-ops'; }).length;
-  document.getElementById('nav-pos-marketing-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-marketing'; }).length;
-  document.getElementById('nav-pos-leadership-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-leadership'; }).length;
-  document.getElementById('nav-pos-other-count').textContent = candidates.filter(function(c) { return classifyPosition(c) === 'pos-other'; }).length;
+  // Position counts + progress bars
+  var posKeys = ['tech','product','design','ops','marketing','leadership','other'];
+  var posCounts = posKeys.map(function(k) { return candidates.filter(function(c) { return classifyPosition(c) === 'pos-' + k; }).length; });
+  var posMax = Math.max.apply(null, posCounts.concat([1]));
+  posKeys.forEach(function(k, i) {
+    var count = posCounts[i];
+    document.getElementById('nav-pos-' + k + '-count').textContent = count;
+    var bar = document.getElementById('pos-bar-' + k);
+    if (bar) bar.style.width = (count / posMax * 100) + '%';
+  });
+  // Update active state for pos-cards
+  document.querySelectorAll('.pos-card').forEach(function(el) {
+    el.classList.toggle('active', el.dataset.nav === currentNav);
+  });
   // Talent status counts
   document.getElementById('nav-st-look-good-count').textContent = candidates.filter(function(c) { return c.opportunity === '看机会' && c.quality === '优质'; }).length;
   document.getElementById('nav-st-look-normal-count').textContent = candidates.filter(function(c) { return c.opportunity === '看机会' && c.quality === '普通'; }).length;
@@ -928,6 +955,7 @@ document.addEventListener('click', function(e) {
   var card = e.target.closest('.candidate-card');
   var row = e.target.closest('tbody tr[data-id]');
   var navItem = e.target.closest('.nav-item[data-nav]');
+  var posCard = e.target.closest('.pos-card[data-nav]');
   var viewBtn = e.target.closest('.view-toggle button[data-view]');
 
   if (target) {
@@ -966,6 +994,20 @@ document.addEventListener('click', function(e) {
     document.getElementById('overview-area').className = isOverview ? 'active' : '';
     document.querySelector('.view-toggle').style.display = isOverview ? 'none' : '';
     if (isOverview) { renderOverview(); } else { renderList(); }
+    return;
+  }
+  if (posCard) {
+    currentNav = posCard.dataset.nav;
+    document.querySelectorAll('.pos-card').forEach(function(el) { el.classList.remove('active'); });
+    posCard.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
+    var titles = {'pos-tech':'技术','pos-product':'产品','pos-design':'设计','pos-ops':'运营','pos-marketing':'市场','pos-leadership':'管理层','pos-other':'其他'};
+    document.getElementById('list-title').textContent = titles[currentNav] || '全部人才';
+    document.getElementById('list-area').querySelector('.list-header').style.display = '';
+    document.getElementById('candidate-list').style.display = '';
+    document.getElementById('overview-area').className = '';
+    document.querySelector('.view-toggle').style.display = '';
+    renderList();
     return;
   }
   if (viewBtn) {
