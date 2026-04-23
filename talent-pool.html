@@ -865,21 +865,6 @@ function renderOverview() {
   // Save snapshot for next comparison
   localStorage.setItem('hr-talent-lastTotal', total);
 
-  // Position filter bar
-  var posKeys = ['tech','product','design','ops','marketing','leadership','other'];
-  var posLabels = {'tech':'技术','product':'产品','design':'设计','ops':'运营','marketing':'市场','leadership':'管理层','other':'其他'};
-  h += '<div style="margin-bottom:16px;font-size:14px;font-weight:700">按岗位分布</div>';
-  h += '<div class="filter-bar">';
-  h += '<button class="filter-btn active" onclick="filterOverviewPos(\'all\',this)">全部 (' + total + ')</button>';
-  posKeys.forEach(function(k) {
-    var count = candidates.filter(function(c) { return classifyPosition(c) === 'pos-' + k; }).length;
-    if (count > 0) h += '<button class="filter-btn" onclick="filterOverviewPos(\'' + k + '\',this)">' + posLabels[k] + ' (' + count + ')</button>';
-  });
-  h += '</div>';
-  h += '<div id="overview-pos-grid" class="card-view" style="padding:0">';
-  candidates.forEach(function(c) { h += renderOverviewTalentCard(c); });
-  h += '</div>';
-
   // ===== Tencent Org Tree (borrowed from 人才鱼塘 tree layout) =====
   h += '<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin:24px 0;overflow-x:auto">';
   h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">';
