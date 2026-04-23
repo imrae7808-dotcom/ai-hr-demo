@@ -207,7 +207,6 @@ input,select,textarea{font-family:inherit}
       <div class="search-box"><span class="icon">🔍</span><input type="text" id="search" placeholder="搜索姓名、公司、技能、职位..."></div>
       <div class="topbar-actions">
         <button class="btn btn-outline btn-sm" id="btn-export">导出</button>
-        <button class="btn btn-outline btn-sm" id="btn-upload">📄 上传简历</button>
         <button class="btn btn-primary btn-sm" id="btn-add">+ 添加候选人</button>
       </div>
     </div>
@@ -224,12 +223,20 @@ input,select,textarea{font-family:inherit}
   </div>
 </div>
 
-<!-- Modal: Add Candidate -->
+<!-- Modal: Add Candidate (with upload) -->
 <div class="modal-overlay" id="modal-add">
-  <div class="modal">
+  <div class="modal" style="width:640px">
     <div class="modal-header"><h3 id="modal-title">添加候选人</h3><button class="modal-close" id="modal-add-close">✕</button></div>
     <div class="modal-body">
-      <div class="form-grid">
+      <div class="upload-zone" id="upload-zone" style="margin-bottom:14px">
+        <div style="font-size:28px;margin-bottom:6px;opacity:.6">📎</div>
+        <div style="font-size:12px;font-weight:600;margin-bottom:2px">上传简历自动解析（可选）</div>
+        <div style="font-size:10px;color:var(--text2)">点击或拖拽 PDF/DOC/DOCX，自动提取姓名、公司、职位、技能等</div>
+        <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx" style="display:none">
+      </div>
+      <div id="upload-file-list"></div>
+      <div id="parse-status"></div>
+      <div class="form-grid" style="margin-top:14px">
         <div class="form-group"><label>姓名 *</label><input id="f-name" placeholder="候选人姓名"></div>
         <div class="form-group"><label>年龄</label><input type="number" id="f-age" placeholder="30" min="18" max="65"></div>
         <div class="form-group"><label>当前公司 *</label><input id="f-company" placeholder="百度Apollo"></div>
@@ -249,30 +256,6 @@ input,select,textarea{font-family:inherit}
     <div class="modal-footer">
       <button class="btn btn-outline" id="btn-cancel">取消</button>
       <button class="btn btn-primary" id="btn-save">确认添加</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Upload Resume -->
-<div class="modal-overlay" id="modal-upload">
-  <div class="modal" style="width:640px">
-    <div class="modal-header"><h3>📄 上传简历</h3><button class="modal-close" id="modal-upload-close">✕</button></div>
-    <div class="modal-body">
-      <div class="upload-zone" id="upload-zone">
-        <div style="font-size:36px;margin-bottom:8px;opacity:.6">📎</div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:3px">点击或拖拽文件到此处</div>
-        <div style="font-size:11px;color:var(--text2)">支持 PDF、DOC、DOCX，可同时上传多个</div>
-        <div style="margin-top:8px;display:flex;gap:5px;justify-content:center">
-          <span class="tag tag-blue">PDF</span><span class="tag tag-blue">DOC</span><span class="tag tag-blue">DOCX</span>
-        </div>
-        <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx" style="display:none">
-      </div>
-      <div id="upload-file-list" style="margin-top:10px"></div>
-      <div id="parse-status" style="margin-top:10px"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" id="btn-upload-cancel">取消</button>
-      <button class="btn btn-primary" id="btn-upload-confirm" disabled>🤖 解析并填写信息</button>
     </div>
   </div>
 </div>
@@ -523,6 +506,12 @@ function openAddModal() {
   document.getElementById('modal-title').textContent = '添加候选人';
   document.getElementById('btn-save').textContent = '确认添加';
   clearForm();
+  // Reset upload state
+  uploadedFiles = [];
+  parsedResults = [];
+  document.getElementById('upload-file-list').innerHTML = '';
+  document.getElementById('parse-status').innerHTML = '';
+  document.getElementById('file-input').value = '';
   document.getElementById('modal-add').classList.add('open');
   document.getElementById('f-name').focus();
 }
@@ -617,20 +606,12 @@ function saveForm() {
     if (pendingUploadFile) {
       newC.tags.push('简历: ' + pendingUploadFile.name);
       pendingUploadFile = null;
-      if (pendingParsedIdx >= 0 && parsedResults[pendingParsedIdx]) {
-        parsedResults[pendingParsedIdx].added = true;
-      }
-      pendingParsedIdx = -1;
     }
     showToast('已添加 ' + name);
   }
 
   document.getElementById('modal-add').classList.remove('open');
   renderList();
-  // Process next uploaded file if any
-  if (uploadedFiles.length > 0) {
-    setTimeout(confirmUpload, 300);
-  }
 }
 
 function renderFormTags(wrapId, inputId, arr) {
@@ -776,19 +757,9 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// ===== Upload Resume =====
+// ===== Upload Resume (inside add modal) =====
 var uploadedFiles = [];
 var parsedResults = []; // {file, rawText, extracted}
-
-function openUploadModal() {
-  uploadedFiles = [];
-  parsedResults = [];
-  document.getElementById('upload-file-list').innerHTML = '';
-  document.getElementById('parse-status').innerHTML = '';
-  document.getElementById('file-input').value = '';
-  document.getElementById('btn-upload-confirm').disabled = true;
-  document.getElementById('modal-upload').classList.add('open');
-}
 
 function handleUploadFiles(files) {
   for (var i = 0; i < files.length; i++) {
@@ -802,11 +773,12 @@ function handleUploadFiles(files) {
     parsedResults.push({ file: f, rawText: '', extracted: null, status: 'pending' });
   }
   renderUploadList();
+  // Auto-parse all files
+  parseAllFiles();
 }
 
 function renderUploadList() {
   var el = document.getElementById('upload-file-list');
-  document.getElementById('btn-upload-confirm').disabled = parsedResults.length === 0;
   if (!parsedResults.length) { el.innerHTML = ''; return; }
   el.innerHTML = parsedResults.map(function(r, i) {
     var f = r.file;
@@ -870,9 +842,7 @@ function extractTextFromDOCX(file) {
 function extractText(file) {
   var ext = file.name.split('.').pop().toLowerCase();
   if (ext === 'pdf') return extractTextFromPDF(file);
-  if (ext === 'docx') return extractTextFromDOCX(file);
-  // .doc (old format) - try mammoth, may not work
-  if (ext === 'doc') return extractTextFromDOCX(file);
+  if (ext === 'docx' || ext === 'doc') return extractTextFromDOCX(file);
   return Promise.reject(new Error('不支持的格式'));
 }
 
@@ -898,22 +868,17 @@ function parseResumeText(text) {
   if (/[男]/.test(text.substring(0, 500))) result.gender = '男';
   else if (/[女]/.test(text.substring(0, 500))) result.gender = '女';
 
-  // Age - look for age:XX or 年龄:XX or just number near age-related keywords
-  var ageMatch = text.match(/(?:年龄|Age|年龄)[：:\s]*(\d{2})/i) || text.match(/(\d{2})\s*岁/);
+  // Age
+  var ageMatch = text.match(/(?:年龄|Age)[：:\s]*(\d{2})/i) || text.match(/(\d{2})\s*岁/);
   if (ageMatch) result.age = ageMatch[1];
 
-  // Name - usually the first non-empty line, 2-4 Chinese characters
+  // Name - first 2-4 Chinese chars line
   for (var i = 0; i < Math.min(lines.length, 5); i++) {
     var line = lines[i];
-    // Skip lines that look like titles, headers, or contain numbers/emails
     if (line.length < 2 || line.length > 10) continue;
     if (/[@\d]/.test(line)) continue;
     if (/^(求职|简历|个人|基本|联系|电话|邮箱|教育|工作|技能|项目|经验)/.test(line)) continue;
-    // Check if it looks like a Chinese name (2-4 chars, all Chinese)
-    if (/^[一-龥]{2,4}$/.test(line)) {
-      result.name = line;
-      break;
-    }
+    if (/^[一-龥]{2,4}$/.test(line)) { result.name = line; break; }
   }
 
   // University / Education
@@ -927,13 +892,9 @@ function parseResumeText(text) {
     for (var k = 0; k < eduKeywords.length; k++) {
       if (lines[j].indexOf(eduKeywords[k]) !== -1) {
         result.university = lines[j].replace(/[\s]{2,}/g, ' ').trim();
-        // Check education level on same line or nearby
         var eduText = lines[j] + ' ' + (lines[j + 1] || '') + ' ' + (lines[j - 1] || '');
         for (var e = 0; e < eduLevels.length; e++) {
-          if (eduLevels[e].regex.test(eduText)) {
-            result.edu = eduLevels[e].level;
-            break;
-          }
+          if (eduLevels[e].regex.test(eduText)) { result.edu = eduLevels[e].level; break; }
         }
         if (!result.edu) result.edu = '本科';
         break;
@@ -942,32 +903,26 @@ function parseResumeText(text) {
     if (result.university) break;
   }
 
-  // Work experience - look for company + title patterns
-  var companyPatterns = ['公司', '科技', '集团', '技术', '信息', '网络', '智能', '数据', '有限', '股份', 'Inc', 'Corp', 'Ltd', 'LLC'];
+  // Company
   var knownCompanies = ['百度', '阿里', '腾讯', '字节跳动', '华为', '美团', '京东', '网易', '小米', '蔚来', '小鹏', '理想', '小马智行', 'Waymo', 'Google', 'Microsoft', 'Apple', 'Amazon', 'Meta', '商汤', '旷视', '地平线', '大疆', '滴滴', '快手', '小红书', 'B站', '哔哩哔哩', '新浪', '搜狐', '携程', '蚂蚁', '钉钉'];
   var expMatch = text.match(/(\d{1,2})\s*(?:年|年工作经验|年以上|年+经验)/);
   if (expMatch) result.exp = expMatch[1];
 
-  // Try to find company name
   for (var ci = 0; ci < knownCompanies.length; ci++) {
     if (text.indexOf(knownCompanies[ci]) !== -1) {
       result.company = knownCompanies[ci];
-      // Try to find title near the company mention
       var compIdx = text.indexOf(knownCompanies[ci]);
       var nearby = text.substring(Math.max(0, compIdx - 50), compIdx + 80);
       var titlePatterns = ['工程师', '经理', '总监', '专家', '架构师', '设计师', '分析师', '负责人', '主管', 'Lead', 'Manager', 'Director', 'Engineer', 'Architect', 'Designer', 'Senior', 'Staff', 'Principal', 'Head'];
       for (var ti = 0; ti < titlePatterns.length; ti++) {
         var titleMatch = nearby.match(new RegExp('[\\u4e00-\\u9fa5]*' + titlePatterns[ti] + '[\\u4e00-\\u9fa5]*'));
-        if (titleMatch) {
-          result.title = titleMatch[0].replace(/\s+/g, '').trim();
-          break;
-        }
+        if (titleMatch) { result.title = titleMatch[0].replace(/\s+/g, '').trim(); break; }
       }
       break;
     }
   }
 
-  // Skills - extract from text
+  // Skills
   var knownSkills = [
     'Python', 'Java', 'C++', 'Go', 'JavaScript', 'TypeScript', 'React', 'Vue', 'Angular',
     'Node.js', 'Docker', 'Kubernetes', 'K8s', 'MySQL', 'Redis', 'Kafka', 'MongoDB',
@@ -979,35 +934,29 @@ function parseResumeText(text) {
     '自动驾驶', '感知算法', 'BEV', 'LiDAR', '激光雷达', '点云', 'CUDA',
     'Flutter', 'React Native', 'Swift', 'Kotlin', 'Objective-C',
     '微服务', '微前端', 'RESTful', 'GraphQL', 'gRPC',
-    'Kubernetes', 'CI/CD', 'Jenkins', 'GitHub Actions',
+    'CI/CD', 'Jenkins', 'GitHub Actions',
     'Tableau', 'PowerBI', '数据分析', '数据仓库', 'ETL',
     'A/B测试', '用户增长', '产品设计', '交互设计'
   ];
   var foundSkills = [];
   knownSkills.forEach(function(skill) {
-    if (text.indexOf(skill) !== -1 && foundSkills.indexOf(skill) === -1) {
-      foundSkills.push(skill);
-    }
+    if (text.indexOf(skill) !== -1 && foundSkills.indexOf(skill) === -1) foundSkills.push(skill);
   });
   result.skills = foundSkills.slice(0, 10);
 
   // City
   var cities = ['北京', '上海', '深圳', '杭州', '广州', '成都', '南京', '武汉', '西安', '苏州', '天津', '重庆', '长沙', '郑州', '青岛', '旧金山', '纽约', '伦敦', '新加坡', '东京', '西雅图', '湾区'];
   for (var ci2 = 0; ci2 < cities.length; ci2++) {
-    if (text.indexOf(cities[ci2]) !== -1) {
-      result.city = cities[ci2];
-      break;
-    }
+    if (text.indexOf(cities[ci2]) !== -1) { result.city = cities[ci2]; break; }
   }
 
   return result;
 }
 
-// ===== Parse All Files =====
+// ===== Parse & Fill Form =====
 async function parseAllFiles() {
-  var btn = document.getElementById('btn-upload-confirm');
-  btn.disabled = true;
-  btn.textContent = '⏳ 解析中...';
+  var statusEl = document.getElementById('parse-status');
+  statusEl.innerHTML = '<div class="parse-status"><div class="spinner"></div><span>正在解析简历...</span></div>';
 
   for (var i = 0; i < parsedResults.length; i++) {
     var r = parsedResults[i];
@@ -1026,39 +975,19 @@ async function parseAllFiles() {
     renderUploadList();
   }
 
-  btn.disabled = false;
-  btn.textContent = '✓ 解析完成，填写信息';
+  // Fill form with first successful parse
+  var first = parsedResults.find(function(r) { return r.status === 'done'; });
+  if (first) {
+    fillFormFromParsed(first);
+    statusEl.innerHTML = '<div class="parse-status"><span class="done">✓ 已自动填写表单，请检查并补充信息</span></div>';
+    showToast('简历解析完成，信息已自动填写');
+  } else {
+    statusEl.innerHTML = '<div class="parse-status"><span class="fail">✕ 解析失败，请手动填写</span></div>';
+  }
 }
 
-// ===== Open Form with Parsed Data =====
-function confirmUpload() {
-  // If no parsing done yet, start parsing first
-  var hasUnparsed = parsedResults.some(function(r) { return r.status === 'pending'; });
-  if (hasUnparsed) {
-    parseAllFiles();
-    return;
-  }
-
-  // Find first parsed result not yet added
-  var idx = parsedResults.findIndex(function(r) { return r.status === 'done' && !r.added; });
-  if (idx === -1) {
-    // All done, close modal
-    document.getElementById('modal-upload').classList.remove('open');
-    showToast('所有简历已处理完成');
-    return;
-  }
-
-  var r = parsedResults[idx];
+function fillFormFromParsed(r) {
   var ext = r.extracted || {};
-  var file = r.file;
-
-  document.getElementById('modal-upload').classList.remove('open');
-  editingId = null;
-  document.getElementById('modal-title').textContent = '从简历解析 — ' + file.name;
-  document.getElementById('btn-save').textContent = '确认添加';
-  clearForm();
-
-  // Fill form with extracted data
   if (ext.name) document.getElementById('f-name').value = ext.name;
   if (ext.company) document.getElementById('f-company').value = ext.company;
   if (ext.title) document.getElementById('f-title').value = ext.title;
@@ -1066,33 +995,28 @@ function confirmUpload() {
   if (ext.exp) document.getElementById('f-exp').value = ext.exp;
   if (ext.city) document.getElementById('f-city').value = ext.city;
   if (ext.age) document.getElementById('f-age').value = ext.age;
-  document.getElementById('f-source').value = '主动投递';
 
-  // Fill skills
+  // Skills
   formSkills = ext.skills ? ext.skills.slice() : [];
   renderFormTags('f-skills-wrap', 'f-skills-input', formSkills);
 
-  // Fill tags from extracted info
+  // Tags
   formTags = ['简历解析'];
   if (ext.phone) formTags.push('电话: ' + ext.phone);
   if (ext.email) formTags.push('邮箱: ' + ext.email);
   if (ext.university) formTags.push(ext.university);
   renderFormTags('f-tags-wrap', 'f-tags-input', formTags);
 
-  // Show parsed text preview in note
+  // Note with preview
   if (ext.rawText) {
     var preview = ext.rawText.substring(0, 500).replace(/\n{2,}/g, '\n');
     document.getElementById('f-note').value = '--- 简历原文预览 ---\n' + preview + (ext.rawText.length > 500 ? '\n...(已截断)' : '');
   }
 
-  pendingUploadFile = file;
-  pendingParsedIdx = idx;
-  document.getElementById('modal-add').classList.add('open');
-  document.getElementById('f-name').focus();
+  pendingUploadFile = r.file;
 }
 
 var pendingUploadFile = null;
-var pendingParsedIdx = -1;
 
 // Drag & drop on upload zone
 var uz = document.getElementById('upload-zone');
@@ -1101,12 +1025,6 @@ uz.addEventListener('dragover', function(e) { e.preventDefault(); uz.classList.a
 uz.addEventListener('dragleave', function() { uz.classList.remove('dragover'); });
 uz.addEventListener('drop', function(e) { e.preventDefault(); uz.classList.remove('dragover'); handleUploadFiles(e.dataTransfer.files); });
 document.getElementById('file-input').addEventListener('change', function() { handleUploadFiles(this.files); this.value = ''; });
-
-// Upload modal buttons
-document.getElementById('btn-upload').addEventListener('click', openUploadModal);
-document.getElementById('modal-upload-close').addEventListener('click', function() { document.getElementById('modal-upload').classList.remove('open'); });
-document.getElementById('btn-upload-cancel').addEventListener('click', function() { document.getElementById('modal-upload').classList.remove('open'); });
-document.getElementById('btn-upload-confirm').addEventListener('click', confirmUpload);
 
 // Init
 renderList();
