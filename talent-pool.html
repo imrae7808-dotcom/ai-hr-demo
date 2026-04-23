@@ -1146,8 +1146,24 @@ async function parseAllFiles() {
   var first = parsedResults.find(function(r) { return r.status === 'done'; });
   if (first) {
     fillFormFromParsed(first);
-    statusEl.innerHTML = '<div class="parse-status"><span class="done">✓ 已自动填写表单，请检查并补充信息</span></div>';
-    showToast('简历解析完成，信息已自动填写');
+    var ext = first.extracted || {};
+    var debugHtml = '<div style="background:#f8f9fc;border:1px solid var(--border);border-radius:8px;padding:10px;margin-top:8px;font-size:11px">';
+    debugHtml += '<div style="font-weight:700;margin-bottom:6px;color:var(--primary)">📋 解析结果（请核对）：</div>';
+    debugHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">';
+    debugHtml += '<div><b>姓名：</b>' + (ext.name || '<span style="color:var(--red)">未识别</span>') + '</div>';
+    debugHtml += '<div><b>公司：</b>' + (ext.company || '<span style="color:var(--red)">未识别</span>') + '</div>';
+    debugHtml += '<div><b>职位：</b>' + (ext.title || '<span style="color:var(--red)">未识别</span>') + '</div>';
+    debugHtml += '<div><b>学历：</b>' + (ext.edu || '-') + '</div>';
+    debugHtml += '<div><b>城市：</b>' + (ext.city || '-') + '</div>';
+    debugHtml += '<div><b>经验：</b>' + (ext.exp ? ext.exp + '年' : '-') + '</div>';
+    debugHtml += '<div><b>薪资：</b>' + (ext.salary ? ext.salary + '万' : '-') + '</div>';
+    debugHtml += '<div><b>技能：</b>' + (ext.skills.length ? ext.skills.join(', ') : '-') + '</div>';
+    debugHtml += '</div></div>';
+    // Show raw text preview for debugging
+    var rawPreview = (first.rawText || '').substring(0, 800).replace(/</g, '&lt;').replace(/\n{2,}/g, '\n');
+    debugHtml += '<details style="margin-top:8px"><summary style="cursor:pointer;font-size:10px;color:var(--text2)">📄 查看简历原文（前800字）</summary><pre style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;font-size:10px;max-height:200px;overflow:auto;white-space:pre-wrap;margin-top:4px">' + rawPreview + '</pre></details>';
+    statusEl.innerHTML = '<div class="parse-status"><span class="done">✓ 解析完成，信息已自动填写</span></div>' + debugHtml;
+    showToast('简历解析完成，请核对信息');
   } else {
     statusEl.innerHTML = '<div class="parse-status"><span class="fail">✕ 解析失败，请手动填写</span></div>';
   }
