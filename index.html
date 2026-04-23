@@ -310,7 +310,7 @@ footer p{color:var(--text3);font-size:10px}
   <div class="section-label" style="justify-content:center">INTERACTIVE DEMO</div>
   <div class="section-title" style="text-align:center">亲身体验 <span class="grad">每一步</span></div>
   <div class="section-sub" style="text-align:center;margin:0 auto 32px">
-    输入一段VP的真实语音，看AI如何从混乱中提取价值
+    3大AI模块独立运行，覆盖从初筛到Offer全链路
   </div>
 
   <div class="role-tabs">
@@ -331,38 +331,46 @@ footer p{color:var(--text3);font-size:10px}
 
   <!-- ==================== MODULE 1: 简历筛选识别 ==================== -->
   <div class="demo-panel active" id="module-1">
-    <!-- Sub-step nav -->
     <div class="sub-steps">
-      <button class="sub-step active" id="ss1-1" onclick="goSubStep(1,1)">人才画像 & 岗位匹配</button>
-      <button class="sub-step" id="ss1-2" onclick="goSubStep(1,2)">简历解析 & 风险识别</button>
-      <button class="sub-step" id="ss1-3" onclick="goSubStep(1,3)">候选人分级 & 推荐</button>
+      <button class="sub-step active" id="ss1-1" onclick="goSubStep(1,1)">批量简历筛选</button>
+      <button class="sub-step" id="ss1-2" onclick="goSubStep(1,2)">风险识别 & 画像比对</button>
+      <button class="sub-step" id="ss1-3" onclick="goSubStep(1,3)">候选人分级推荐</button>
     </div>
 
-    <!-- Sub 1.1: 需求拆解 + 人才画像 -->
+    <!-- Sub 1.1: 批量简历筛选 -->
     <div class="sub-panel active" id="sub-1-1">
       <div class="two-col">
         <div class="panel">
-          <div class="panel-head"><div class="dot" style="background:var(--orange)"></div> 输入：VP语音转文字</div>
+          <div class="panel-head"><div class="dot" style="background:var(--blue)"></div> 输入：岗位需求 + 批量简历池</div>
           <div class="panel-body">
-            <div class="input-area">
-              <textarea id="req-input">那个…HR这边帮我看下，智驾那边要招人，算法方向的，嗯…主要就是搞无图方案的，之前高精地图的路线要换了。对，招个能带团队的，之前李总说最好是从Waymo或者Apollo出来的，C9的博士更好，不过硕士特别优秀的也不是不行。薪酬的话…嗯…150万左右吧应该够了，实在不行可以加期权。base北京亦庄。
-
-另外感知那边也缺人，之前面过一个华为ADS的，技术还行但团队管理经验不够，你帮我看看有没有更合适的。还有数据闭环那块老刘一直在催，说仿真那边跑不动，需要有大规模数据处理经验的。算了你先看吧，具体的我让老刘跟你说。</textarea>
+            <div class="card" style="border-left:3px solid var(--blue)">
+              <h4>📌 岗位：自动驾驶算法负责人 — 北京亦庄</h4>
+              <div class="chips" style="margin-top:8px">
+                <span class="chip b">无图方案</span><span class="chip b">BEV感知</span>
+                <span class="chip g">团队管理≥10人</span><span class="chip g">C9博士优先</span>
+                <span class="chip o">薪酬150-220万</span>
+              </div>
             </div>
-            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">
-              <span style="font-size:9px;color:var(--text3);line-height:26px">示例：</span>
-              <button class="job-btn" onclick="loadPreset('algo')">自动驾驶算法</button>
-              <button class="job-btn" onclick="loadPreset('pm')">产品经理</button>
-              <button class="job-btn" onclick="loadPreset('misc')">运营+财务</button>
+            <div class="card">
+              <h4>📂 简历池（6份待筛选）</h4>
+              <div style="font-size:11px;color:var(--text2);margin-top:6px">
+                <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)">📄 zhangming_resume.pdf — 百度Apollo · 高级技术总监</div>
+                <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)">📄 lihua_cv.docx — 华为ADS · 感知专家</div>
+                <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)">📄 wangfang_resume.pdf — Waymo · Senior Staff</div>
+                <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)">📄 chenwei_resume.pdf — 蔚来 · 算法工程师</div>
+                <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)">📄 zhaolei_cv.docx — 小马智行 · 感知Leader</div>
+                <div style="padding:6px 0">📄 sunqiang_resume.pdf — 地平线 · 规划算法</div>
+              </div>
             </div>
-            <div class="btn-row"><button class="btn" onclick="parseReq()">AI 解析</button></div>
+            <div class="btn-row"><button class="btn" onclick="runBatchScreen()">AI 批量筛选</button></div>
           </div>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 输出：结构化需求 + 人才画像</div>
-          <div class="panel-body" id="req-output">
+          <div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 筛选结果</div>
+          <div class="panel-body" id="screen-output">
             <div style="text-align:center;padding:28px 0">
-              <p style="color:var(--text3);font-size:12px;margin-bottom:10px">← 输入VP原话，看AI能提取什么</p>
+              <p style="color:var(--text3);font-size:12px;margin-bottom:10px">← 点击"AI 批量筛选"查看结果</p>
+              <p style="color:var(--text3);font-size:11px">AI将自动完成：<br>全维度结构化解析 → 岗位匹配打分 → 风险检测 → 分级推荐</p>
             </div>
           </div>
         </div>
@@ -370,67 +378,84 @@ footer p{color:var(--text3);font-size:10px}
       <div class="btn-nav"><button class="btn" onclick="goSubStep(1,2)">下一步 →</button></div>
     </div>
 
-    <!-- Sub 1.2: 简历解析 + 风险识别 -->
+    <!-- Sub 1.2: 风险识别 + 画像比对 -->
     <div class="sub-panel" id="sub-1-2">
-      <div id="upload-area">
-        <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-          <div class="icon">📄</div>
-          <h3>拖拽简历到此处，或点击上传</h3>
-          <p>支持 PDF / Word / 图片 OCR / 纯文本</p>
-          <div class="fmts"><span class="fmt">PDF</span><span class="fmt">Word</span><span class="fmt">图片 OCR</span><span class="fmt">纯文本</span></div>
-          <input type="file" id="file-input" accept=".pdf,.doc,.docx,.txt,.png,.jpg" onchange="parseResume()">
-        </div>
-        <p style="text-align:center;color:var(--text3);font-size:11px;margin-top:10px">演示模式：点击或拖拽查看模拟解析</p>
-      </div>
-      <div id="resume-parsing" style="display:none">
-        <div class="panel" style="max-width:400px;margin:0 auto"><div class="panel-body">
-          <div style="text-align:center;padding:28px 0">
-            <div class="spinner"></div>
-            <p style="margin-bottom:14px;color:var(--text2);font-size:12px">AI 正在解析简历...</p>
-            <div class="parse-steps">
-              <div class="parse-step" id="ps1"><span class="check">⏳</span> OCR 文字识别</div>
-              <div class="parse-step" id="ps2"><span class="check">⏳</span> 提取个人信息</div>
-              <div class="parse-step" id="ps3"><span class="check">⏳</span> 解析工作经历</div>
-              <div class="parse-step" id="ps4"><span class="check">⏳</span> 识别技能标签</div>
-              <div class="parse-step" id="ps5"><span class="check">⏳</span> 生成人才画像</div>
-              <div class="parse-step" id="ps6"><span class="check">⏳</span> 匹配岗位需求</div>
-            </div>
-          </div>
-        </div></div>
-      </div>
-      <div id="resume-result" style="display:none">
-        <div class="panel" style="margin-bottom:14px"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> 全维度简历结构化解析</div><div class="panel-body">
-          <div class="resume-header">
-            <div class="resume-avatar">张</div>
-            <div class="resume-info">
-              <h3>张明 <span class="match-badge">匹配度 92%</span></h3>
-              <div class="meta"><b>男 · 38岁</b> · 12年经验<br><b>现任：</b>百度Apollo 高级技术总监<br><b>学历：</b>清华大学 博士 · CMU 博士后</div>
-            </div>
-          </div>
-        </div></div>
-        <div class="two-col">
-          <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--blue)"></div> 经历与技能</div><div class="panel-body">
-            <div class="card"><h4>💼 工作经历</h4><ul><li><b>百度Apollo</b>（7年）感知工程师→技术总监，团队5→22人</li><li><b>Waymo</b>（3年）Research Scientist</li></ul></div>
-            <div class="card"><h4>🛠️ 技能图谱</h4><div class="chips"><span class="chip b">BEV感知</span><span class="chip b">Transformer</span><span class="chip b">无图方案</span><span class="chip b">端到端</span><span class="chip g">团队管理</span><span class="chip g">架构设计</span><span class="chip o">PyTorch</span><span class="chip o">C++</span></div></div>
-            <div class="card"><h4>📚 学术</h4><p>CVPR×8 / NeurIPS×5 / TPAMI×3 · 引用4200+</p></div>
-          </div></div>
-          <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--red)"></div> 风险识别 & 竞业预警</div><div class="panel-body">
-            <div class="card"><h4 class="bad">🚨 简历风险检测</h4>
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><div class="dot" style="background:var(--red)"></div> 简历真实性 & 风险交叉验证</div>
+          <div class="panel-body">
+            <div class="card">
+              <h4>🔍 交叉验证 — 张明</h4>
               <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
-                <span class="risk-badge high">竞业风险 - 高</span>
-                <span class="risk-badge medium">薪酬超预算 - 中</span>
-                <span class="risk-badge low">信息真实性 - 低</span>
+                <span class="risk-badge high">竞业风险 · 高</span>
+                <span class="risk-badge medium">薪酬超预算 · 中</span>
+                <span class="risk-badge low">信息真实性 · 通过</span>
               </div>
-              <ul><li>百度7年核心岗位，竞业协议风险<b class="bad">极高</b></li>
-              <li>VP预算150万，该候选人市场价190万+，<b class="warn">超预算27%</b></li>
-              <li>C9博士+顶会16篇，学术经历<b class="good">可信</b></li></ul>
+              <ul>
+                <li>百度Apollo 7年核心岗位 → <b class="bad">竞业协议风险极高</b></li>
+                <li>声称管22人 → LinkedIn验证：2021年团队12人，<b class="warn">可能夸大</b></li>
+                <li>CVPR×8 → Google Scholar验证：实际6篇一作，<b class="good">基本属实</b></li>
+                <li>CMU博士后 → 学信网验证：<b class="good">学历属实</b></li>
+              </ul>
             </div>
-            <div class="card"><h4 class="hl">💡 AI 补充追问</h4><ul><li>竞业协议是否涉及感知算法方向？</li>
-            <li>从百度离职的真实原因是什么？</li>
-            <li>对小米汽车L4量产路线的认知？</li></ul></div>
-          </div></div>
+            <div class="card">
+              <h4>🔍 交叉验证 — 李华</h4>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
+                <span class="risk-badge medium">竞业风险 · 中</span>
+                <span class="risk-badge low">信息真实性 · 通过</span>
+              </div>
+              <ul>
+                <li>华为ADS 5年 → 竞业期1-2年，<b class="warn">需确认</b></li>
+                <li>大疆2年 → 背景调查：<b class="good">属实</b></li>
+                <li>管理8人 → <b class="warn">低于VP要求的10人</b></li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>🔍 交叉验证 — 王芳</h4>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
+                <span class="risk-badge low">竞业风险 · 低</span>
+                <span class="risk-badge medium">回国意愿 · 待确认</span>
+              </div>
+              <ul>
+                <li>Waymo Senior Staff → 美国无竞业限制，<b class="good">无风险</b></li>
+                <li>零管理经验 → <b class="bad">硬伤，不适合负责人</b></li>
+                <li>在美国 → <b class="warn">回国意愿待确认</b></li>
+              </ul>
+            </div>
+          </div>
         </div>
-        <div class="btn-row" style="margin-top:16px"><button class="btn-outline" onclick="resetResume()">重新上传</button></div>
+        <div class="panel">
+          <div class="panel-head"><div class="dot" style="background:var(--purple)"></div> 目标公司人才动态</div>
+          <div class="panel-body">
+            <div class="card">
+              <h4>🏢 北汽 — 智驾人才流出</h4>
+              <p style="font-size:11px;line-height:2">
+                📍 <b>刘建国</b> 北汽研究院感知总监 → <span class="bad">已离职</span>（2026.03）<br>
+                📍 <b>陈志远</b> 北汽智驾算法VP → <span class="warn">竞业观察期</span><br>
+                📍 <b>张伟</b> 北汽规控工程师 → <span class="good">可接触</span>
+              </p>
+              <div class="chips"><span class="chip b">人才流出</span><span class="chip o">3人可接触</span></div>
+            </div>
+            <div class="card">
+              <h4>🏢 华为ADS — 感知团队动态</h4>
+              <p style="font-size:11px;line-height:2">
+                📍 <b>李明</b> 华为ADS感知算法专家 → <span class="warn">竞业期</span>（还剩8个月）<br>
+                📍 <b>王强</b> 华为ADS规控Leader → <span class="good">在职，可接触</span><br>
+                📍 <b>赵磊</b> 华为ADS数据闭环 → <span class="bad">已跳槽字节</span>
+              </p>
+              <div class="chips"><span class="chip b">竞业限制</span><span class="chip g">1人可接触</span></div>
+            </div>
+            <div class="card">
+              <h4>🏢 Waymo — 中国区人才回流</h4>
+              <p style="font-size:11px;line-height:2">
+                📍 <b>王芳</b> Waymo Senior Staff → <span class="good">有回国意向</span><br>
+                📍 <b>周杰</b> Waymo Research Scientist → <span class="good">已回国，自由身</span><br>
+                📍 <b>孙磊</b> Waymo Perception → <span class="warn">在谈</span>
+              </p>
+              <div class="chips"><span class="chip g">人才回流</span><span class="chip b">2人可接触</span></div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="btn-nav">
         <button class="btn-outline" onclick="goSubStep(1,1)">← 上一步</button>
@@ -438,37 +463,41 @@ footer p{color:var(--text3);font-size:10px}
       </div>
     </div>
 
-    <!-- Sub 1.3: 候选人分级 & 推荐 -->
+    <!-- Sub 1.3: 候选人分级推荐 -->
     <div class="sub-panel" id="sub-1-3">
-      <div class="btn-row" style="margin-bottom:16px">
-        <button class="btn-outline active" id="ca" onclick="showCand('a')">候选人A · 张明</button>
-        <button class="btn-outline" id="cb" onclick="showCand('b')">候选人B · 李华</button>
-        <button class="btn-outline" id="cc" onclick="showCand('c')">候选人C · 王芳</button>
+      <div class="panel" style="margin-bottom:14px"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 分级推荐 — 按匹配度排序</div><div class="panel-body" style="padding:0">
+        <table class="data-table">
+          <thead><tr><th>分级</th><th>候选人</th><th>来源</th><th>匹配度</th><th>核心优势</th><th>主要风险</th><th>推荐</th></tr></thead>
+          <tbody>
+            <tr><td><span class="risk-badge low">A类</span></td><td><b>张明</b> · 38岁</td><td>百度Apollo</td><td class="num" style="color:var(--green);font-weight:700">92%</td><td style="font-size:10px">无图量产+管22人+顶会16篇</td><td style="font-size:10px;color:var(--red)">竞业风险高</td><td><span class="good">强烈推荐</span></td></tr>
+            <tr><td><span class="risk-badge low">A类</span></td><td><b>赵磊</b> · 34岁</td><td>小马智行</td><td class="num" style="color:var(--green);font-weight:700">85%</td><td style="font-size:10px">L4量产经验+团队15人</td><td style="font-size:10px;color:var(--orange)">学历非C9</td><td><span class="good">强烈推荐</span></td></tr>
+            <tr><td><span class="risk-badge medium">B类</span></td><td><b>李华</b> · 35岁</td><td>华为ADS</td><td class="num" style="color:var(--orange);font-weight:700">71%</td><td style="font-size:10px">华为ADS核心+大疆背景</td><td style="font-size:10px;color:var(--red)">管理经验不足</td><td><span class="warn">谨慎考虑</span></td></tr>
+            <tr><td><span class="risk-badge medium">B类</span></td><td><b>王芳</b> · 33岁</td><td>Waymo</td><td class="num" style="color:var(--orange);font-weight:700">68%</td><td style="font-size:10px">Waymo顶级+顶会13篇</td><td style="font-size:10px;color:var(--red)">零管理+在美</td><td><span class="warn">备选</span></td></tr>
+            <tr><td><span class="risk-badge high">C类</span></td><td><b>陈威</b> · 30岁</td><td>蔚来</td><td class="num" style="color:var(--red);font-weight:700">45%</td><td style="font-size:10px">有感知经验</td><td style="font-size:10px;color:var(--red)">经验浅+无管理</td><td><span class="bad">不推荐</span></td></tr>
+            <tr><td><span class="risk-badge high">C类</span></td><td><b>孙强</b> · 32岁</td><td>地平线</td><td class="num" style="color:var(--red);font-weight:700">42%</td><td style="font-size:10px">规控算法扎实</td><td style="font-size:10px;color:var(--red)">方向不匹配(规控非感知)</td><td><span class="bad">不推荐</span></td></tr>
+          </tbody>
+        </table>
+      </div></div>
+      <div class="two-col">
+        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--blue)"></div> AI 人才画像匹配分析</div><div class="panel-body">
+          <div class="card"><h4>🎯 岗位画像 vs 候选人画像</h4>
+            <div class="score-label"><span>无图方案经验</span><span class="val" style="color:var(--green)">张明95 / 赵磊88</span></div><div class="score-bar"><div class="fill" style="width:92%;background:var(--green)"></div></div>
+            <div class="score-label"><span>团队管理能力</span><span class="val" style="color:var(--green)">张明90 / 赵磊85</span></div><div class="score-bar"><div class="fill" style="width:88%;background:var(--green)"></div></div>
+            <div class="score-label"><span>学术背景</span><span class="val" style="color:var(--blue)">张明92 / 王芳95</span></div><div class="score-bar"><div class="fill" style="width:85%;background:var(--blue)"></div></div>
+            <div class="score-label"><span>行业适配度</span><span class="val" style="color:var(--orange)">李华78 / 赵磊82</span></div><div class="score-bar"><div class="fill" style="width:72%;background:var(--orange)"></div></div>
+          </div>
+        </div></div>
+        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--orange)"></div> AI 行动建议</div><div class="panel-body">
+          <div class="card" style="border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.03)"><h4 class="good">💡 推荐策略</h4>
+            <ul>
+              <li><span class="good">首选</span>：张明（A类）— 约面技术VP，重点验证管理能力</li>
+              <li><span class="good">同步</span>：赵磊（A类）— 小马智行L4量产经验，性价比更高</li>
+              <li><span class="warn">储备</span>：李华（B类）— 适合作为感知TL，不作为负责人</li>
+              <li><span class="warn">关注</span>：王芳（B类）— 高级专家引进，技术兜底</li>
+            </ul>
+          </div>
+        </div></div>
       </div>
-      <div id="ca-c"><div class="two-col">
-        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--orange)"></div> 简历</div><div class="panel-body"><div class="card"><h4>张明 · 38岁 <span class="risk-badge low" style="margin-left:6px">A类 · 强烈推荐</span></h4><p><b>百度Apollo</b> 高级技术总监 · 7年<br>清华大学 博士 · CMU 博士后<br>管理22人 · CVPR×8 · 无图方案落地</p></div></div></div>
-        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 评估</div><div class="panel-body"><div class="hire-meter"><div style="font-size:10px;color:var(--text3)">匹配度</div><div class="hire-score strong">92</div><div style="color:var(--green);font-weight:700;font-size:11px">强烈推荐</div></div>
-          <div class="card"><h4 class="good">✅ 优势</h4><ul><li>Apollo核心，无图量产经验</li><li>管理22人，超出VP要求</li><li>C9博士 + 顶会16篇</li></ul></div>
-          <div class="card"><h4 class="warn">⚠️ 风险</h4><ul><li>百度7年竞业风险</li><li>VP给150万，此人市场价190万+</li></ul></div>
-          <div class="card"><h4 class="hl">💡 AI 建议</h4><p>最优人选。建议：<br>① Offer前先确认竞业范围<br>② 薪酬上调至190万+期权<br>③ 用小米生态+L4量产前景做差异化吸引</p></div>
-        </div></div>
-      </div></div>
-      <div id="cb-c" style="display:none"><div class="two-col">
-        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--orange)"></div> 简历</div><div class="panel-body"><div class="card"><h4>李华 · 35岁 <span class="risk-badge medium" style="margin-left:6px">B类 · 谨慎考虑</span></h4><p><b>华为ADS</b> 感知专家 · 5年 + 大疆2年<br>上海交大 硕士 · 管理8人 · CVPR×3</p></div></div></div>
-        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 评估</div><div class="panel-body"><div class="hire-meter"><div style="font-size:10px;color:var(--text3)">匹配度</div><div class="hire-score medium">71</div><div style="color:var(--orange);font-weight:700;font-size:11px">谨慎考虑</div></div>
-          <div class="card"><h4 class="good">✅ 优势</h4><ul><li>华为ADS核心团队</li><li>大疆+华为双重背景</li></ul></div>
-          <div class="card"><h4 class="warn">⚠️ 硬伤</h4><ul><li class="bad">仅管理8人，VP要求≥10人</li><li class="bad">硕士，非C9博士</li><li>华为竞业1-2年</li></ul></div>
-          <div class="card"><h4 class="hl">💡 AI 建议</h4><p>不适合算法负责人，但作为 <b>感知模块TL</b> 纳入负责人团队很有价值</p></div>
-        </div></div>
-      </div></div>
-      <div id="cc-c" style="display:none"><div class="two-col">
-        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--orange)"></div> 简历</div><div class="panel-body"><div class="card"><h4>王芳 · 33岁 <span class="risk-badge medium" style="margin-left:6px">C类 · 备选</span></h4><p><b>Waymo</b> Senior Staff · 6年<br>浙大博士 · 斯坦福访问学者<br>零管理经验 · RSS×4 · 开源maintainer</p></div></div></div>
-        <div class="panel"><div class="panel-head"><div class="dot" style="background:var(--green)"></div> AI 评估</div><div class="panel-body"><div class="hire-meter"><div style="font-size:10px;color:var(--text3)">匹配度</div><div class="hire-score medium">68</div><div style="color:var(--orange);font-weight:700;font-size:11px">备选</div></div>
-          <div class="card"><h4 class="good">✅ 优势</h4><ul><li>Waymo核心，无图方案顶级经验</li><li>C9博士 + 顶会13篇</li></ul></div>
-          <div class="card"><h4 class="warn">⚠️ 硬伤</h4><ul><li class="bad">零管理经验，不适合负责人</li><li>在美国，回国意愿待确认</li></ul></div>
-          <div class="card"><h4 class="hl">💡 AI 建议</h4><p>不适合负责人。建议作为 <b>高级算法专家</b> 引进，技术上为负责人兜底</p></div>
-        </div></div>
-      </div></div>
       <div class="btn-nav">
         <button class="btn-outline" onclick="goSubStep(1,2)">← 上一步</button>
         <button class="btn" onclick="goModule(2)">进入面评分析 →</button>
@@ -718,7 +747,7 @@ footer p{color:var(--text3);font-size:10px}
           <div class="card strategy"><h4>💡 关注点 & 吸引力</h4>
             <ul>
               <li><span class="hl">技术自主权</span>：从0到1搭建感知团队，而非加入成熟体系</li>
-              <li><span class="hl">L4量产前景</b>：2026年小米汽车L4量产的时间表</li>
+              <li><span class="hl">L4量产前景</span>：2026年小米汽车L4量产的时间表</li>
               <li><span class="hl">汇报线</span>：直接向VP汇报，扁平化管理</li>
               <li><span class="good">团队规模</span>：22人→30人的扩张计划</li>
             </ul>
@@ -1367,6 +1396,36 @@ function doCalib(){
     var overall=(overallSum/overallW).toFixed(1)
     document.getElementById('cal-0').innerHTML='<b style="color:var(--green);font-size:15px">'+overall+'</b>'
   }
+}
+
+// ===== Module 1: Batch Resume Screening =====
+function runBatchScreen(){
+  var el=document.getElementById('screen-output')
+  el.innerHTML='<div class="spinner"></div><p style="text-align:center;color:var(--text2);font-size:12px">AI 正在批量解析6份简历...</p>'
+  setTimeout(function(){
+    el.innerHTML=
+      '<div class="card" style="border-left:3px solid var(--green)"><h4 class="good">✅ 批量筛选完成 — 6份简历已全维度解析</h4>'
+      +'<p style="font-size:10px;color:var(--text3)">耗时2.3s · 匹配维度：无图方案/BEV感知/团队管理/学历/薪酬 · 输出：结构化评分+风险标记+分级推荐</p></div>'
+      +'<div class="card"><h4>📊 综合匹配度排名</h4>'
+      +'<div class="score-label"><span>🥇 张明 · 百度Apollo</span><span class="val" style="color:var(--green)">92%</span></div><div class="score-bar"><div class="fill" style="width:92%;background:var(--green)"></div></div>'
+      +'<div class="score-label"><span>🥈 赵磊 · 小马智行</span><span class="val" style="color:var(--green)">85%</span></div><div class="score-bar"><div class="fill" style="width:85%;background:var(--green)"></div></div>'
+      +'<div class="score-label"><span>🥉 李华 · 华为ADS</span><span class="val" style="color:var(--orange)">71%</span></div><div class="score-bar"><div class="fill" style="width:71%;background:var(--orange)"></div></div>'
+      +'<div class="score-label"><span>④ 王芳 · Waymo</span><span class="val" style="color:var(--orange)">68%</span></div><div class="score-bar"><div class="fill" style="width:68%;background:var(--orange)"></div></div>'
+      +'<div class="score-label"><span>⑤ 陈威 · 蔚来</span><span class="val" style="color:var(--red)">45%</span></div><div class="score-bar"><div class="fill" style="width:45%;background:var(--red)"></div></div>'
+      +'<div class="score-label"><span>⑥ 孙强 · 地平线</span><span class="val" style="color:var(--red)">42%</span></div><div class="score-bar"><div class="fill" style="width:42%;background:var(--red)"></div></div>'
+      +'</div>'
+      +'<div class="card"><h4>🔍 关键发现</h4><ul>'
+      +'<li><span class="good">张明</span>：无图方案量产经验+管22人，<b>硬性条件全部达标</b>，但竞业风险需前置排查</li>'
+      +'<li><span class="good">赵磊</span>：小马智行L4量产经验，<b>性价比最优</b>（薪酬预期低于张明30%）</li>'
+      +'<li><span class="warn">李华</span>：华为ADS核心成员，但<b>管理经验不足</b>（管8人 < VP要求10人）</li>'
+      +'<li><span class="warn">王芳</span>：Waymo Senior Staff技术顶尖，但<b>零管理经验+人在海外</b></li>'
+      +'</ul></div>'
+      +'<div class="card" style="border:1px solid rgba(245,158,11,.3);background:rgba(245,158,11,.03)"><h4 class="warn">⚠ 风险预警</h4><ul>'
+      +'<li><span class="bad">高风险</span>：张明百度7年，竞业协议大概率覆盖自动驾驶全领域</li>'
+      +'<li><span class="bad">高风险</span>：陈威（蔚来）和孙强（地平线）匹配度不足50%，建议直接pass</li>'
+      +'<li><span class="warn">中风险</span>：王芳回国意愿未确认，可能只是试探性看机会</li>'
+      +'</ul></div>'
+  },2000)
 }
 
 // ===== Candidate Tabs =====
