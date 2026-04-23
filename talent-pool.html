@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Talent Pool — 智能人才库</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06080f;--card:#0f1424;--card2:#141a30;
+  --blue:#4f8cff;--blue2:#3b6fdb;--green:#34d399;--orange:#f59e0b;--red:#ef4444;--purple:#a78bfa;--cyan:#22d3ee;
+  --text:#e8ecf4;--text2:#8892a8;--text3:#5a6478;
+  --border:rgba(255,255,255,.06);--border2:rgba(255,255,255,.1);
+  --radius:16px;--radius-sm:10px;--shadow:0 4px 24px rgba(0,0,0,.3);
+  --transition:all .3s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="light"]{
+  --bg:#f5f7fa;--card:#ffffff;--card2:#f0f2f5;
+  --blue:#2563eb;--blue2:#1d4ed8;--green:#059669;--orange:#d97706;--red:#dc2626;--purple:#7c3aed;--cyan:#0891b2;
+  --text:#1a1a2e;--text2:#64748b;--text3:#94a3b8;
+  --border:rgba(0,0,0,.08);--border2:rgba(0,0,0,.12);
+  --shadow:0 4px 24px rgba(0,0,0,.08);
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Poppins','Inter','Microsoft YaHei',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
+.container{max-width:1200px;margin:0 auto;padding:0 32px}
+
+/* Background */
+.gradient-bg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1;overflow:hidden}
+.gradient-bg .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.15;animation:float 20s ease-in-out infinite}
+.gradient-bg .orb:nth-child(1){width:600px;height:600px;background:var(--blue);top:-200px;left:-100px}
+.gradient-bg .orb:nth-child(2){width:500px;height:500px;background:var(--purple);top:30%;right:-150px;animation-delay:-5s}
+.gradient-bg .orb:nth-child(3){width:400px;height:400px;background:var(--cyan);bottom:-100px;left:30%;animation-delay:-10s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(50px,-30px) scale(1.1)}50%{transform:translate(-20px,40px) scale(.95)}75%{transform:translate(30px,20px) scale(1.05)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes barGrow{from{width:0}to{width:var(--w)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(6,8,15,.7);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:var(--transition)}
+nav.scrolled{background:rgba(6,8,15,.92)}
+nav .inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;height:60px;padding:0 32px;gap:24px}
+nav .logo{font-weight:800;font-size:17px;color:#fff;display:flex;align-items:center;gap:8px}
+nav .logo .ai{background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+nav .nav-links{display:flex;gap:4px;flex:1;justify-content:center}
+nav .nav-links a{color:var(--text2);font-size:12px;padding:7px 14px;border-radius:8px;transition:var(--transition);font-weight:500;cursor:pointer;text-decoration:none}
+nav .nav-links a:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.toggle-btn{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:var(--transition);font-family:inherit}
+.toggle-btn:hover{border-color:var(--border2);color:var(--text)}
+
+/* Hero */
+.hero{min-height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 32px 60px;position:relative}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(79,140,255,.08);border:1px solid rgba(79,140,255,.2);color:var(--blue);margin-bottom:20px}
+.hero h1{font-size:clamp(32px,5vw,56px);font-weight:900;line-height:1.15;margin-bottom:16px;letter-spacing:-1px}
+.hero h1 .grad{background:linear-gradient(135deg,var(--blue),var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--text2);font-size:16px;max-width:560px;margin:0 auto 28px;line-height:1.7}
+.hero-cta{display:flex;gap:12px;justify-content:center}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;padding:12px 28px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:var(--transition);font-family:inherit}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(79,140,255,.35)}
+.btn-ghost{background:transparent;color:var(--text2);padding:12px 28px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border2);transition:var(--transition);font-family:inherit}
+.btn-ghost:hover{color:var(--text);border-color:var(--text3)}
+
+/* Section */
+section{padding:60px 0}
+.section-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.section-title{font-size:clamp(22px,3vw,32px);font-weight:800;margin-bottom:8px;letter-spacing:-.5px}
+.section-sub{color:var(--text2);font-size:13px;max-width:560px}
+
+/* Cards & Common */
+.card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:10px}
+.card h4{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.card h4.good{color:var(--green)}.card h4.warn{color:var(--orange)}.card h4.bad{color:var(--red)}
+.card ul{list-style:none;font-size:11px;line-height:2;color:var(--text2)}
+.card ul li{padding:2px 0}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.chip{font-size:10px;padding:3px 10px;border-radius:6px;font-weight:600}
+.chip.b{background:rgba(79,140,255,.1);color:var(--blue)}
+.chip.g{background:rgba(52,211,153,.1);color:var(--green)}
+.chip.o{background:rgba(245,158,11,.1);color:var(--orange)}
+.chip.r{background:rgba(239,68,68,.1);color:var(--red)}
+.chip.p{background:rgba(167,139,250,.1);color:var(--purple)}
+.good{color:var(--green)}.warn{color:var(--orange)}.bad{color:var(--red)}.hl{color:var(--blue);font-weight:600}
+.score-label{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+.score-label .val{font-weight:700}
+.score-bar{height:6px;background:var(--border);border-radius:3px;margin-bottom:10px;overflow:hidden}
+.score-bar .fill{height:100%;border-radius:3px;animation:barGrow .8s ease-out forwards}
+.data-table{width:100%;border-collapse:collapse;font-size:11px}
+.data-table th{text-align:left;padding:8px 10px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.5px}
+.data-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.03)}
+.data-table .num{text-align:right}
+.data-table tr:hover{background:rgba(255,255,255,.02)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+.btn{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;padding:8px 20px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:var(--transition);font-family:inherit}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(79,140,255,.3)}
+.btn-outline{background:transparent;color:var(--text2);padding:8px 20px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);transition:var(--transition);font-family:inherit}
+.btn-outline:hover{color:var(--text);border-color:var(--text3)}
+.btn-sm{padding:5px 12px;font-size:10px}
+.btn-row{display:flex;gap:8px;margin-top:12px;justify-content:center}
+.btn-nav{display:flex;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* Risk badges */
+.risk-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600}
+.risk-badge.high{background:rgba(239,68,68,.1);color:var(--red)}
+.risk-badge.medium{background:rgba(245,158,11,.1);color:var(--orange)}
+.risk-badge.low{background:rgba(52,211,153,.1);color:var(--green)}
+
+/* Two column */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:768px){.two-col{grid-template-columns:1fr}}
+
+/* Layout */
+.demo-layout{display:grid;grid-template-columns:200px 1fr;gap:20px;margin-top:24px}
+@media(max-width:768px){.demo-layout{grid-template-columns:1fr}}
+
+/* Sidebar */
+.sidebar{display:flex;flex-direction:column;gap:4px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);font-size:12px;font-weight:500;color:var(--text2);border:1px solid transparent}
+.sidebar-item:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.sidebar-item.active{background:rgba(79,140,255,.08);border-color:rgba(79,140,255,.2);color:var(--blue);font-weight:600}
+.sidebar-item .icon{font-size:16px;width:24px;text-align:center}
+.sidebar-item .badge{margin-left:auto;font-size:9px;padding:2px 6px;border-radius:8px;background:rgba(79,140,255,.15);color:var(--blue);font-weight:700}
+
+/* Module panels */
+.mod-panel{display:none;animation:fadeUp .4s ease}
+.mod-panel.active{display:block}
+
+/* Profile header */
+.profile-header{display:flex;gap:16px;align-items:flex-start;margin-bottom:16px}
+.profile-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;flex-shrink:0}
+.profile-info h3{font-size:16px;font-weight:700;margin-bottom:2px}
+.profile-info .title{font-size:12px;color:var(--text2);margin-bottom:6px}
+.profile-tags{display:flex;gap:4px;flex-wrap:wrap}
+
+/* Timeline */
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--border2)}
+.timeline-item{position:relative;margin-bottom:16px;padding-left:16px}
+.timeline-item::before{content:'';position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--blue);border:2px solid var(--card2)}
+.timeline-item .year{font-size:10px;color:var(--blue);font-weight:700;margin-bottom:2px}
+.timeline-item .role{font-size:12px;font-weight:600}
+.timeline-item .company{font-size:11px;color:var(--text2)}
+
+/* Tag cloud */
+.tag-cloud{display:flex;flex-wrap:wrap;gap:6px}
+.tag-cloud .tag{padding:4px 12px;border-radius:12px;font-size:10px;font-weight:600;border:1px solid var(--border);color:var(--text2);transition:var(--transition);cursor:default}
+.tag-cloud .tag:hover{border-color:var(--blue);color:var(--blue)}
+.tag-cloud .tag.lg{font-size:13px;padding:6px 16px;color:var(--blue);border-color:rgba(79,140,255,.3)}
+.tag-cloud .tag.md{font-size:11px;color:var(--cyan);border-color:rgba(34,211,238,.2)}
+.tag-cloud .tag.sm{font-size:9px;color:var(--text3)}
+
+/* Graph */
+.graph-canvas{width:100%;height:420px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);position:relative;overflow:hidden}
+.graph-canvas svg{width:100%;height:100%}
+
+/* Radar */
+.radar-wrap{display:flex;justify-content:center;padding:16px 0}
+.radar-wrap svg{max-width:280px}
+
+/* Risk meter */
+.risk-meter{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:6px 0}
+.risk-meter .fill{height:100%;border-radius:4px;transition:width .6s ease}
+
+/* Search */
+.search-box{display:flex;gap:8px;margin-bottom:16px}
+.search-input{flex:1;padding:10px 16px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--card);color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:var(--transition)}
+.search-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(79,140,255,.1)}
+.search-input::placeholder{color:var(--text3)}
+
+/* Filters */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.filter-chip{padding:5px 14px;border-radius:8px;font-size:11px;font-weight:500;border:1px solid var(--border);background:var(--card2);color:var(--text2);cursor:pointer;transition:var(--transition)}
+.filter-chip:hover,.filter-chip.active{border-color:var(--blue);color:var(--blue);background:rgba(79,140,255,.06)}
+
+/* Stat cards */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:768px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;text-align:center}
+.stat-card .value{font-size:28px;font-weight:900;letter-spacing:-1px}
+.stat-card .label{font-size:10px;color:var(--text3);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.stat-card .change{font-size:10px;margin-top:4px;font-weight:600}
+
+/* Talent card */
+.talent-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:8px;cursor:pointer;transition:var(--transition);display:flex;gap:12px;align-items:center}
+.talent-card:hover{border-color:var(--blue);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.talent-card.selected{border-color:var(--blue);background:rgba(79,140,255,.04)}
+.talent-card .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.talent-card .info{flex:1;min-width:0}
+.talent-card .info .name{font-size:13px;font-weight:700}
+.talent-card .info .meta{font-size:10px;color:var(--text2);margin-top:1px}
+.talent-card .match{text-align:right;flex-shrink:0}
+.talent-card .match .score{font-size:20px;font-weight:900}
+.talent-card .match .label{font-size:9px;color:var(--text3)}
+
+/* Metrics */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px}
+@media(max-width:768px){.metrics-grid{grid-template-columns:repeat(2,1fr)}}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;transition:var(--transition)}
+.metric-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.metric-card .value{font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:4px}
+.metric-card .value.c1{color:var(--blue)}.metric-card .value.c2{color:var(--green)}.metric-card .value.c3{color:var(--orange)}.metric-card .value.c4{color:var(--purple)}
+.metric-card .desc{font-size:13px;font-weight:600;margin-bottom:2px}
+.metric-card .detail{font-size:11px;color:var(--text3)}
+
+/* Footer */
+footer{text-align:center;padding:40px 32px;border-top:1px solid var(--border);margin-top:40px}
+footer .brand{font-weight:800;font-size:17px;margin-bottom:6px}
+footer .brand .ai{background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+footer p{color:var(--text3);font-size:11px}
+
+/* Candidate list in search result */
+.result-list{max-height:400px;overflow-y:auto}
+.result-list::-webkit-scrollbar{width:4px}
+.result-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* Recommend animation */
+.rec-progress{height:4px;background:var(--border);border-radius:2px;margin:12px 0;overflow:hidden}
+.rec-progress .fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:2px;animation:barGrow 1.5s ease-out forwards}
+</style>
+</head>
+<body>
+
+<div class="gradient-bg"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="inner">
+    <div class="logo"><span class="ai">AI</span> Talent Pool</div>
+    <div class="nav-links">
+      <a onclick="scrollToSection('#hero')">首页</a>
+      <a onclick="scrollToSection('#demo')">产品演示</a>
+      <a onclick="scrollToSection('#metrics')">效果数据</a>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="toggle-btn" id="theme-btn" onclick="toggleTheme()">☀️</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-badge">AI-POWERED TALENT MANAGEMENT</div>
+  <h1>智能人才库<br><span class="grad">让沉睡人才活起来</span></h1>
+  <p>AI驱动的人才管理平台 — 从海量简历中精准识别、智能匹配、主动激活，让每一次招聘都事半功倍</p>
+  <div class="hero-cta">
+    <button class="btn-primary" onclick="scrollToSection('#demo')">体验产品 →</button>
+    <button class="btn-ghost" onclick="scrollToSection('#metrics')">查看效果</button>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+<div class="container">
+  <div class="section-label" style="justify-content:center">PRODUCT DEMO</div>
+  <div class="section-title" style="text-align:center">亲身体验 <span class="grad">每个功能</span></div>
+  <div class="section-sub" style="text-align:center;margin:0 auto 24px">6大核心模块，覆盖人才管理全生命周期</div>
+
+  <div class="demo-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-item active" onclick="switchModule(1)"><span class="icon">📊</span>人才库总览<span class="badge">3,847</span></div>
+      <div class="sidebar-item" onclick="switchModule(2)"><span class="icon">🔍</span>AI智能搜索</div>
+      <div class="sidebar-item" onclick="switchModule(3)"><span class="icon">🤖</span>AI推荐引擎</div>
+      <div class="sidebar-item" onclick="switchModule(4)"><span class="icon">👤</span>人才画像</div>
+      <div class="sidebar-item" onclick="switchModule(5)"><span class="icon">🕸️</span>人才图谱</div>
+      <div class="sidebar-item" onclick="switchModule(6)"><span class="icon">⚠️</span>流失预测<span class="badge" style="background:rgba(239,68,68,.15);color:var(--red)">12</span></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+      <!-- ===== Module 1: 人才库总览 ===== -->
+      <div class="mod-panel active" id="mod-1">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="value" style="color:var(--blue)">3,847</div><div class="label">人才总量</div><div class="change good">↑ 12% vs 上月</div></div>
+          <div class="stat-card"><div class="value" style="color:var(--green)">1,203</div><div class="label">活跃人才</div><div class="change good">↑ 8% vs 上月</div></div>
+          <div class="stat-card"><div class="value" style="color:var(--orange)">156</div><div class="label">本周新增</div><div class="change good">↑ 23% vs 上周</div></div>
+          <div class="stat-card"><div class="value" style="color:var(--purple)">89</div><div class="label">AI匹配中</div><div class="change" style="color:var(--text3)">实时更新</div></div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <h4>📊 人才来源分布</h4>
+            <div class="score-label"><span>百度</span><span class="val">487人 (12.7%)</span></div><div class="score-bar"><div class="fill" style="width:63%;background:var(--blue)"></div></div>
+            <div class="score-label"><span>华为</span><span class="val">423人 (11.0%)</span></div><div class="score-bar"><div class="fill" style="width:55%;background:var(--cyan)"></div></div>
+            <div class="score-label"><span>字节跳动</span><span class="val">398人 (10.3%)</span></div><div class="score-bar"><div class="fill" style="width:52%;background:var(--purple)"></div></div>
+            <div class="score-label"><span>腾讯</span><span class="val">356人 (9.3%)</span></div><div class="score-bar"><div class="fill" style="width:46%;background:var(--green)"></div></div>
+            <div class="score-label"><span>阿里巴巴</span><span class="val">312人 (8.1%)</span></div><div class="score-bar"><div class="fill" style="width:41%;background:var(--orange)"></div></div>
+            <div class="score-label"><span>其他</span><span class="val">1,871人 (48.6%)</span></div><div class="score-bar"><div class="fill" style="width:97%;background:var(--text3)"></div></div>
+          </div>
+          <div class="card">
+            <h4>🔥 最近活跃 TOP5</h4>
+            <div style="font-size:11px">
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)"><span><b>张明</b> · 百度Apollo</span><span class="good">2分钟前</span></div>
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)"><span><b>李华</b> · 华为ADS</span><span class="good">15分钟前</span></div>
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)"><span><b>王芳</b> · Waymo</span><span class="warn">1小时前</span></div>
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)"><span><b>赵磊</b> · 小马智行</span><span class="warn">2小时前</span></div>
+              <div style="display:flex;justify-content:space-between;padding:6px 0"><span><b>陈伟</b> · 蔚来</span><span style="color:var(--text3)">今天</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <h4>📈 岗位匹配热度</h4>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px">
+            <div style="text-align:center;padding:12px;background:rgba(79,140,255,.05);border-radius:8px"><div style="font-size:22px;font-weight:900;color:var(--blue)">47</div><div style="font-size:10px;color:var(--text3)">自动驾驶算法</div></div>
+            <div style="text-align:center;padding:12px;background:rgba(52,211,153,.05);border-radius:8px"><div style="font-size:22px;font-weight:900;color:var(--green)">35</div><div style="font-size:10px;color:var(--text3)">前端开发</div></div>
+            <div style="text-align:center;padding:12px;background:rgba(167,139,250,.05);border-radius:8px"><div style="font-size:22px;font-weight:900;color:var(--purple)">28</div><div style="font-size:10px;color:var(--text3)">产品经理</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Module 2: AI智能搜索 ===== -->
+      <div class="mod-panel" id="mod-2">
+        <div class="card" style="margin-bottom:14px">
+          <h4>🔍 AI语义搜索</h4>
+          <div class="search-box">
+            <input class="search-input" id="search-input" placeholder="试试输入：3年以上算法经验，百度出来的，搞过无图方案..." onkeydown="if(event.key==='Enter')aiSearch()">
+            <button class="btn" onclick="aiSearch()">搜索</button>
+          </div>
+          <div class="filter-row">
+            <span class="filter-chip active" onclick="toggleFilter(this)">全部</span>
+            <span class="filter-chip" onclick="toggleFilter(this)">算法</span>
+            <span class="filter-chip" onclick="toggleFilter(this)">前端</span>
+            <span class="filter-chip" onclick="toggleFilter(this)">后端</span>
+            <span class="filter-chip" onclick="toggleFilter(this)">产品</span>
+            <span class="filter-chip" onclick="toggleFilter(this)">设计</span>
+          </div>
+          <div class="filter-row">
+            <span class="filter-chip" onclick="toggleFilter(this)">北京</span>
+            <span class="filter-chip" onclick="toggleFilter(this)">上海</span>
+            <span class="filter-chip" onclick="toggleFilter(this)">深圳</span>
+            <span class="filter-chip" onclick="toggleFilter(this)">杭州</span>
+            <span style="font-size:10px;color:var(--text3);display:flex;align-items:center;margin-left:4px">经验：</span>
+            <span class="filter-chip" onclick="toggleFilter(this)">3-5年</span>
+            <span class="filter-chip" onclick="toggleFilter(this)">5-10年</span>
+            <span class="filter-chip" onclick="toggleFilter(this)">10年+</span>
+          </div>
+        </div>
+
+        <div id="search-output">
+          <div class="card" style="text-align:center;padding:32px">
+            <p style="color:var(--text3);font-size:12px">输入自然语言描述人才需求，AI将语义理解并精准匹配</p>
+            <p style="color:var(--text3);font-size:11px;margin-top:4px">试试："百度Apollo出来的，搞过无图方案，能带团队的"</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Module 3: AI推荐引擎 ===== -->
+      <div class="mod-panel" id="mod-3">
+        <div class="card" style="margin-bottom:14px">
+          <h4>🤖 AI推荐引擎 — 选择目标岗位</h4>
+          <div class="filter-row" id="job-selector">
+            <span class="filter-chip active" onclick="selectJob(this,'algo')">自动驾驶算法负责人</span>
+            <span class="filter-chip" onclick="selectJob(this,'fe')">高级前端开发</span>
+            <span class="filter-chip" onclick="selectJob(this,'pm')">产品经理</span>
+            <span class="filter-chip" onclick="selectJob(this,'data')">数据科学家</span>
+          </div>
+          <div class="btn-row" style="justify-content:flex-start;margin-top:8px">
+            <button class="btn" onclick="aiRecommend()">AI 开始推荐</button>
+          </div>
+        </div>
+        <div id="recommend-output">
+          <div class="card" style="text-align:center;padding:32px">
+            <p style="color:var(--text3);font-size:12px">选择岗位后点击"AI 开始推荐"，查看智能匹配结果</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Module 4: 人才画像 ===== -->
+      <div class="mod-panel" id="mod-4">
+        <div class="card" style="margin-bottom:14px">
+          <h4>👤 选择候选人查看详细画像</h4>
+          <div class="filter-row" id="profile-selector">
+            <span class="filter-chip active" onclick="selectProfile(this,0)">张明</span>
+            <span class="filter-chip" onclick="selectProfile(this,1)">李华</span>
+            <span class="filter-chip" onclick="selectProfile(this,2)">王芳</span>
+            <span class="filter-chip" onclick="selectProfile(this,3)">赵磊</span>
+            <span class="filter-chip" onclick="selectProfile(this,4)">陈伟</span>
+          </div>
+        </div>
+        <div id="profile-output"></div>
+      </div>
+
+      <!-- ===== Module 5: 人才图谱 ===== -->
+      <div class="mod-panel" id="mod-5">
+        <div class="card" style="margin-bottom:14px">
+          <h4>🕸️ 人才关系图谱 — 可视化人才网络</h4>
+          <p style="font-size:11px;color:var(--text2)">展示目标公司的人才分布、团队关系和流动方向。节点大小代表人才密度，连线代表团队关系。</p>
+        </div>
+        <div class="graph-canvas" id="graph-container">
+          <svg id="graph-svg" viewBox="0 0 800 420"></svg>
+        </div>
+        <div class="chips" style="margin-top:10px;justify-content:center">
+          <span class="chip b">● 公司节点</span>
+          <span class="chip g">● 团队节点</span>
+          <span class="chip p">● 个人节点</span>
+          <span class="chip o">→ 人才流动方向</span>
+        </div>
+      </div>
+
+      <!-- ===== Module 6: 流失风险预测 ===== -->
+      <div class="mod-panel" id="mod-6">
+        <div class="card" style="margin-bottom:14px">
+          <h4>⚠️ AI流失风险预测 — 识别高风险候选人</h4>
+          <p style="font-size:11px;color:var(--text2)">基于行为数据、市场热度、职业轨迹等多维度AI预测候选人流失概率</p>
+        </div>
+        <div id="risk-output"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- METRICS -->
+<section id="metrics">
+<div class="container">
+  <div class="section-label centered" style="justify-content:center">IMPACT</div>
+  <div class="section-title" style="text-align:center">数据说话 <span class="grad">效果可见</span></div>
+  <div class="metrics-grid">
+    <div class="metric-card"><div class="value c1">80%</div><div class="desc">筛选效率提升</div><div class="detail">AI替代人工初筛</div></div>
+    <div class="metric-card"><div class="value c2">35%</div><div class="desc">人才激活率↑</div><div class="detail">沉睡人才重新触达</div></div>
+    <div class="metric-card"><div class="value c3">57%</div><div class="desc">招聘周期缩短</div><div class="detail">18天 vs 行业42天</div></div>
+    <div class="metric-card"><div class="value c4">89%</div><div class="desc">Offer接受率</div><div class="detail">vs 行业72%</div></div>
+  </div>
+</div>
+</section>
+
+<footer>
+  <div class="brand"><span class="ai">AI</span> Talent Pool</div>
+  <p>智能人才库管理平台 · Inspired by Beisen iTalentX · 2026 · Generated by CC~</p>
+</footer>
+
+<script>
+// ===== Theme =====
+var isDark=true
+function toggleTheme(){isDark=!isDark;document.documentElement.setAttribute('data-theme',isDark?'':'light');document.getElementById('theme-btn').textContent=isDark?'☀️':'🌙'}
+function scrollToSection(s){document.querySelector(s)?.scrollIntoView({behavior:'smooth',block:'start'})}
+window.addEventListener('scroll',()=>{document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>50)})
+
+// ===== Module Switch =====
+function switchModule(n){
+  document.querySelectorAll('.sidebar-item').forEach(function(el,i){el.classList.toggle('active',i===n-1)})
+  document.querySelectorAll('.mod-panel').forEach(function(el,i){el.classList.toggle('active',i===n-1)})
+  // Init module content if needed
+  if(n===4) showProfile(0)
+  if(n===5) drawGraph()
+  if(n===6) showRisk()
+}
+
+// ===== Filter toggle =====
+function toggleFilter(el){
+  if(el.textContent==='全部'){
+    el.parentElement.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active')})
+    el.classList.add('active')
+  } else {
+    el.parentElement.querySelector('.filter-chip')?.classList.remove('active')
+    el.classList.toggle('active')
+  }
+}
+
+// ===== Talent Data =====
+var TALENTS=[
+  {id:0,name:'张明',age:38,company:'百度Apollo',title:'高级技术总监',edu:'CMU博士',exp:12,city:'北京',salary:160,skills:['无图方案','BEV感知','C++','Python','PyTorch'],tags:['自动驾驶','感知算法','团队管理','顶会16篇'],match:92,risk:'high',
+   radar:[95,85,90,80,70,88],timeline:[{year:'2024-至今',role:'高级技术总监',company:'百度Apollo'},{year:'2020-2024',role:'技术总监',company:'百度Apollo'},{year:'2017-2020',role:'高级算法工程师',company:'百度'},{year:'2014-2017',role:'博士后研究员',company:'CMU'}]},
+  {id:1,name:'李华',age:35,company:'华为ADS',title:'感知算法专家',edu:'浙大硕士',exp:8,city:'深圳',salary:130,skills:['激光雷达','点云处理','C++','ROS','传感器融合'],tags:['华为ADS','感知','大疆背景','管理8人'],match:71,risk:'medium',
+   radar:[82,70,75,85,60,72],timeline:[{year:'2021-至今',role:'感知算法专家',company:'华为ADS'},{year:'2019-2021',role:'算法工程师',company:'大疆'},{year:'2016-2019',role:'硕士',company:'浙大'}]},
+  {id:2,name:'王芳',age:33,company:'Waymo',title:'Senior Staff Engineer',edu:'Stanford博士',exp:9,city:'旧金山',salary:200,skills:['LiDAR','3D Detection','TensorFlow','C++','CUDA'],tags:['Waymo','顶级技术','顶会13篇','零管理'],match:68,risk:'low',
+   radar:[96,60,88,55,50,90],timeline:[{year:'2022-至今',role:'Senior Staff Engineer',company:'Waymo'},{year:'2019-2022',role:'Staff Engineer',company:'Waymo'},{year:'2016-2019',role:'PhD',company:'Stanford'}]},
+  {id:3,name:'赵磊',age:34,company:'小马智行',title:'感知Leader',edu:'清华硕士',exp:10,city:'北京',salary:140,skills:['L4量产','BEV','多传感器融合','C++','团队管理'],tags:['L4量产','团队15人','清华','性价比高'],match:85,risk:'low',
+   radar:[88,82,78,90,65,80],timeline:[{year:'2021-至今',role:'感知Leader',company:'小马智行'},{year:'2018-2021',role:'高级算法工程师',company:'蔚来'},{year:'2015-2018',role:'硕士',company:'清华'}]},
+  {id:4,name:'陈伟',age:30,company:'蔚来',title:'算法工程师',edu:'中科大本科',exp:5,city:'上海',salary:80,skills:['感知算法','BEV','Python','PyTorch'],tags:['蔚来','经验较浅','无管理'],match:45,risk:'high',
+   radar:[60,55,50,65,40,58],timeline:[{year:'2023-至今',role:'算法工程师',company:'蔚来'},{year:'2021-2023',role:'初级工程师',company:'蔚来'}]},
+  {id:5,name:'刘洋',age:36,company:'腾讯',title:'前端技术专家',edu:'北大硕士',exp:11,city:'深圳',salary:120,skills:['React','Vue','TypeScript','Node.js','微前端'],tags:['腾讯','前端架构','性能优化','开源'],match:88,risk:'low',
+   radar:[85,90,82,75,78,86],timeline:[{year:'2020-至今',role:'前端技术专家',company:'腾讯'},{year:'2017-2020',role:'高级前端工程师',company:'腾讯'},{year:'2014-2017',role:'前端工程师',company:'美团'}]},
+  {id:6,name:'孙丽',age:31,company:'小红书',title:'产品经理',edu:'复旦本科',exp:7,city:'上海',salary:90,skills:['用户增长','数据分析','B端产品','Figma','SQL'],tags:['小红书','用户增长','C端','数据驱动'],match:76,risk:'medium',
+   radar:[72,78,85,80,70,74],timeline:[{year:'2022-至今',role:'产品经理',company:'小红书'},{year:'2019-2022',role:'产品经理',company:'美团'}]},
+  {id:7,name:'周杰',age:29,company:'字节跳动',title:'后端开发工程师',edu:'华科本科',exp:5,city:'北京',salary:70,skills:['Go','Java','MySQL','Redis','Kafka'],tags:['字节','后端','高并发','微服务'],match:65,risk:'medium',
+   radar:[68,72,65,70,55,62],timeline:[{year:'2021-至今',role:'后端开发工程师',company:'字节跳动'},{year:'2019-2021',role:'初级工程师',company:'字节跳动'}]},
+  {id:8,name:'吴娜',age:27,company:'阿里',title:'数据分析师',edu:'上交硕士',exp:4,city:'杭州',salary:60,skills:['Python','SQL','Tableau','机器学习','A/B测试'],tags:['阿里','数据分析','增长','算法基础'],match:72,risk:'low',
+   radar:[70,68,75,82,60,66],timeline:[{year:'2022-至今',role:'数据分析师',company:'阿里'},{year:'2020-2022',role:'硕士',company:'上交'}]},
+  {id:9,name:'郑鹏',age:32,company:'美团',title:'前端开发工程师',edu:'北航硕士',exp:7,city:'北京',salary:85,skills:['React','Flutter','TypeScript','跨端','性能优化'],tags:['美团','跨端','React Native','Flutter'],match:80,risk:'low',
+   radar:[78,82,70,72,65,76],timeline:[{year:'2020-至今',role:'前端开发工程师',company:'美团'},{year:'2017-2020',role:'前端工程师',company:'滴滴'}]}
+]
+
+var JOBS={
+  algo:{name:'自动驾驶算法负责人',req:'无图方案+BEV感知+团队管理≥10人+C9博士优先'},
+  fe:{name:'高级前端开发',req:'React/Vue+5年经验+跨端经验+性能优化'},
+  pm:{name:'产品经理',req:'C端+用户增长+数据驱动+3年经验'},
+  data:{name:'数据科学家',req:'Python+ML+统计学+业务洞察'}
+}
+
+// ===== AI Search =====
+function aiSearch(){
+  var q=document.getElementById('search-input').value.trim()
+  if(!q)return
+  var el=document.getElementById('search-output')
+  el.innerHTML='<div class="spinner"></div><p style="text-align:center;color:var(--text2);font-size:12px">AI 正在语义解析: "'+q.substring(0,40)+(q.length>40?'...':'')+'"</p>'
+  setTimeout(function(){
+    // Simple keyword matching for demo
+    var results=TALENTS.filter(function(t){
+      var text=(t.name+t.company+t.title+t.skills.join(' ')+t.tags.join(' ')).toLowerCase()
+      var keywords=q.toLowerCase().split(/\s+/)
+      return keywords.some(function(kw){return text.indexOf(kw)!==-1})
+    })
+    if(results.length===0) results=TALENTS.slice(0,4) // fallback
+    results.sort(function(a,b){return b.match-a.match})
+
+    var html='<div class="card" style="border-left:3px solid var(--blue)"><h4>🧠 AI语义解析结果</h4>'
+    html+='<div class="chips">'
+    if(q.indexOf('百度')!==-1||q.indexOf('Apollo')!==-1) html+='<span class="chip b">目标公司: 百度</span>'
+    if(q.indexOf('算法')!==-1||q.indexOf('无图')!==-1||q.indexOf('感知')!==-1) html+='<span class="chip g">技术方向: 感知/算法</span>'
+    if(q.indexOf('团队')!==-1||q.indexOf('带')!==-1||q.indexOf('管理')!==-1) html+='<span class="chip o">管理要求: 有</span>'
+    if(q.indexOf('博士')!==-1) html+='<span class="chip p">学历: 博士优先</span>'
+    if(q.indexOf('3年')!==-1||q.indexOf('5年')!==-1) html+='<span class="chip b">经验: 3-5年</span>'
+    html+='<span class="chip b">匹配 '+results.length+' 人</span></div></div>'
+
+    html+='<div class="result-list">'
+    results.forEach(function(t){
+      var clr=t.match>=80?'var(--green)':t.match>=60?'var(--orange)':'var(--red)'
+      html+='<div class="talent-card" onclick="switchModule(4);selectProfile(null,'+t.id+')">'
+      html+='<div class="avatar" style="background:linear-gradient(135deg,var(--blue),var(--purple))">'+t.name[0]+'</div>'
+      html+='<div class="info"><div class="name">'+t.name+'</div><div class="meta">'+t.company+' · '+t.title+' · '+t.exp+'年经验</div></div>'
+      html+='<div class="match"><div class="score" style="color:'+clr+'">'+t.match+'%</div><div class="label">匹配度</div></div>'
+      html+='</div>'
+    })
+    html+='</div>'
+    el.innerHTML=html
+  },1500)
+}
+
+// ===== AI Recommend =====
+var currentJob='algo'
+function selectJob(el,job){
+  el.parentElement.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active')})
+  el.classList.add('active')
+  currentJob=job
+}
+function aiRecommend(){
+  var el=document.getElementById('recommend-output')
+  el.innerHTML='<div class="spinner"></div><p style="text-align:center;color:var(--text2);font-size:12px">AI 正在为「'+JOBS[currentJob].name+'」匹配人才...</p><div class="rec-progress"><div class="fill" style="width:100%"></div></div>'
+  setTimeout(function(){
+    var job=JOBS[currentJob]
+    // Score talents based on job
+    var scored=TALENTS.map(function(t){
+      var s=t.match
+      if(currentJob==='algo') s=t.skills.join('').indexOf('无图')!==-1||t.tags.join('').indexOf('感知')!==-1?t.match+5:t.match-10
+      else if(currentJob==='fe') s=t.skills.join('').indexOf('React')!==-1||t.skills.join('').indexOf('Vue')!==-1?t.match+8:t.match-15
+      else if(currentJob==='pm') s=t.tags.join('').indexOf('产品')!==-1||t.tags.join('').indexOf('增长')!==-1?t.match+10:t.match-20
+      else if(currentJob==='data') s=t.skills.join('').indexOf('Python')!==-1&&t.skills.join('').indexOf('机器学习')!==-1?t.match+6:t.match-12
+      return Object.assign({},t,{recScore:Math.min(98,Math.max(20,s))})
+    })
+    scored.sort(function(a,b){return b.recScore-a.recScore})
+    var top=scored.slice(0,6)
+
+    var html='<div class="card" style="border-left:3px solid var(--green)"><h4 class="good">✅ AI推荐完成 — '+job.name+'</h4>'
+    html+='<p style="font-size:11px;color:var(--text2)">岗位要求: '+job.req+'</p></div>'
+
+    top.forEach(function(t,i){
+      var clr=t.recScore>=80?'var(--green)':t.recScore>=60?'var(--orange)':'var(--red)'
+      var dims=[
+        {name:'技能匹配',val:Math.min(98,t.recScore+Math.floor(Math.random()*10-5))},
+        {name:'经验匹配',val:Math.min(98,t.recScore+Math.floor(Math.random()*8-4))},
+        {name:'文化适配',val:Math.min(98,t.recScore+Math.floor(Math.random()*12-6))},
+        {name:'发展潜力',val:Math.min(98,t.recScore+Math.floor(Math.random()*10-5))}
+      ]
+      html+='<div class="card" style="border-left:3px solid '+(i===0?'var(--green)':i<3?'var(--blue)':'var(--text3)')+'">'
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+      html+='<div style="display:flex;align-items:center;gap:10px">'
+      html+='<div class="avatar" style="background:linear-gradient(135deg,'+(i===0?'var(--green),#059669':i<3?'var(--blue),var(--purple)':'var(--text3),#374151')+');width:36px;height:36px;font-size:13px">'+t.name[0]+'</div>'
+      html+='<div><div style="font-size:13px;font-weight:700">#'+(i+1)+' '+t.name+(i===0?' <span class="good" style="font-size:10px">★ 首推</span>':'')+'</div>'
+      html+='<div style="font-size:10px;color:var(--text2)">'+t.company+' · '+t.title+'</div></div></div>'
+      html+='<div style="text-align:right"><div style="font-size:22px;font-weight:900;color:'+clr+'">'+t.recScore+'%</div><div style="font-size:9px;color:var(--text3)">综合匹配</div></div></div>'
+      dims.forEach(function(d){
+        html+='<div class="score-label"><span>'+d.name+'</span><span class="val" style="color:'+(d.val>=80?'var(--green)':d.val>=60?'var(--orange)':'var(--red)')+'">'+d.val+'%</span></div>'
+        html+='<div class="score-bar"><div class="fill" style="width:'+d.val+'%;background:'+(d.val>=80?'var(--green)':d.val>=60?'var(--orange)':'var(--red)')+'"></div></div>'
+      })
+      html+='<div style="display:flex;gap:6px;margin-top:8px">'
+      html+='<button class="btn btn-sm" onclick="switchModule(4);selectProfile(null,'+t.id+')">查看画像</button>'
+      html+='<button class="btn-outline btn-sm">邮件触达</button>'
+      html+='<button class="btn-outline btn-sm">短信触达</button>'
+      html+='</div></div>'
+    })
+    el.innerHTML=html
+  },2000)
+}
+
+// ===== Profile =====
+function selectProfile(el,idx){
+  if(el){
+    el.parentElement.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active')})
+    el.classList.add('active')
+  }
+  showProfile(idx)
+}
+function showProfile(idx){
+  var t=TALENTS[idx]
+  var el=document.getElementById('profile-output')
+  var radarLabels=['技术深度','管理能力','沟通协作','创新思维','行业洞察','学习能力']
+  var radarData=t.radar
+
+  // Build SVG radar
+  var cx=140,cy=130,r=100,n=radarLabels.length
+  var angles=radarLabels.map(function(_,i){return(i*2*Math.PI/n)-Math.PI/2})
+  var polygons=''
+  // Grid
+  for(var lv=1;lv<=5;lv++){
+    var pts=angles.map(function(a){return(cx+r*lv/5*Math.cos(a)).toFixed(1)+','+(cy+r*lv/5*Math.sin(a)).toFixed(1)}).join(' ')
+    polygons+='<polygon points="'+pts+'" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1"/>'
+  }
+  // Axes
+  angles.forEach(function(a,i){
+    polygons+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+r*Math.cos(a)).toFixed(1)+'" y2="'+(cy+r*Math.sin(a)).toFixed(1)+'" stroke="rgba(255,255,255,.08)" stroke-width="1"/>'
+    var lx=cx+(r+18)*Math.cos(a),ly=cy+(r+18)*Math.sin(a)
+    polygons+='<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" text-anchor="middle" dominant-baseline="middle" fill="var(--text2)" font-size="9" font-weight="600">'+radarLabels[i]+'</text>'
+  })
+  // Data polygon
+  var dataPts=radarData.map(function(v,i){return(cx+r*v/100*Math.cos(angles[i])).toFixed(1)+','+(cy+r*v/100*Math.sin(angles[i])).toFixed(1)}).join(' ')
+  polygons+='<polygon points="'+dataPts+'" fill="rgba(79,140,255,.15)" stroke="var(--blue)" stroke-width="2"/>'
+  radarData.forEach(function(v,i){
+    polygons+='<circle cx="'+(cx+r*v/100*Math.cos(angles[i])).toFixed(1)+'" cy="'+(cy+r*v/100*Math.sin(angles[i])).toFixed(1)+'" r="4" fill="var(--blue)" stroke="var(--card2)" stroke-width="2"/>'
+  })
+
+  var riskClr=t.risk==='high'?'var(--red)':t.risk==='medium'?'var(--orange)':'var(--green)'
+  var riskText=t.risk==='high'?'高风险':t.risk==='medium'?'中风险':'低风险'
+
+  var html='<div class="two-col">'
+  // Left: Profile info
+  html+='<div>'
+  html+='<div class="card"><div class="profile-header">'
+  html+='<div class="profile-avatar">'+t.name[0]+'</div>'
+  html+='<div class="profile-info"><h3>'+t.name+' <span style="font-size:12px;color:var(--text3)">· '+t.age+'岁</span></h3>'
+  html+='<div class="title">'+t.company+' · '+t.title+'</div>'
+  html+='<div class="profile-tags">'
+  html+='<span class="risk-badge '+(t.risk==='high'?'high':t.risk==='medium'?'medium':'low')+'">'+riskText+'</span>'
+  html+='<span class="chip b">'+t.edu+'</span><span class="chip g">'+t.exp+'年经验</span><span class="chip o">'+t.city+'</span>'
+  html+='</div></div></div></div>'
+
+  // Skills
+  html+='<div class="card"><h4>🛠️ 技能标签</h4><div class="tag-cloud">'
+  t.skills.forEach(function(s,i){
+    html+='<span class="tag '+(i===0?'lg':i<3?'md':'sm')+'">'+s+'</span>'
+  })
+  t.tags.forEach(function(s,i){
+    html+='<span class="tag '+(i===0?'md':'sm')+'">'+s+'</span>'
+  })
+  html+='</div></div>'
+
+  // Career timeline
+  html+='<div class="card"><h4>📈 职业轨迹</h4><div class="timeline">'
+  t.timeline.forEach(function(item){
+    html+='<div class="timeline-item"><div class="year">'+item.year+'</div><div class="role">'+item.role+'</div><div class="company">'+item.company+'</div></div>'
+  })
+  html+='</div></div>'
+
+  // AI summary
+  html+='<div class="card" style="border:1px solid rgba(79,140,255,.2);background:rgba(79,140,255,.03)"><h4 class="hl">🤖 AI 综合评价</h4>'
+  html+='<p style="font-size:11px;color:var(--text2);line-height:1.8">'
+  if(t.match>=80) html+=t.name+'是<b class="good">高度匹配</b>的候选人。'+t.tags[0]+'方向经验丰富，'+(t.tags[1]||'')+'能力突出。'
+  else if(t.match>=60) html+=t.name+'是<b class="warn">中等匹配</b>的候选人。'+t.tags[0]+'方向有一定积累，但'+(t.tags[2]||'综合能力')+'有待提升。'
+  else html+=t.name+'匹配度<b class="bad">偏低</b>。'+t.tags[0]+'方向'+(t.tags[2]||'经验')+'不足，建议作为储备。'
+  html+=' 薪资预期约'+t.salary+'万，'+(t.risk==='high'?'需注意竞业风险':'流动性风险'+riskText)+'。</p></div>'
+
+  html+='</div>'
+
+  // Right: Radar
+  html+='<div>'
+  html+='<div class="card"><h4>📊 多维能力雷达</h4><div class="radar-wrap"><svg viewBox="0 0 280 280">'+polygons+'</svg></div></div>'
+
+  // Match score
+  html+='<div class="card"><h4>🎯 岗位匹配度</h4>'
+  var matchJobs=[{name:'自动驾驶算法',score:Math.max(30,t.match-5)},{name:'前端开发',score:Math.max(20,t.match-30)},{name:'产品经理',score:Math.max(15,t.match-40)},{name:'数据科学家',score:Math.max(25,t.match-20)}]
+  matchJobs.sort(function(a,b){return b.score-a.score})
+  matchJobs.forEach(function(j){
+    var c=j.score>=80?'var(--green)':j.score>=60?'var(--orange)':'var(--red)'
+    html+='<div class="score-label"><span>'+j.name+'</span><span class="val" style="color:'+c+'">'+j.score+'%</span></div>'
+    html+='<div class="score-bar"><div class="fill" style="width:'+j.score+'%;background:'+c+'"></div></div>'
+  })
+  html+='</div>'
+
+  // Actions
+  html+='<div class="card"><h4>⚡ 快捷操作</h4>'
+  html+='<div style="display:flex;flex-wrap:wrap;gap:6px">'
+  html+='<button class="btn btn-sm">邮件触达</button>'
+  html+='<button class="btn btn-sm">短信触达</button>'
+  html+='<button class="btn-outline btn-sm">加入面试流程</button>'
+  html+='<button class="btn-outline btn-sm">添加标签</button>'
+  html+='</div></div>'
+
+  html+='</div></div>'
+  el.innerHTML=html
+}
+
+// ===== Talent Graph =====
+function drawGraph(){
+  var svg=document.getElementById('graph-svg')
+  var companies=[
+    {name:'百度Apollo',x:400,y:60,r:30,color:'var(--blue)',teams:[
+      {name:'感知团队',x:300,y:160,r:18,color:'var(--green)',people:[{name:'张明',x:250,y:250,r:10},{name:'王强',x:310,y:260,r:8}]},
+      {name:'规控团队',x:500,y:160,r:18,color:'var(--green)',people:[{name:'刘伟',x:480,y:250,r:8},{name:'赵军',x:540,y:240,r:7}]}
+    ]},
+    {name:'华为ADS',x:150,y:80,r:28,color:'var(--cyan)',teams:[
+      {name:'感知算法',x:100,y:180,r:16,color:'var(--green)',people:[{name:'李华',x:70,y:260,r:9},{name:'陈磊',x:130,y:270,r:7}]},
+    ]},
+    {name:'小马智行',x:650,y:80,r:25,color:'var(--purple)',teams:[
+      {name:'L4团队',x:680,y:170,r:16,color:'var(--green)',people:[{name:'赵磊',x:660,y:250,r:9}]}
+    ]},
+    {name:'Waymo',x:100,y:350,r:22,color:'var(--orange)',teams:[
+      {name:'Research',x:200,y:340,r:14,color:'var(--green)',people:[{name:'王芳',x:160,y:400,r:8}]}
+    ]},
+    {name:'蔚来',x:600,y:350,r:20,color:'var(--red)',teams:[
+      {name:'算法组',x:700,y:340,r:14,color:'var(--green)',people:[{name:'陈伟',x:720,y:400,r:7}]}
+    ]}
+  ]
+
+  var svgContent='<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(245,158,11,.5)"/></marker></defs>'
+
+  // Draw connections
+  companies.forEach(function(c){
+    c.teams.forEach(function(t){
+      svgContent+='<line x1="'+c.x+'" y1="'+c.y+'" x2="'+t.x+'" y2="'+t.y+'" stroke="rgba(255,255,255,.08)" stroke-width="2" stroke-dasharray="4,4"/>'
+      t.people.forEach(function(p){
+        svgContent+='<line x1="'+t.x+'" y1="'+t.y+'" x2="'+p.x+'" y2="'+p.y+'" stroke="rgba(255,255,255,.05)" stroke-width="1.5"/>'
+      })
+    })
+  })
+
+  // Draw flow arrows (人才流动)
+  svgContent+='<line x1="440" y1="80" x2="620" y2="80" stroke="rgba(245,158,11,.4)" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="6,3"/>'
+  svgContent+='<text x="530" y="72" fill="var(--orange)" font-size="8" font-weight="600" text-anchor="middle">人才流动</text>'
+  svgContent+='<line x1="180" y1="95" x2="280" y2="150" stroke="rgba(245,158,11,.3)" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4,3"/>'
+
+  // Draw nodes
+  companies.forEach(function(c){
+    svgContent+='<circle cx="'+c.x+'" cy="'+c.y+'" r="'+c.r+'" fill="'+c.color+'" opacity=".15" stroke="'+c.color+'" stroke-width="2"/>'
+    svgContent+='<text x="'+c.x+'" y="'+(c.y+3)+'" text-anchor="middle" fill="'+c.color+'" font-size="10" font-weight="700">'+c.name+'</text>'
+    c.teams.forEach(function(t){
+      svgContent+='<circle cx="'+t.x+'" cy="'+t.y+'" r="'+t.r+'" fill="'+t.color+'" opacity=".12" stroke="'+t.color+'" stroke-width="1.5"/>'
+      svgContent+='<text x="'+t.x+'" y="'+(t.y+3)+'" text-anchor="middle" fill="'+t.color+'" font-size="8" font-weight="600">'+t.name+'</text>'
+      t.people.forEach(function(p){
+        svgContent+='<circle cx="'+p.x+'" cy="'+p.y+'" r="'+p.r+'" fill="var(--purple)" opacity=".2" stroke="var(--purple)" stroke-width="1.5"/>'
+        svgContent+='<text x="'+p.x+'" y="'+(p.y-p.r-4)+'" text-anchor="middle" fill="var(--text2)" font-size="7" font-weight="500">'+p.name+'</text>'
+      })
+    })
+  })
+
+  svg.innerHTML=svgContent
+}
+
+// ===== Risk Prediction =====
+function showRisk(){
+  var el=document.getElementById('risk-output')
+  var risky=TALENTS.filter(function(t){return t.risk==='high'||t.risk==='medium'}).sort(function(a,b){return a.match-b.match})
+
+  var html='<div class="card" style="margin-bottom:14px"><h4>📊 风险分布概览</h4>'
+  var highCount=TALENTS.filter(function(t){return t.risk==='high'}).length
+  var medCount=TALENTS.filter(function(t){return t.risk==='medium'}).length
+  var lowCount=TALENTS.filter(function(t){return t.risk==='low'}).length
+  html+='<div style="display:flex;gap:16px;margin-top:8px">'
+  html+='<div style="flex:1;text-align:center;padding:12px;background:rgba(239,68,68,.05);border-radius:8px"><div style="font-size:24px;font-weight:900;color:var(--red)">'+highCount+'</div><div style="font-size:10px;color:var(--text3)">高风险</div></div>'
+  html+='<div style="flex:1;text-align:center;padding:12px;background:rgba(245,158,11,.05);border-radius:8px"><div style="font-size:24px;font-weight:900;color:var(--orange)">'+medCount+'</div><div style="font-size:10px;color:var(--text3)">中风险</div></div>'
+  html+='<div style="flex:1;text-align:center;padding:12px;background:rgba(52,211,153,.05);border-radius:8px"><div style="font-size:24px;font-weight:900;color:var(--green)">'+lowCount+'</div><div style="font-size:10px;color:var(--text3)">低风险</div></div>'
+  html+='</div></div>'
+
+  risky.forEach(function(t){
+    var riskPct=t.risk==='high'?75+Math.floor(Math.random()*20):40+Math.floor(Math.random()*25)
+    var clr=t.risk==='high'?'var(--red)':'var(--orange)'
+    var riskText=t.risk==='high'?'高风险':'中风险'
+    var factors=[]
+    if(t.risk==='high'){
+      factors=['竞业协议风险（前公司核心岗位）','薪酬预期超预算','市场同岗位热度高','候选人同时看多个机会']
+    } else {
+      factors=['竞业期未完全结束','薪资涨幅期望较高','近期有猎头频繁联系']
+    }
+    var suggestions=[]
+    if(t.risk==='high'){
+      suggestions=['立即启动Offer流程，锁定候选人','安排VP/CEO亲自沟通，增加重视感','确认竞业协议范围，提前做好合规准备']
+    } else {
+      suggestions=['保持定期沟通，了解最新动态','提供有竞争力的薪酬方案','强调公司发展前景和技术挑战']
+    }
+
+    html+='<div class="card" style="border-left:3px solid '+clr+'">'
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+    html+='<div style="display:flex;align-items:center;gap:10px">'
+    html+='<div class="avatar" style="background:linear-gradient(135deg,'+clr+','+clr+');width:36px;height:36px;font-size:13px">'+t.name[0]+'</div>'
+    html+='<div><div style="font-size:13px;font-weight:700">'+t.name+'</div><div style="font-size:10px;color:var(--text2)">'+t.company+' · '+t.title+'</div></div></div>'
+    html+='<span class="risk-badge '+(t.risk==='high'?'high':'medium')+'">'+riskText+' '+riskPct+'%</span></div>'
+
+    html+='<div class="risk-meter"><div class="fill" style="width:'+riskPct+'%;background:'+clr+'"></div></div>'
+
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">'
+    html+='<div><h4 style="font-size:10px;color:var(--text3);margin-bottom:6px">⚠️ 风险因素</h4><ul style="font-size:10px;color:var(--text2);list-style:none;line-height:1.8">'
+    factors.forEach(function(f){html+='<li>• '+f+'</li>'})
+    html+='</ul></div>'
+    html+='<div><h4 style="font-size:10px;color:var(--text3);margin-bottom:6px">💡 AI保留建议</h4><ul style="font-size:10px;color:var(--text2);list-style:none;line-height:1.8">'
+    suggestions.forEach(function(s){html+='<li>• '+s+'</li>'})
+    html+='</ul></div></div></div>'
+  })
+
+  // Low risk summary
+  html+='<div class="card" style="border:1px solid rgba(52,211,153,.2);background:rgba(52,211,153,.03);margin-top:14px">'
+  html+='<h4 class="good">✅ 低风险人才（'+lowCount+'人）</h4>'
+  html+='<div class="chips" style="margin-top:6px">'
+  TALENTS.filter(function(t){return t.risk==='low'}).forEach(function(t){
+    html+='<span class="chip g">'+t.name+' · '+t.company+'</span>'
+  })
+  html+='</div><p style="font-size:10px;color:var(--text3);margin-top:8px">这些候选人稳定性好，建议作为长期人才储备，定期保持联系。</p></div>'
+
+  el.innerHTML=html
+}
+
+// Init
+showProfile(0)
+</script>
+</body>
+</html>
