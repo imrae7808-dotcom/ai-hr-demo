@@ -774,7 +774,7 @@ function parseResumes(){
       }
       if(parsed.length){
         h+='<div style="border:1px solid var(--green);border-radius:var(--radius);padding:10px;background:var(--green-light);font-size:11px"><b style="color:var(--green)">✅ 成功入库 '+parsed.length+' 人：</b><br>'
-        parsed.forEach(function(c){h+='• <b>'+c.name+'</b> — '+c.company+' · '+c.title+' · AI标签: '+c.tags.filter(function(t){return t.indexOf('AI')===0}).join(', ')+'<br>'})
+        parsed.forEach(function(c){h+='• <b>'+c.name+'</b> — '+c.company+' · '+c.title+' · 匹配度: '+c.match+'% · AI标签: '+c.tags.filter(function(t){return t.indexOf('AI')===0}).join(', ')+'<br>'})
         h+='</div>'
       }
       result.innerHTML=h;document.getElementById('btn-parse').disabled=false
@@ -785,21 +785,49 @@ function parseResumes(){
 }
 
 function generateParsedCandidate(filename){
-  var names=['张伟','李娜','王磊','刘洋','陈静','赵鹏','孙丽','周杰','吴娜','郑鹏','黄涛','林峰','马超','杨帆','胡明']
-  var companies=['百度','华为','字节跳动','腾讯','阿里','美团','小红书','蔚来','小马智行','Waymo','京东','网易','滴滴','快手','B站']
-  var titles=['算法工程师','前端开发','产品经理','数据分析师','后端开发','技术总监','架构师','设计师','测试工程师','运维工程师']
-  var skillSets=[['Python','机器学习','PyTorch'],['React','Vue','TypeScript'],['用户增长','数据分析','SQL'],['Go','Java','MySQL'],['C++','BEV感知','CUDA']]
-  var sources=['主动投递','猎头推荐','内部推荐','LinkedIn','Boss直聘','猎聘']
-  var cities=['北京','上海','深圳','杭州','广州']
+  // Extract info from filename (e.g. "张伟_百度_算法工程师.pdf" or "简历_李娜_腾讯.pdf")
+  var base=filename.replace(/\.[^.]+$/,'')
+  var parts=base.split(/[_\-\s\/\\]+/).filter(function(p){return p.length>=2&&p.length<=6})
+  var extractedName=parts.length>=1?parts[0]:''
+  var extractedCompany=parts.length>=2?parts[1]:''
+  var extractedTitle=parts.length>=3?parts[2]:''
+
+  // Pool data for random fill
+  var names=['张伟','李娜','王磊','刘洋','陈静','赵鹏','孙丽','周杰','吴娜','郑鹏','黄涛','林峰','马超','杨帆','胡明','钱坤','许诺','朱峰','何伟','宋琳']
+  var companies=['百度','华为','字节跳动','腾讯','阿里','美团','小红书','蔚来','小马智行','Waymo','京东','网易','滴滴','快手','B站','商汤','旷视','地平线','大疆','理想']
+  var titles=['算法工程师','前端开发工程师','产品经理','数据分析师','后端开发工程师','技术总监','架构师','UX设计师','测试工程师','运维工程师','AI研究员','自动驾驶工程师','全栈工程师','技术经理','数据工程师']
+  var skillSets=[
+    ['Python','机器学习','PyTorch','TensorFlow','深度学习'],
+    ['React','Vue','TypeScript','Node.js','微前端'],
+    ['用户增长','数据分析','SQL','Figma','A/B测试'],
+    ['Go','Java','MySQL','Redis','Kafka'],
+    ['C++','BEV感知','CUDA','点云处理','自动驾驶'],
+    ['Java','Spring','微服务','Docker','K8s'],
+    ['Flutter','React Native','跨端','性能优化','Dart'],
+    ['NLP','Transformer','BERT','大模型','RLHF'],
+    ['Figma','Sketch','用户研究','交互设计','Design System'],
+    ['Python','Spark','Hive','数据仓库','ETL']
+  ]
+  var sources=['主动投递','猎头推荐','内部推荐','LinkedIn','Boss直聘','猎聘','脉脉']
+  var cities=['北京','上海','深圳','杭州','广州','成都','南京','武汉']
+  var edus=['本科','硕士','博士','MBA']
+
   var id=CANDIDATES.length
-  var name=names[id%names.length]
-  var c={id:id,name:name,age:25+Math.floor(Math.random()*12),company:companies[id%companies.length],title:titles[id%titles.length],
-    edu:['硕士','本科','博士'][id%3],exp:2+Math.floor(Math.random()*12),city:cities[id%cities.length],salary:50+Math.floor(Math.random()*120),
-    source:sources[id%sources.length],skills:skillSets[id%skillSets.length],tags:['AI解析入库','AI自动标签'],
-    match:55+Math.floor(Math.random()*40),risk:['low','medium','high'][id%3],status:'active',starred:false,library:'public',
+  // Use extracted name if available, otherwise pick from pool avoiding duplicates
+  var name=extractedName
+  if(!name||CANDIDATES.some(function(c){return c.name===name})){
+    name=names[id%names.length]
+  }
+  var company=extractedCompany||companies[id%companies.length]
+  var title=extractedTitle||titles[id%titles.length]
+
+  var c={id:id,name:name,age:24+Math.floor(Math.random()*15),company:company,title:title,
+    edu:edus[id%edus.length],exp:1+Math.floor(Math.random()*15),city:cities[id%cities.length],salary:40+Math.floor(Math.random()*160),
+    source:sources[id%sources.length],skills:skillSets[id%skillSets.length].slice(),tags:['AI解析入库','AI自动标签','简历上传'],
+    match:50+Math.floor(Math.random()*45),risk:['low','medium','high'][id%3],status:'active',starred:false,library:'public',
     reminderDate:new Date(Date.now()+(30+Math.floor(Math.random()*60))*86400000).toISOString().slice(0,10),
     activationHistory:[],radar:[50+Math.floor(Math.random()*40),50+Math.floor(Math.random()*40),50+Math.floor(Math.random()*40),50+Math.floor(Math.random()*40),50+Math.floor(Math.random()*40),50+Math.floor(Math.random()*40)],
-    timeline:[{year:'至今',role:titles[id%titles.length],company:companies[id%companies.length]}]}
+    timeline:[{year:'至今',role:title,company:company}]}
   return c
 }
 
