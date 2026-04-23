@@ -178,6 +178,63 @@ input{font-family:inherit}
 .batch-bar button{background:rgba(255,255,255,.2);color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;transition:var(--transition)}
 .batch-bar button:hover{background:rgba(255,255,255,.3)}
 
+/* Modal */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border-radius:var(--radius-lg);width:560px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15);animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-size:17px;font-weight:700}
+.modal-close{background:none;border:none;font-size:18px;color:var(--text3);cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.modal-close:hover{background:var(--bg);color:var(--text)}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+/* Upload Zone */
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:40px 20px;text-align:center;cursor:pointer;transition:var(--transition);background:var(--bg)}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--primary);background:var(--primary-light)}
+.upload-zone .icon{font-size:40px;margin-bottom:10px;opacity:.6}
+.upload-zone h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.upload-zone p{font-size:12px;color:var(--text2)}
+.upload-zone .formats{margin-top:10px;display:flex;gap:6px;justify-content:center}
+.upload-zone .fmt{padding:3px 10px;border-radius:6px;font-size:10px;background:var(--card);color:var(--text3);border:1px solid var(--border)}
+.upload-file-list{margin-top:14px}
+.upload-file{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:var(--radius);margin-bottom:6px}
+.upload-file .name{flex:1;font-size:12px;font-weight:500}
+.upload-file .size{font-size:11px;color:var(--text3)}
+.upload-file .remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:14px;padding:2px}
+.upload-progress{margin-top:14px;display:none}
+.upload-progress.show{display:block}
+.progress-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.progress-bar .fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--cyan));border-radius:3px;transition:width .3s ease;width:0}
+.progress-text{font-size:11px;color:var(--text2);margin-top:6px;text-align:center}
+.parse-result{margin-top:14px;display:none}
+.parse-result.show{display:block}
+
+/* Form */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{margin-bottom:0}
+.form-group.full{grid-column:1/-1}
+.form-group label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:var(--transition);font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,110,247,.1)}
+.form-group textarea{min-height:70px;resize:vertical}
+.form-group .hint{font-size:10px;color:var(--text3);margin-top:3px}
+.form-tags-input{display:flex;flex-wrap:wrap;gap:6px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);min-height:36px;cursor:text}
+.form-tags-input:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,110,247,.1)}
+.form-tags-input .tag{display:flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:11px;background:var(--primary-light);color:var(--primary)}
+.form-tags-input .tag .remove{cursor:pointer;font-size:13px;opacity:.6}
+.form-tags-input .tag .remove:hover{opacity:1}
+.form-tags-input input{border:none;background:transparent;outline:none;font-size:12px;flex:1;min-width:80px;padding:2px;color:var(--text)}
+
+/* Choice Cards */
+.choice-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+.choice-card{border:2px solid var(--border);border-radius:var(--radius-lg);padding:24px 16px;text-align:center;cursor:pointer;transition:var(--transition)}
+.choice-card:hover{border-color:var(--primary);background:var(--primary-light)}
+.choice-card .icon{font-size:36px;margin-bottom:10px}
+.choice-card h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.choice-card p{font-size:11px;color:var(--text2);line-height:1.5}
+
 /* Responsive */
 @media(max-width:1024px){
   .filter-panel{position:absolute;left:0;top:0;bottom:0;z-index:20;box-shadow:var(--shadow-lg)}
@@ -309,6 +366,149 @@ input{font-family:inherit}
   <!-- Detail Panel -->
   <div class="detail-panel" id="detail-panel">
     <div id="detail-content"></div>
+  </div>
+</div>
+
+<!-- Modal: Choose Add Method -->
+<div class="modal-overlay" id="modal-choose">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>添加候选人</h3>
+      <button class="modal-close" onclick="closeModal('modal-choose')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px">选择添加方式，AI 将自动解析并入库</p>
+      <div class="choice-cards">
+        <div class="choice-card" onclick="closeModal('modal-choose');openModal('modal-upload')">
+          <div class="icon">📄</div>
+          <h4>上传简历</h4>
+          <p>支持 PDF、Word 格式<br>AI 自动解析简历信息</p>
+        </div>
+        <div class="choice-card" onclick="closeModal('modal-choose');openModal('modal-form')">
+          <div class="icon">✏️</div>
+          <h4>手动录入</h4>
+          <p>填写候选人基本信息<br>自定义标签和备注</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Upload Resume -->
+<div class="modal-overlay" id="modal-upload">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📄 上传简历</h3>
+      <button class="modal-close" onclick="closeModal('modal-upload');resetUpload()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+        <div class="icon">📎</div>
+        <h4>点击或拖拽文件到此处</h4>
+        <p>支持 PDF、DOC、DOCX 格式，单次最多上传 5 份</p>
+        <div class="formats">
+          <span class="fmt">PDF</span>
+          <span class="fmt">DOC</span>
+          <span class="fmt">DOCX</span>
+        </div>
+        <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx" style="display:none" onchange="handleFiles(this.files)">
+      </div>
+      <div class="upload-file-list" id="upload-file-list"></div>
+      <div class="upload-progress" id="upload-progress">
+        <div class="progress-bar"><div class="fill" id="progress-fill"></div></div>
+        <div class="progress-text" id="progress-text">准备上传...</div>
+      </div>
+      <div class="parse-result" id="parse-result"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-upload');resetUpload()">取消</button>
+      <button class="btn btn-primary" id="btn-parse" onclick="parseResumes()" disabled>🤖 AI 解析并入库</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Manual Entry -->
+<div class="modal-overlay" id="modal-form">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✏️ 手动录入候选人</h3>
+      <button class="modal-close" onclick="closeModal('modal-form')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>姓名 *</label>
+          <input type="text" id="f-name" placeholder="请输入候选人姓名">
+        </div>
+        <div class="form-group">
+          <label>年龄</label>
+          <input type="number" id="f-age" placeholder="如：30" min="18" max="65">
+        </div>
+        <div class="form-group">
+          <label>当前公司 *</label>
+          <input type="text" id="f-company" placeholder="如：百度Apollo">
+        </div>
+        <div class="form-group">
+          <label>当前职位 *</label>
+          <input type="text" id="f-title" placeholder="如：高级算法工程师">
+        </div>
+        <div class="form-group">
+          <label>学历</label>
+          <select id="f-edu">
+            <option value="">请选择</option>
+            <option value="博士">博士</option>
+            <option value="硕士">硕士</option>
+            <option value="本科">本科</option>
+            <option value="大专">大专</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>工作年限</label>
+          <input type="number" id="f-exp" placeholder="如：8" min="0" max="50">
+        </div>
+        <div class="form-group">
+          <label>工作城市</label>
+          <select id="f-city">
+            <option value="">请选择</option>
+            <option value="北京">北京</option>
+            <option value="上海">上海</option>
+            <option value="深圳">深圳</option>
+            <option value="杭州">杭州</option>
+            <option value="广州">广州</option>
+            <option value="成都">成都</option>
+            <option value="南京">南京</option>
+            <option value="武汉">武汉</option>
+            <option value="旧金山">旧金山</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>薪资预期（万/年）</label>
+          <input type="number" id="f-salary" placeholder="如：120" min="0">
+        </div>
+        <div class="form-group full">
+          <label>技能标签</label>
+          <div class="form-tags-input" id="f-skills-wrap" onclick="this.querySelector('input').focus()">
+            <input type="text" id="f-skills-input" placeholder="输入技能后按回车添加" onkeydown="handleSkillInput(event)">
+          </div>
+          <div class="hint">按回车添加技能，如：React、Python、C++</div>
+        </div>
+        <div class="form-group full">
+          <label>备注标签</label>
+          <div class="form-tags-input" id="f-tags-wrap" onclick="this.querySelector('input').focus()">
+            <input type="text" id="f-tags-input" placeholder="输入标签后按回车添加" onkeydown="handleTagInput(event)">
+          </div>
+          <div class="hint">如：高潜人才、竞业观察期、来源猎头</div>
+        </div>
+        <div class="form-group full">
+          <label>备注说明</label>
+          <textarea id="f-note" placeholder="其他需要记录的信息，如推荐理由、沟通情况等"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-form')">取消</button>
+      <button class="btn btn-primary" onclick="submitManualForm()">✓ 确认添加</button>
+    </div>
   </div>
 </div>
 
@@ -670,7 +870,232 @@ function batchEmail(){showToast('已向 '+state.selected.size+' 位候选人发�
 function batchExport(){showToast('已导出 '+state.selected.size+' 位候选人数据')}
 function batchDelete(){showToast('已删除 '+state.selected.size+' 位候选人');state.selected.clear();renderList()}
 
-function showAddCandidate(){showToast('添加候选人功能（演示模式）')}
+// ===== Modal =====
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function showAddCandidate(){openModal('modal-choose')}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(function(el){
+  el.addEventListener('click',function(e){if(e.target===el){el.classList.remove('open');if(el.id==='modal-upload')resetUpload()}})
+})
+
+// ===== Upload Resume =====
+var uploadedFiles=[]
+function handleFiles(files){
+  for(var i=0;i<files.length&&uploadedFiles.length<5;i++){
+    var f=files[i]
+    var ext=f.name.split('.').pop().toLowerCase()
+    if(['pdf','doc','docx'].indexOf(ext)===-1){showToast('不支持的文件格式: '+ext);continue}
+    uploadedFiles.push(f)
+  }
+  renderFileList()
+  document.getElementById('btn-parse').disabled=uploadedFiles.length===0
+}
+
+function renderFileList(){
+  var el=document.getElementById('upload-file-list')
+  if(uploadedFiles.length===0){el.innerHTML='';return}
+  el.innerHTML=uploadedFiles.map(function(f,i){
+    var icon=f.name.endsWith('.pdf')?'📕':'📘'
+    var size=f.size>1024*1024?(f.size/1024/1024).toFixed(1)+'MB':(f.size/1024).toFixed(0)+'KB'
+    return'<div class="upload-file"><span>'+icon+'</span><span class="name">'+f.name+'</span><span class="size">'+size+'</span><button class="remove" onclick="removeFile('+i+')">✕</button></div>'
+  }).join('')
+}
+
+function removeFile(i){
+  uploadedFiles.splice(i,1)
+  renderFileList()
+  document.getElementById('btn-parse').disabled=uploadedFiles.length===0
+}
+
+function resetUpload(){
+  uploadedFiles=[]
+  renderFileList()
+  document.getElementById('btn-parse').disabled=true
+  document.getElementById('upload-progress').classList.remove('show')
+  document.getElementById('parse-result').classList.remove('show')
+  document.getElementById('parse-result').innerHTML=''
+  document.getElementById('file-input').value=''
+}
+
+// Drag & drop
+var uz=document.getElementById('upload-zone')
+if(uz){
+  uz.addEventListener('dragover',function(e){e.preventDefault();uz.classList.add('dragover')})
+  uz.addEventListener('dragleave',function(){uz.classList.remove('dragover')})
+  uz.addEventListener('drop',function(e){e.preventDefault();uz.classList.remove('dragover');handleFiles(e.dataTransfer.files)})
+}
+
+function parseResumes(){
+  if(uploadedFiles.length===0)return
+  var prog=document.getElementById('upload-progress')
+  var fill=document.getElementById('progress-fill')
+  var text=document.getElementById('progress-text')
+  var result=document.getElementById('parse-result')
+  prog.classList.add('show')
+  result.classList.remove('show')
+  document.getElementById('btn-parse').disabled=true
+
+  var steps=[
+    {pct:15,text:'上传文件中...'},
+    {pct:35,text:'OCR 文字识别...'},
+    {pct:55,text:'AI 结构化解析...'},
+    {pct:75,text:'提取关键信息...'},
+    {pct:90,text:'生成人才画像...'},
+    {pct:100,text:'解析完成！'}
+  ]
+
+  var i=0
+  var timer=setInterval(function(){
+    if(i<steps.length){
+      fill.style.width=steps[i].pct+'%'
+      text.textContent=steps[i].text+' ('+uploadedFiles.length+'份简历)'
+      i++
+    } else {
+      clearInterval(timer)
+      setTimeout(function(){
+        prog.classList.remove('show')
+        // Generate parsed candidates
+        var parsed=uploadedFiles.map(function(f,idx){
+          return generateParsedCandidate(f.name,idx)
+        })
+        // Show results
+        var html='<div style="border:1px solid var(--green);border-radius:var(--radius);padding:14px;background:var(--green-light)">'
+        html+='<h4 style="color:var(--green);font-size:13px;margin-bottom:10px">✅ 解析完成 — '+parsed.length+' 份简历已入库</h4>'
+        parsed.forEach(function(c){
+          html+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">'
+          html+='<div class="avatar" style="background:'+getAvatarColor(c.id)+';width:32px;height:32px;font-size:12px">'+c.name[0]+'</div>'
+          html+='<div style="flex:1"><div style="font-size:12px;font-weight:600">'+c.name+'</div><div style="font-size:10px;color:var(--text2)">'+c.company+' · '+c.title+'</div></div>'
+          html+='<span class="tag tag-green">已入库</span>'
+          html+='</div>'
+        })
+        html+='</div>'
+        result.innerHTML=html
+        result.classList.add('show')
+        document.getElementById('btn-parse').disabled=false
+        document.getElementById('btn-parse').textContent='✓ 完成，关闭'
+        document.getElementById('btn-parse').onclick=function(){closeModal('modal-upload');resetUpload();renderList()}
+      },500)
+    }
+  },400)
+}
+
+function generateParsedCandidate(filename,idx){
+  // Simulate AI parsing from filename
+  var names=['张伟','李娜','王磊','刘洋','陈静','赵鹏','孙丽','周杰','吴娜','郑鹏']
+  var companies=['百度','华为','字节跳动','腾讯','阿里','美团','小红书','蔚来','小马智行','Waymo']
+  var titles=['算法工程师','前端开发','产品经理','数据分析师','后端开发','技术总监','架构师','设计师']
+  var skillSets=[
+    ['Python','机器学习','PyTorch','TensorFlow'],
+    ['React','Vue','TypeScript','Node.js'],
+    ['用户增长','数据分析','Figma','SQL'],
+    ['Go','Java','MySQL','Redis'],
+    ['C++','BEV感知','无图方案','CUDA'],
+  ]
+  var cities=['北京','上海','深圳','杭州','广州']
+  var id=CANDIDATES.length+idx
+  var name=names[id%names.length]
+  var c={
+    id:id,name:name,age:28+Math.floor(Math.random()*10),
+    company:companies[id%companies.length],title:titles[id%titles.length],
+    edu:['硕士','本科','博士'][id%3],exp:3+Math.floor(Math.random()*10),
+    city:cities[id%cities.length],salary:60+Math.floor(Math.random()*100),
+    skills:skillSets[id%skillSets.length],tags:['AI解析入库','自动提取'],
+    match:50+Math.floor(Math.random()*40),risk:['low','medium','high'][id%3],
+    status:'active',starred:false,
+    radar:[50+Math.floor(Math.random()*40),50+Math.floor(Math.random()*40),50+Math.floor(Math.random()*40),50+Math.floor(Math.random()*40),50+Math.floor(Math.random()*40),50+Math.floor(Math.random()*40)],
+    timeline:[{year:'2023-至今',role:titles[id%titles.length],company:companies[id%companies.length]},{year:'2020-2023',role:'初级工程师',company:companies[id%companies.length]}]
+  }
+  CANDIDATES.push(c)
+  return c
+}
+
+// ===== Manual Form =====
+var formSkills=[],formTags=[]
+function handleSkillInput(e){
+  if(e.key==='Enter'){
+    e.preventDefault()
+    var v=e.target.value.trim()
+    if(v&&formSkills.indexOf(v)===-1){
+      formSkills.push(v)
+      renderFormTags('f-skills-wrap','f-skills-input',formSkills,function(i){formSkills.splice(i,1);renderFormTags('f-skills-wrap','f-skills-input',formSkills,arguments.callee)})
+    }
+    e.target.value=''
+  }
+}
+function handleTagInput(e){
+  if(e.key==='Enter'){
+    e.preventDefault()
+    var v=e.target.value.trim()
+    if(v&&formTags.indexOf(v)===-1){
+      formTags.push(v)
+      renderFormTags('f-tags-wrap','f-tags-input',formTags,function(i){formTags.splice(i,1);renderFormTags('f-tags-wrap','f-tags-input',formTags,arguments.callee)})
+    }
+    e.target.value=''
+  }
+}
+function renderFormTags(wrapId,inputId,arr,removeFn){
+  var wrap=document.getElementById(wrapId)
+  var input=document.getElementById(inputId)
+  // Remove old tags
+  wrap.querySelectorAll('.tag').forEach(function(t){t.remove()})
+  // Add new tags before input
+  arr.forEach(function(t,i){
+    var tag=document.createElement('span')
+    tag.className='tag'
+    tag.innerHTML=t+'<span class="remove" data-idx="'+i+'">✕</span>'
+    tag.querySelector('.remove').addEventListener('click',function(e){
+      e.stopPropagation()
+      arr.splice(parseInt(this.dataset.idx),1)
+      renderFormTags(wrapId,inputId,arr,removeFn)
+    })
+    wrap.insertBefore(tag,input)
+  })
+}
+
+function submitManualForm(){
+  var name=document.getElementById('f-name').value.trim()
+  var company=document.getElementById('f-company').value.trim()
+  var title=document.getElementById('f-title').value.trim()
+  if(!name||!company||!title){showToast('请填写姓名、公司和职位');return}
+
+  var age=parseInt(document.getElementById('f-age').value)||30
+  var edu=document.getElementById('f-edu').value||'本科'
+  var exp=parseInt(document.getElementById('f-exp').value)||5
+  var city=document.getElementById('f-city').value||'北京'
+  var salary=parseInt(document.getElementById('f-salary').value)||80
+
+  var id=CANDIDATES.length
+  var c={
+    id:id,name:name,age:age,company:company,title:title,
+    edu:edu,exp:exp,city:city,salary:salary,
+    skills:formSkills.slice(),tags:formTags.slice().concat(['手动录入']),
+    match:60+Math.floor(Math.random()*30),risk:'low',
+    status:'active',starred:false,
+    radar:[70,65,72,68,60,70],
+    timeline:[{year:'至今',role:title,company:company}]
+  }
+  CANDIDATES.push(c)
+
+  // Reset form
+  document.getElementById('f-name').value=''
+  document.getElementById('f-age').value=''
+  document.getElementById('f-company').value=''
+  document.getElementById('f-title').value=''
+  document.getElementById('f-edu').value=''
+  document.getElementById('f-exp').value=''
+  document.getElementById('f-city').value=''
+  document.getElementById('f-salary').value=''
+  document.getElementById('f-note').value=''
+  formSkills=[];formTags=[]
+  renderFormTags('f-skills-wrap','f-skills-input',formSkills,function(){})
+  renderFormTags('f-tags-wrap','f-tags-input',formTags,function(){})
+
+  closeModal('modal-form')
+  showToast('✅ '+name+' 已成功添加到人才库')
+  renderList()
+}
 
 // ===== Nav =====
 function switchNav(nav){
