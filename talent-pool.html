@@ -180,7 +180,7 @@ input,select,textarea{font-family:inherit}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* Overview / Org Chart */
-#overview-area{display:none;padding:20px;overflow-y:auto}
+#overview-area{display:none;padding:20px;overflow-y:auto;height:100%}
 #overview-area.active{display:block}
 .overview-header{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .overview-header .sub{font-size:11px;color:var(--text3);font-weight:400}
@@ -250,6 +250,7 @@ input,select,textarea{font-family:inherit}
     <div class="topbar">
       <div class="search-box"><span class="icon">🔍</span><input type="text" id="search" placeholder="搜索姓名、公司、技能、职位..."></div>
       <div class="topbar-actions">
+        <button class="btn btn-outline btn-sm" id="btn-overview">📊 总览</button>
         <button class="btn btn-outline btn-sm" id="btn-export">导出</button>
         <button class="btn btn-primary btn-sm" id="btn-add">+ 添加候选人</button>
       </div>
@@ -887,6 +888,34 @@ document.getElementById('search').addEventListener('input', function() {
 
 // Add button
 document.getElementById('btn-add').addEventListener('click', openAddModal);
+
+// Overview toggle
+document.getElementById('btn-overview').addEventListener('click', function() {
+  if (currentNav === 'overview') {
+    // Switch back to list
+    currentNav = 'all';
+    document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
+    document.querySelector('.nav-item[data-nav="all"]').classList.add('active');
+    document.getElementById('list-title').textContent = '全部人才';
+    document.getElementById('list-area').querySelector('.list-header').style.display = '';
+    document.getElementById('candidate-list').style.display = '';
+    document.getElementById('overview-area').className = '';
+    document.querySelector('.view-toggle').style.display = '';
+    renderList();
+  } else {
+    // Switch to overview
+    currentNav = 'overview';
+    document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
+    var ovNav = document.querySelector('.nav-item[data-nav="overview"]');
+    if (ovNav) ovNav.classList.add('active');
+    document.getElementById('list-title').textContent = '总览';
+    document.getElementById('list-area').querySelector('.list-header').style.display = 'none';
+    document.getElementById('candidate-list').style.display = 'none';
+    document.getElementById('overview-area').className = 'active';
+    document.querySelector('.view-toggle').style.display = 'none';
+    renderOverview();
+  }
+});
 
 // Export
 document.getElementById('btn-export').addEventListener('click', exportList);
