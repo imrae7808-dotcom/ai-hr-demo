@@ -275,20 +275,23 @@ input,select,textarea{font-family:inherit}
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== Data =====
-var nextId = 10;
-var candidates = [
-  {id:0,name:'张明',age:38,company:'百度Apollo',title:'高级技术总监',edu:'CMU博士',exp:12,city:'北京',salary:160,source:'猎头推荐',skills:['无图方案','BEV感知','C++','Python','PyTorch'],tags:['自动驾驶','感知算法','团队管理','顶会16篇'],match:92,risk:'high',status:'active',starred:false,reminderDate:'2026-05-01',activationHistory:[{time:'2026-04-10',action:'邮件触达',result:'已读未回'},{time:'2026-03-20',action:'电话沟通',result:'有意向'}],timeline:[{year:'2024-至今',role:'高级技术总监',company:'百度Apollo'},{year:'2020-2024',role:'技术总监',company:'百度Apollo'},{year:'2017-2020',role:'高级算法工程师',company:'百度'}]},
-  {id:1,name:'李华',age:35,company:'华为ADS',title:'感知算法专家',edu:'浙大硕士',exp:8,city:'深圳',salary:130,source:'主动投递',skills:['激光雷达','点云处理','C++','ROS','传感器融合'],tags:['华为ADS','感知','大疆背景'],match:71,risk:'medium',status:'active',starred:false,reminderDate:'2026-04-28',activationHistory:[{time:'2026-04-05',action:'短信触达',result:'已回复'}],timeline:[{year:'2021-至今',role:'感知算法专家',company:'华为ADS'},{year:'2019-2021',role:'算法工程师',company:'大疆'}]},
-  {id:2,name:'王芳',age:33,company:'Waymo',title:'Senior Staff Engineer',edu:'Stanford博士',exp:9,city:'旧金山',salary:200,source:'LinkedIn',skills:['LiDAR','3D Detection','TensorFlow','C++','CUDA'],tags:['Waymo','顶级技术','顶会13篇'],match:68,risk:'low',status:'active',starred:false,reminderDate:'2026-05-15',activationHistory:[],timeline:[{year:'2022-至今',role:'Senior Staff Engineer',company:'Waymo'},{year:'2019-2022',role:'Staff Engineer',company:'Waymo'}]},
-  {id:3,name:'赵磊',age:34,company:'小马智行',title:'感知Leader',edu:'清华硕士',exp:10,city:'北京',salary:140,source:'内部推荐',skills:['L4量产','BEV','多传感器融合','C++','团队管理'],tags:['L4量产','团队15人','清华'],match:85,risk:'low',status:'active',starred:true,reminderDate:'2026-04-20',activationHistory:[{time:'2026-04-15',action:'邮件触达',result:'已回复'}],timeline:[{year:'2021-至今',role:'感知Leader',company:'小马智行'},{year:'2018-2021',role:'高级算法工程师',company:'蔚来'}]},
-  {id:4,name:'陈伟',age:30,company:'蔚来',title:'算法工程师',edu:'中科大本科',exp:5,city:'上海',salary:80,source:'Boss直聘',skills:['感知算法','BEV','Python','PyTorch'],tags:['蔚来','经验较浅'],match:45,risk:'high',status:'inactive',starred:false,reminderDate:'2026-06-01',activationHistory:[],timeline:[{year:'2023-至今',role:'算法工程师',company:'蔚来'}]},
-  {id:5,name:'刘洋',age:36,company:'腾讯',title:'前端技术专家',edu:'北大硕士',exp:11,city:'深圳',salary:120,source:'猎头推荐',skills:['React','Vue','TypeScript','Node.js','微前端'],tags:['腾讯','前端架构','性能优化'],match:88,risk:'low',status:'active',starred:false,reminderDate:'2026-05-10',activationHistory:[{time:'2026-03-28',action:'微信沟通',result:'保持联系'}],timeline:[{year:'2020-至今',role:'前端技术专家',company:'腾讯'}]},
-  {id:6,name:'孙丽',age:31,company:'小红书',title:'产品经理',edu:'复旦本科',exp:7,city:'上海',salary:90,source:'猎聘',skills:['用户增长','数据分析','B端产品','Figma','SQL'],tags:['小红书','用户增长','数据驱动'],match:76,risk:'medium',status:'active',starred:false,reminderDate:'2026-04-25',activationHistory:[{time:'2026-04-01',action:'邮件触达',result:'未回复'}],timeline:[{year:'2022-至今',role:'产品经理',company:'小红书'}]},
-  {id:7,name:'周杰',age:29,company:'字节跳动',title:'后端开发工程师',edu:'华科本科',exp:5,city:'北京',salary:70,source:'主动投递',skills:['Go','Java','MySQL','Redis','Kafka'],tags:['字节','后端','高并发'],match:65,risk:'medium',status:'active',starred:false,reminderDate:'2026-05-20',activationHistory:[],timeline:[{year:'2021-至今',role:'后端开发工程师',company:'字节跳动'}]},
-  {id:8,name:'吴娜',age:27,company:'阿里',title:'数据分析师',edu:'上交硕士',exp:4,city:'杭州',salary:60,source:'脉脉',skills:['Python','SQL','Tableau','机器学习','A/B测试'],tags:['阿里','数据分析','增长'],match:72,risk:'low',status:'active',starred:false,reminderDate:'2026-05-05',activationHistory:[],timeline:[{year:'2022-至今',role:'数据分析师',company:'阿里'}]},
-  {id:9,name:'郑鹏',age:32,company:'美团',title:'前端开发工程师',edu:'北航硕士',exp:7,city:'北京',salary:85,source:'内部推荐',skills:['React','Flutter','TypeScript','跨端','性能优化'],tags:['美团','跨端','Flutter'],match:80,risk:'low',status:'active',starred:true,reminderDate:'2026-04-18',activationHistory:[{time:'2026-04-10',action:'电话沟通',result:'有意向'}],timeline:[{year:'2020-至今',role:'前端开发工程师',company:'美团'}]}
-];
+// ===== Data (persisted in localStorage) =====
+var nextId = 1;
+var candidates = [];
+
+function saveData() {
+  localStorage.setItem('hr-talent-candidates', JSON.stringify(candidates));
+  localStorage.setItem('hr-talent-nextId', nextId);
+}
+function loadData() {
+  try {
+    var raw = localStorage.getItem('hr-talent-candidates');
+    if (raw) candidates = JSON.parse(raw);
+    var nid = localStorage.getItem('hr-talent-nextId');
+    if (nid) nextId = parseInt(nid);
+  } catch(e) {}
+}
+loadData();
 
 // ===== State =====
 var viewMode = 'table';
@@ -438,6 +441,7 @@ function toggleStar(id) {
   var c = candidates.find(function(x) { return x.id === id; });
   if (!c) return;
   c.starred = !c.starred;
+  saveData();
   showToast(c.starred ? '已收藏 ' + c.name : '已取消收藏 ' + c.name);
   renderList();
 }
@@ -446,6 +450,7 @@ function toggleStatus(id) {
   var c = candidates.find(function(x) { return x.id === id; });
   if (!c) return;
   c.status = c.status === 'active' ? 'warm' : 'active';
+  saveData();
   showToast(c.name + ' 状态已更新为 ' + (c.status === 'active' ? '活跃' : '保温'));
   renderList();
 }
@@ -459,6 +464,7 @@ function recordContact(id) {
   if (!result) return;
   c.activationHistory.push({ time: today(), action: action, result: result });
   c.status = 'warm';
+  saveData();
   showToast('已记录 ' + c.name + ' 的触达：' + action);
   renderList();
   showDetail(id);
@@ -478,6 +484,7 @@ function confirmDelete() {
   if (idx !== -1) {
     var name = candidates[idx].name;
     candidates.splice(idx, 1);
+    saveData();
     showToast('已删除 ' + name);
   }
   document.getElementById('modal-delete').classList.remove('open');
@@ -588,6 +595,7 @@ function saveForm() {
       c.match = match; c.source = source;
       c.skills = formSkills.slice();
       c.tags = formTags.slice();
+      saveData();
       showToast('已更新 ' + name);
     }
   } else {
@@ -607,6 +615,7 @@ function saveForm() {
       newC.tags.push('简历: ' + pendingUploadFile.name);
       pendingUploadFile = null;
     }
+    saveData();
     showToast('已添加 ' + name);
   }
 
