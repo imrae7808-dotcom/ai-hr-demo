@@ -346,7 +346,7 @@ input,select,textarea{font-family:inherit}
   <div class="upload-progress" id="upload-progress"><div class="progress-bar"><div class="fill" id="progress-fill"></div></div><div class="progress-text" id="progress-text">准备上传...</div></div>
   <div id="parse-result"></div>
   <div class="dup-warning" id="dup-warning"></div>
-</div><div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-upload');resetUpload()">取消</button><button class="btn btn-primary" id="btn-parse" onclick="parseResumes()" disabled>🤖 AI 解析并入库</button></div></div></div>
+</div><div class="modal-footer"><button class="btn btn-outline" id="btn-upload-cancel">取消</button><button class="btn btn-primary" id="btn-parse" disabled>🤖 AI 解析并入库</button></div></div></div>
 
 <!-- Modal: Manual -->
 <div class="modal-overlay" id="modal-form"><div class="modal"><div class="modal-header"><h3>✏️ 手动录入</h3><button class="modal-close" onclick="closeModal('modal-form')">✕</button></div><div class="modal-body"><div class="form-grid">
@@ -735,6 +735,8 @@ document.querySelectorAll('.modal-overlay').forEach(function(el){el.addEventList
 
 // ===== Upload =====
 var uploadedFiles=[]
+var uploadState='idle' // idle | parsing | done
+
 function handleFiles(files){
   for(var i=0;i<files.length&&uploadedFiles.length<5;i++){var f=files[i],ext=f.name.split('.').pop().toLowerCase();if(['pdf','doc','docx'].indexOf(ext)===-1){showToast('不支持: '+ext);continue}uploadedFiles.push(f)}
   renderFileList();document.getElementById('btn-parse').disabled=!uploadedFiles.length
@@ -745,21 +747,42 @@ function renderFileList(){
   el.innerHTML=uploadedFiles.map(function(f,i){var sz=f.size>1048576?(f.size/1048576).toFixed(1)+'MB':(f.size/1024).toFixed(0)+'KB';return'<div class="upload-file"><span>'+(f.name.endsWith('.pdf')?'📕':'📘')+'</span><span class="name">'+f.name+'</span><span class="size">'+sz+'</span><button class="remove" onclick="removeFile('+i+')">✕</button></div>'}).join('')
 }
 function removeFile(i){uploadedFiles.splice(i,1);renderFileList();document.getElementById('btn-parse').disabled=!uploadedFiles.length}
-function resetUpload(){uploadedFiles=[];renderFileList();document.getElementById('btn-parse').disabled=true;document.getElementById('upload-progress').classList.remove('show');document.getElementById('parse-result').innerHTML='';document.getElementById('dup-warning').classList.remove('show');document.getElementById('file-input').value='';document.getElementById('btn-parse').textContent='🤖 AI 解析并入库';document.getElementById('btn-parse').onclick=parseResumes}
+
+function resetUpload(){
+  uploadedFiles=[];uploadState='idle'
+  renderFileList()
+  var btn=document.getElementById('btn-parse')
+  btn.disabled=true;btn.textContent='🤖 AI 解析并入库'
+  document.getElementById('upload-progress').classList.remove('show')
+  document.getElementById('parse-result').innerHTML=''
+  document.getElementById('dup-warning').classList.remove('show')
+  document.getElementById('file-input').value=''
+}
+
+// Drag & drop
 var uz=document.getElementById('upload-zone')
 if(uz){uz.addEventListener('dragover',function(e){e.preventDefault();uz.classList.add('dragover')});uz.addEventListener('dragleave',function(){uz.classList.remove('dragover')});uz.addEventListener('drop',function(e){e.preventDefault();uz.classList.remove('dragover');handleFiles(e.dataTransfer.files)})}
 
-function parseResumes(){
+// Button handlers — no inline onclick, everything via addEventListener
+document.getElementById('btn-upload-cancel').addEventListener('click',function(){closeModal('modal-upload');resetUpload()})
+document.getElementById('btn-parse').addEventListener('click',function(){
+  if(uploadState==='idle') runParse()
+  else if(uploadState==='done'){closeModal('modal-upload');resetUpload();renderList();buildFilters()}
+})
+
+function runParse(){
   if(!uploadedFiles.length)return
-  var prog=document.getElementById('upload-progress'),fill=document.getElementById('progress-fill'),text=document.getElementById('progress-text'),result=document.getElementById('parse-result'),dupEl=document.getElementById('dup-warning')
-  prog.classList.add('show');result.innerHTML='';dupEl.classList.remove('show');document.getElementById('btn-parse').disabled=true
+  uploadState='parsing'
+  var filesToParse=uploadedFiles.slice() // snapshot before resetUpload could clear it
+  var prog=document.getElementById('upload-progress'),fill=document.getElementById('progress-fill'),text=document.getElementById('progress-text'),result=document.getElementById('parse-result'),dupEl=document.getElementById('dup-warning'),btn=document.getElementById('btn-parse')
+  prog.classList.add('show');result.innerHTML='';dupEl.classList.remove('show');btn.disabled=true;btn.textContent='⏳ 解析中...'
   var steps=[{p:15,t:'上传文件...'},{p:35,t:'OCR 文字识别...'},{p:55,t:'AI 结构化解析...'},{p:75,t:'查重检测...'},{p:90,t:'AI 自动打标签...'},{p:100,t:'完成！'}]
   var i=0,ti=setInterval(function(){
-    if(i<steps.length){fill.style.width=steps[i].p+'%';text.textContent=steps[i].t+' ('+uploadedFiles.length+'份)';i++}
+    if(i<steps.length){fill.style.width=steps[i].p+'%';text.textContent=steps[i].t+' ('+filesToParse.length+'份)';i++}
     else{clearInterval(ti);setTimeout(function(){
       prog.classList.remove('show')
       var parsed=[],dups=[]
-      uploadedFiles.forEach(function(f){
+      filesToParse.forEach(function(f){
         var c=generateParsedCandidate(f.name)
         var existing=findDuplicate(c.name,c.company)
         if(existing){dups.push({new:c,existing:existing})}
@@ -777,9 +800,9 @@ function parseResumes(){
         parsed.forEach(function(c){h+='• <b>'+c.name+'</b> — '+c.company+' · '+c.title+' · 匹配度: '+c.match+'% · AI标签: '+c.tags.filter(function(t){return t.indexOf('AI')===0}).join(', ')+'<br>'})
         h+='</div>'
       }
-      result.innerHTML=h;document.getElementById('btn-parse').disabled=false
-      document.getElementById('btn-parse').textContent='✓ 完成，关闭'
-      document.getElementById('btn-parse').onclick=function(){closeModal('modal-upload');resetUpload();renderList();buildFilters()}
+      result.innerHTML=h
+      uploadState='done'
+      btn.disabled=false;btn.textContent='✓ 完成，关闭'
     },400)}
   },350)
 }
